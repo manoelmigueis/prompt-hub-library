@@ -45,9 +45,9 @@ export function InviteModal({ isOpen, onSubmit }: InviteModalProps) {
               id="invite-code"
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="XXXX-XXXX"
+              placeholder="Digite seu código"
               className="text-center text-2xl font-mono tracking-widest border-2 border-primary h-14"
-              maxLength={9}
+              maxLength={20}
             />
             {error && (
               <p className="text-destructive text-sm text-center">{error}</p>
