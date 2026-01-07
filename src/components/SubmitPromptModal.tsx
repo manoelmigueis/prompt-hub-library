@@ -6,7 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CATEGORIES, Category } from '@/types/prompt';
 import { useState } from 'react';
-import { Send, Image } from 'lucide-react';
+import { Send, Image, Link } from 'lucide-react';
+import { ImageUpload } from './ImageUpload';
+import { toast } from '@/hooks/use-toast';
 
 interface SubmitPromptModalProps {
   isOpen: boolean;
@@ -22,6 +24,8 @@ export interface SubmitPromptData {
   category: Category;
 }
 
+type ImageInputMode = 'upload' | 'url';
+
 export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptModalProps) {
   const [formData, setFormData] = useState<SubmitPromptData>({
     title: '',
@@ -30,6 +34,7 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
     imageUrl: '',
     category: 'profile',
   });
+  const [imageInputMode, setImageInputMode] = useState<ImageInputMode>('upload');
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +47,14 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
       category: 'profile',
     });
     onClose();
+  };
+
+  const handleImageUploadError = (error: string) => {
+    toast({
+      title: "Erro no upload",
+      description: error,
+      variant: "destructive",
+    });
   };
   
   return (
@@ -110,19 +123,55 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="imageUrl" className="flex items-center gap-2">
-              <Image className="w-4 h-4" />
-              URL da Imagem de Exemplo (opcional)
-            </Label>
-            <Input
-              id="imageUrl"
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              placeholder="https://exemplo.com/imagem.jpg"
-              className="border-2 border-primary"
-            />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-2">
+                <Image className="w-4 h-4" />
+                Imagem de Exemplo (opcional)
+              </Label>
+              <div className="flex gap-1 bg-muted rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => setImageInputMode('upload')}
+                  className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+                    imageInputMode === 'upload' 
+                      ? 'bg-card text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Upload
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setImageInputMode('url')}
+                  className={`px-3 py-1 text-xs font-medium rounded transition-colors flex items-center gap-1 ${
+                    imageInputMode === 'url' 
+                      ? 'bg-card text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Link className="w-3 h-3" />
+                  URL
+                </button>
+              </div>
+            </div>
+
+            {imageInputMode === 'upload' ? (
+              <ImageUpload
+                value={formData.imageUrl}
+                onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                onError={handleImageUploadError}
+              />
+            ) : (
+              <Input
+                id="imageUrl"
+                type="url"
+                value={formData.imageUrl}
+                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                placeholder="https://exemplo.com/imagem.jpg"
+                className="border-2 border-primary"
+              />
+            )}
           </div>
           
           <div className="flex gap-3 pt-4">
