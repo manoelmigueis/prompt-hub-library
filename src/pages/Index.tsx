@@ -7,18 +7,24 @@ import { PromptModal } from '@/components/PromptModal';
 import { SubmitPromptModal, SubmitPromptData } from '@/components/SubmitPromptModal';
 import { AdminPanel } from '@/components/AdminPanel';
 import { InviteModal } from '@/components/InviteModal';
+import { ProfileModal } from '@/components/ProfileModal';
 import { Category, Prompt, PromptStatus } from '@/types/prompt';
 import { mockPrompts } from '@/data/mockPrompts';
 import { toast } from 'sonner';
-
-// Simulated valid invite codes
-const VALID_CODES = ['BANANA2025', 'PROMPT-VIP', 'CREATOR01'];
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Index() {
-  // Auth state
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(true);
+  const { 
+    isAuthenticated, 
+    isAdmin, 
+    isModerator,
+    profile,
+    loading,
+    signIn,
+    signUp,
+    signOut,
+    updateProfile
+  } = useAuth();
   
   // Data state
   const [prompts, setPrompts] = useState<Prompt[]>(mockPrompts);
@@ -30,19 +36,11 @@ export default function Index() {
   const [showPromptModal, setShowPromptModal] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   
   // Admin settings
   const [autoApprove, setAutoApprove] = useState(false);
-  const [inviteCodes, setInviteCodes] = useState<string[]>([...VALID_CODES]);
-  
-  // Check for invite code in URL
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const inviteCode = params.get('invite');
-    if (inviteCode && VALID_CODES.includes(inviteCode.toUpperCase())) {
-      handleInviteSubmit(inviteCode.toUpperCase());
-    }
-  }, []);
+  const [inviteCodes, setInviteCodes] = useState<string[]>([]);
   
   // Filter prompts
   const filteredPrompts = useMemo(() => {
@@ -58,24 +56,24 @@ export default function Index() {
   }, [prompts, selectedCategory, searchQuery]);
   
   // Handlers
-  const handleInviteSubmit = (code: string) => {
-    if (VALID_CODES.includes(code) || inviteCodes.includes(code)) {
-      setIsAuthenticated(true);
-      setIsAdmin(code === 'BANANA2025'); // First code is admin
-      setShowInviteModal(false);
-      toast.success('Bem-vindo ao PromptHub! 🍌');
-      // Clean URL
-      window.history.replaceState({}, '', window.location.pathname);
-    } else {
-      toast.error('Código de convite inválido');
+  const handleLogin = async (email: string, password: string) => {
+    const result = await signIn(email, password);
+    if (!result.error) {
+      toast.success('Bem-vindo ao Ensaios Impossíveis! 🎨');
     }
+    return result;
+  };
+
+  const handleSignUp = async (email: string, password: string, displayName: string, inviteCode: string) => {
+    const result = await signUp(email, password, displayName, inviteCode);
+    if (!result.error) {
+      toast.success('Conta criada com sucesso! 🎉');
+    }
+    return result;
   };
   
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    setIsAdmin(false);
-    setShowInviteModal(true);
-    toast.info('Você saiu da plataforma');
+    signOut();
   };
   
   const handlePromptClick = (prompt: Prompt) => {
@@ -87,8 +85,8 @@ export default function Index() {
     const newPrompt: Prompt = {
       id: Date.now().toString(),
       ...data,
-      author: 'Você',
-      authorHandle: '@voce',
+      author: profile?.display_name || 'Anônimo',
+      authorHandle: profile?.instagram ? `@${profile.instagram}` : undefined,
       status: autoApprove ? 'approved' : 'pending',
       isFeatured: false,
       createdAt: new Date(),
@@ -98,8 +96,8 @@ export default function Index() {
     setPrompts(prev => [newPrompt, ...prev]);
     toast.success(
       autoApprove 
-        ? 'Prompt publicado com sucesso!' 
-        : 'Prompt enviado para revisão!'
+        ? 'Ensaio publicado com sucesso!' 
+        : 'Ensaio enviado para revisão!'
     );
   };
   
@@ -107,7 +105,7 @@ export default function Index() {
     setPrompts(prev => prev.map(p => 
       p.id === id ? { ...p, status, updatedAt: new Date() } : p
     ));
-    toast.success(status === 'approved' ? 'Prompt aprovado!' : 'Prompt rejeitado');
+    toast.success(status === 'approved' ? 'Ensaio aprovado!' : 'Ensaio rejeitado');
   };
   
   const handleToggleFeatured = (id: string) => {
@@ -115,15 +113,16 @@ export default function Index() {
       p.id === id ? { ...p, isFeatured: !p.isFeatured } : p
     ));
   };
+
+  const handleDeletePrompt = (id: string) => {
+    setPrompts(prev => prev.filter(p => p.id !== id));
+    toast.success('Ensaio excluído');
+  };
   
   const handleGenerateCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let code = '';
-    for (let i = 0; i < 4; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    code += '-';
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 8; i++) {
       code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     setInviteCodes(prev => [...prev, code]);
@@ -134,13 +133,23 @@ export default function Index() {
     setInviteCodes(prev => prev.filter(c => c !== code));
     toast.success('Código removido');
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
+      </div>
+    );
+  }
   
   return (
-    <div className="min-h-screen">
-      {/* Invite Modal */}
+    <div className="min-h-screen bg-background">
+      {/* Invite/Login Modal */}
       <InviteModal 
-        isOpen={showInviteModal}
-        onSubmit={handleInviteSubmit}
+        isOpen={!isAuthenticated}
+        onLogin={handleLogin}
+        onSignUp={handleSignUp}
+        loading={loading}
       />
       
       {/* Main Content */}
@@ -148,9 +157,13 @@ export default function Index() {
         <>
           <Header 
             isAdmin={isAdmin}
+            isModerator={isModerator}
             isAuthenticated={isAuthenticated}
+            displayName={profile?.display_name || undefined}
+            avatarUrl={profile?.avatar_url || undefined}
             onAdminClick={() => setShowAdminPanel(true)}
             onSubmitClick={() => setShowSubmitModal(true)}
+            onProfileClick={() => setShowProfileModal(true)}
             onLogout={handleLogout}
           />
           
@@ -187,6 +200,13 @@ export default function Index() {
             onClose={() => setShowSubmitModal(false)}
             onSubmit={handleSubmitPrompt}
           />
+
+          <ProfileModal
+            isOpen={showProfileModal}
+            onClose={() => setShowProfileModal(false)}
+            profile={profile}
+            onSave={updateProfile}
+          />
           
           <AdminPanel 
             isOpen={showAdminPanel}
@@ -194,6 +214,7 @@ export default function Index() {
             prompts={prompts}
             onUpdateStatus={handleUpdateStatus}
             onToggleFeatured={handleToggleFeatured}
+            onDeletePrompt={handleDeletePrompt}
             autoApprove={autoApprove}
             onToggleAutoApprove={setAutoApprove}
             inviteCodes={inviteCodes}

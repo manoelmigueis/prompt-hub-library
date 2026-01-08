@@ -14,8 +14,91 @@ export type Database = {
   }
   public: {
     Tables: {
+      invite_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          current_uses: number | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          used_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          instagram: string | null
+          invite_code_used: string | null
+          status: Database["public"]["Enums"]["user_status"]
+          tiktok: string | null
+          twitter: string | null
+          updated_at: string
+          website: string | null
+          youtube: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          instagram?: string | null
+          invite_code_used?: string | null
+          status?: Database["public"]["Enums"]["user_status"]
+          tiktok?: string | null
+          twitter?: string | null
+          updated_at?: string
+          website?: string | null
+          youtube?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          instagram?: string | null
+          invite_code_used?: string | null
+          status?: Database["public"]["Enums"]["user_status"]
+          tiktok?: string | null
+          twitter?: string | null
+          updated_at?: string
+          website?: string | null
+          youtube?: string | null
+        }
+        Relationships: []
+      }
       prompts: {
         Row: {
+          author_instagram: string | null
+          author_name: string | null
           category: string
           content: string
           created_at: string
@@ -28,6 +111,8 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          author_instagram?: string | null
+          author_name?: string | null
           category?: string
           content: string
           created_at?: string
@@ -40,6 +125,8 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          author_instagram?: string | null
+          author_name?: string | null
           category?: string
           content?: string
           created_at?: string
@@ -53,15 +140,53 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_status: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["user_status"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin_or_moderator: { Args: { _user_id: string }; Returns: boolean }
+      use_invite_code: {
+        Args: { _code: string; _user_id: string }
+        Returns: boolean
+      }
+      validate_invite_code: { Args: { _code: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      user_status: "active" | "banned" | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -188,6 +313,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      user_status: ["active", "banned", "suspended"],
+    },
   },
 } as const
