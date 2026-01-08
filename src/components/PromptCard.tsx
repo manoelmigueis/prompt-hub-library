@@ -1,5 +1,5 @@
 import { Prompt } from '@/types/prompt';
-import { Check, Copy, ExternalLink } from 'lucide-react';
+import { Check, Copy, ExternalLink, Instagram } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -32,23 +32,26 @@ export function PromptCard({ prompt, onClick }: PromptCardProps) {
       onClick={onClick}
     >
       {/* Image */}
-      <div className="relative aspect-video overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden">
         {prompt.imageUrl ? (
           <img 
             src={prompt.imageUrl} 
             alt={prompt.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
-          <div className="w-full h-full bg-muted flex items-center justify-center">
-            <span className="text-4xl">🍌</span>
+          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+            <span className="text-6xl opacity-50">📷</span>
           </div>
         )}
+        
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         {/* Featured Badge */}
         {prompt.isFeatured && (
           <div className="absolute top-3 right-3 badge-featured">
-            EM DESTAQUE
+            ⭐ DESTAQUE
           </div>
         )}
         
@@ -58,49 +61,55 @@ export function PromptCard({ prompt, onClick }: PromptCardProps) {
             PENDENTE
           </div>
         )}
+        
+        {/* Hover actions */}
+        <div className="absolute bottom-3 left-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            className="flex-1 gap-2 bg-white/90 text-foreground hover:bg-white"
+            onClick={handleCopy}
+          >
+            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            {copied ? 'Copiado!' : 'Copiar Prompt'}
+          </Button>
+          <Button variant="secondary" size="icon" className="h-8 w-8 bg-white/90 hover:bg-white">
+            <ExternalLink className="w-3 h-3 text-foreground" />
+          </Button>
+        </div>
       </div>
       
       {/* Content */}
       <div className="p-4">
-        {/* Tags Row */}
-        <div className="flex items-center gap-2 mb-3">
-          <span className="bg-primary text-primary-foreground text-xs font-bold px-2 py-1 uppercase">
-            Prompt
-          </span>
-          <span className="border border-primary text-xs font-semibold px-2 py-1 flex items-center gap-1">
-            <Check className="w-3 h-3" />
-            Original
-          </span>
-        </div>
-        
         {/* Author & Date */}
         <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
-          <span>
-            POR <a href="#" className="text-foreground font-semibold hover:underline">{prompt.authorHandle || prompt.author}</a>
-          </span>
-          <span className="font-mono text-xs">{formatDate(prompt.createdAt)}</span>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-foreground">{prompt.author}</span>
+            {prompt.authorHandle && (
+              <a 
+                href={`https://instagram.com/${prompt.authorHandle.replace('@', '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-primary hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Instagram className="w-3 h-3" />
+                {prompt.authorHandle}
+              </a>
+            )}
+          </div>
+          <span className="text-xs">{formatDate(prompt.createdAt)}</span>
         </div>
         
         {/* Title */}
-        <h3 className="font-display font-bold text-lg leading-tight mb-3 group-hover:text-coral-dark transition-colors">
-          {prompt.title}
+        <h3 className="font-display text-xl tracking-wide leading-tight group-hover:text-primary transition-colors">
+          {prompt.title.toUpperCase()}
         </h3>
         
-        {/* Actions */}
-        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex-1 gap-2"
-            onClick={handleCopy}
-          >
-            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-            {copied ? 'Copiado!' : 'Copiar'}
-          </Button>
-          <Button variant="outline" size="icon" className="h-8 w-8">
-            <ExternalLink className="w-3 h-3" />
-          </Button>
-        </div>
+        {/* Description */}
+        <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+          {prompt.description}
+        </p>
       </div>
     </article>
   );

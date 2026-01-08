@@ -1,5 +1,6 @@
 import { Prompt } from '@/types/prompt';
 import { PromptCard } from './PromptCard';
+import { Camera } from 'lucide-react';
 
 interface PromptGridProps {
   prompts: Prompt[];
@@ -9,10 +10,12 @@ interface PromptGridProps {
 export function PromptGrid({ prompts, onPromptClick }: PromptGridProps) {
   if (prompts.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <div className="text-6xl mb-4">🍌</div>
-        <h3 className="font-display text-2xl font-bold mb-2">Nenhum prompt encontrado</h3>
-        <p className="text-muted-foreground">Tente ajustar seus filtros ou busca</p>
+      <div className="container mx-auto px-4 py-20 text-center">
+        <div className="glass-card max-w-md mx-auto p-12">
+          <Camera className="w-16 h-16 mx-auto mb-4 text-primary/50" />
+          <h3 className="font-display text-2xl tracking-wider mb-2">NENHUM ENSAIO</h3>
+          <p className="text-muted-foreground">Tente ajustar seus filtros ou busca</p>
+        </div>
       </div>
     );
   }
