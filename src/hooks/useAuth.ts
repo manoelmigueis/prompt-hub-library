@@ -114,17 +114,8 @@ export function useAuth() {
     });
 
     if (!error && data.user) {
-      // Use the invite code
+      // Use the invite code - admin role assignment is handled server-side via database trigger
       await supabase.rpc('use_invite_code', { _code: inviteCode, _user_id: data.user.id });
-      
-      // Check if this is the special admin code
-      if (inviteCode.toLowerCase() === 'impossivelpro') {
-        // Grant admin role
-        await supabase.from('user_roles').insert({
-          user_id: data.user.id,
-          role: 'admin'
-        });
-      }
     }
 
     return { data, error };

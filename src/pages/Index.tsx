@@ -214,7 +214,6 @@ export default function Index() {
             prompts={prompts}
             onUpdateStatus={handleUpdateStatus}
             onToggleFeatured={handleToggleFeatured}
-            onDeletePrompt={handleDeletePrompt}
             autoApprove={autoApprove}
             onToggleAutoApprove={setAutoApprove}
             inviteCodes={inviteCodes}
