@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { HeroSection } from '@/components/HeroSection';
 import { CategoryFilter } from '@/components/CategoryFilter';
@@ -9,9 +9,10 @@ import { AdminPanel } from '@/components/AdminPanel';
 import { InviteModal } from '@/components/InviteModal';
 import { ProfileModal } from '@/components/ProfileModal';
 import { Category, Prompt, PromptStatus } from '@/types/prompt';
-import { mockPrompts } from '@/data/mockPrompts';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { usePrompts } from '@/hooks/usePrompts';
+import { useInviteCodes } from '@/hooks/useInviteCodes';
 
 export default function Index() {
   const { 
@@ -19,15 +20,30 @@ export default function Index() {
     isAdmin, 
     isModerator,
     profile,
-    loading,
+    user,
+    loading: authLoading,
     signIn,
     signUp,
     signOut,
     updateProfile
   } = useAuth();
+
+  const {
+    prompts,
+    loading: promptsLoading,
+    createPrompt,
+    updatePromptStatus,
+    toggleFeatured,
+    deletePrompt,
+  } = usePrompts(user?.id, isAdmin);
+
+  const {
+    inviteCodes,
+    generateCode,
+    deleteCode,
+  } = useInviteCodes();
   
-  // Data state
-  const [prompts, setPrompts] = useState<Prompt[]>(mockPrompts);
+  // UI state
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
@@ -38,9 +54,8 @@ export default function Index() {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   
-  // Admin settings
+  // Admin settings (local)
   const [autoApprove, setAutoApprove] = useState(false);
-  const [inviteCodes, setInviteCodes] = useState<string[]>([]);
   
   // Filter prompts
   const filteredPrompts = useMemo(() => {
@@ -81,58 +96,46 @@ export default function Index() {
     setShowPromptModal(true);
   };
   
-  const handleSubmitPrompt = (data: SubmitPromptData) => {
-    const newPrompt: Prompt = {
-      id: Date.now().toString(),
-      ...data,
-      author: profile?.display_name || 'Anônimo',
-      authorHandle: profile?.instagram ? `@${profile.instagram}` : undefined,
-      status: autoApprove ? 'approved' : 'pending',
-      isFeatured: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    
-    setPrompts(prev => [newPrompt, ...prev]);
-    toast.success(
-      autoApprove 
-        ? 'Ensaio publicado com sucesso!' 
-        : 'Ensaio enviado para revisão!'
-    );
+  const handleSubmitPrompt = async (data: SubmitPromptData) => {
+    const result = await createPrompt(data, profile);
+    if (result) {
+      toast.success('Ensaio enviado para revisão!');
+      setShowSubmitModal(false);
+    }
   };
   
-  const handleUpdateStatus = (id: string, status: PromptStatus) => {
-    setPrompts(prev => prev.map(p => 
-      p.id === id ? { ...p, status, updatedAt: new Date() } : p
-    ));
-    toast.success(status === 'approved' ? 'Ensaio aprovado!' : 'Ensaio rejeitado');
+  const handleUpdateStatus = async (id: string, status: PromptStatus) => {
+    const success = await updatePromptStatus(id, status);
+    if (success) {
+      toast.success(status === 'approved' ? 'Ensaio aprovado!' : 'Ensaio rejeitado');
+    }
   };
   
-  const handleToggleFeatured = (id: string) => {
-    setPrompts(prev => prev.map(p =>
-      p.id === id ? { ...p, isFeatured: !p.isFeatured } : p
-    ));
+  const handleToggleFeatured = async (id: string) => {
+    await toggleFeatured(id);
   };
 
-  const handleDeletePrompt = (id: string) => {
-    setPrompts(prev => prev.filter(p => p.id !== id));
-    toast.success('Ensaio excluído');
-  };
-  
-  const handleGenerateCode = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < 8; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
+  const handleDeletePrompt = async (id: string) => {
+    const success = await deletePrompt(id);
+    if (success) {
+      toast.success('Ensaio excluído');
     }
-    setInviteCodes(prev => [...prev, code]);
-    toast.success('Novo código gerado!');
   };
   
-  const handleDeleteCode = (code: string) => {
-    setInviteCodes(prev => prev.filter(c => c !== code));
-    toast.success('Código removido');
+  const handleGenerateCode = async () => {
+    if (user?.id) {
+      await generateCode(user.id);
+    }
   };
+  
+  const handleDeleteCode = async (code: string) => {
+    const codeObj = inviteCodes.find(c => c.code === code);
+    if (codeObj) {
+      await deleteCode(codeObj.id);
+    }
+  };
+
+  const loading = authLoading || promptsLoading;
 
   if (loading) {
     return (
@@ -149,7 +152,7 @@ export default function Index() {
         isOpen={!isAuthenticated}
         onLogin={handleLogin}
         onSignUp={handleSignUp}
-        loading={loading}
+        loading={authLoading}
       />
       
       {/* Main Content */}
@@ -216,7 +219,7 @@ export default function Index() {
             onToggleFeatured={handleToggleFeatured}
             autoApprove={autoApprove}
             onToggleAutoApprove={setAutoApprove}
-            inviteCodes={inviteCodes}
+            inviteCodes={inviteCodes.map(c => c.code)}
             onGenerateCode={handleGenerateCode}
             onDeleteCode={handleDeleteCode}
           />
