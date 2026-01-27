@@ -28,9 +28,9 @@ export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
       return;
     }
 
-    // Validate file size (5MB - matches bucket limit)
-    if (file.size > 5 * 1024 * 1024) {
-      onError?.("Arquivo muito grande. O tamanho máximo é 5MB.");
+    // Validate file size (20MB - matches bucket limit)
+    if (file.size > 20 * 1024 * 1024) {
+      onError?.("Arquivo muito grande. O tamanho máximo é 20MB.");
       return;
     }
 
@@ -174,7 +174,7 @@ export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
                     Arraste uma imagem ou clique para selecionar
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    JPG, PNG, WebP ou GIF • Máximo 5MB
+                    JPG, PNG, WebP ou GIF • Máximo 20MB
                   </p>
                 </div>
                 <Button type="button" variant="outline" size="sm" className="gap-2">
