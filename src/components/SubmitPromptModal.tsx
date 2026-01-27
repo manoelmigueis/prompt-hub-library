@@ -163,14 +163,32 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
                 onError={handleImageUploadError}
               />
             ) : (
-              <Input
-                id="imageUrl"
-                type="url"
-                value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                placeholder="https://exemplo.com/imagem.jpg"
-                className="border-2 border-primary"
-              />
+              <div className="space-y-3">
+                <Input
+                  id="imageUrl"
+                  type="url"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  placeholder="https://exemplo.com/imagem.jpg"
+                  className="border-2 border-primary"
+                />
+                {formData.imageUrl && (
+                  <div className="relative rounded-lg overflow-hidden border-2 border-primary">
+                    <img
+                      src={formData.imageUrl}
+                      alt="Preview"
+                      className="w-full h-48 object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        handleImageUploadError("Não foi possível carregar a imagem. Verifique a URL.");
+                      }}
+                      onLoad={(e) => {
+                        e.currentTarget.style.display = 'block';
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
             )}
           </div>
           

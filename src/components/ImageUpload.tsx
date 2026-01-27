@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,11 @@ export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Sync preview with external value changes
+  useEffect(() => {
+    setPreview(value || null);
+  }, [value]);
+
   const handleFile = async (file: File) => {
     // Validate file type
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -23,9 +28,9 @@ export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
       return;
     }
 
-    // Validate file size (20MB)
-    if (file.size > 20 * 1024 * 1024) {
-      onError?.("Arquivo muito grande. O tamanho máximo é 20MB.");
+    // Validate file size (5MB - matches bucket limit)
+    if (file.size > 5 * 1024 * 1024) {
+      onError?.("Arquivo muito grande. O tamanho máximo é 5MB.");
       return;
     }
 
@@ -169,7 +174,7 @@ export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
                     Arraste uma imagem ou clique para selecionar
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    JPG, PNG, WebP ou GIF • Máximo 20MB
+                    JPG, PNG, WebP ou GIF • Máximo 5MB
                   </p>
                 </div>
                 <Button type="button" variant="outline" size="sm" className="gap-2">
