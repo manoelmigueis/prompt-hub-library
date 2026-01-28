@@ -14,6 +14,7 @@ interface AdminPanelProps {
   prompts: Prompt[];
   onUpdateStatus: (id: string, status: PromptStatus) => void;
   onToggleFeatured: (id: string) => void;
+  onDeletePrompt: (id: string) => void;
   autoApprove: boolean;
   onToggleAutoApprove: (value: boolean) => void;
   inviteCodes: string[];
@@ -27,6 +28,7 @@ export function AdminPanel({
   prompts,
   onUpdateStatus,
   onToggleFeatured,
+  onDeletePrompt,
   autoApprove,
   onToggleAutoApprove,
   inviteCodes,
@@ -95,6 +97,7 @@ export function AdminPanel({
                   onApprove={() => onUpdateStatus(prompt.id, 'approved')}
                   onReject={() => onUpdateStatus(prompt.id, 'rejected')}
                   onToggleFeatured={() => onToggleFeatured(prompt.id)}
+                  onDelete={() => onDeletePrompt(prompt.id)}
                 />
               ))
             )}
@@ -109,6 +112,7 @@ export function AdminPanel({
                 onApprove={() => {}}
                 onReject={() => onUpdateStatus(prompt.id, 'rejected')}
                 onToggleFeatured={() => onToggleFeatured(prompt.id)}
+                onDelete={() => onDeletePrompt(prompt.id)}
                 showApprove={false}
               />
             ))}
@@ -123,6 +127,7 @@ export function AdminPanel({
                 onApprove={() => onUpdateStatus(prompt.id, 'approved')}
                 onReject={() => {}}
                 onToggleFeatured={() => onToggleFeatured(prompt.id)}
+                onDelete={() => onDeletePrompt(prompt.id)}
                 showReject={false}
               />
             ))}
@@ -208,6 +213,7 @@ interface AdminPromptCardProps {
   onApprove: () => void;
   onReject: () => void;
   onToggleFeatured: () => void;
+  onDelete: () => void;
   showApprove?: boolean;
   showReject?: boolean;
 }
@@ -217,6 +223,7 @@ function AdminPromptCard({
   onApprove, 
   onReject, 
   onToggleFeatured,
+  onDelete,
   showApprove = true,
   showReject = true,
 }: AdminPromptCardProps) {
@@ -231,40 +238,44 @@ function AdminPromptCard({
       )}
       
       <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h4 className="font-display font-bold text-lg truncate">{prompt.title}</h4>
-            <p className="text-sm text-muted-foreground">por {prompt.author}</p>
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h4 className="font-display font-bold text-lg truncate">{prompt.title}</h4>
+              <p className="text-sm text-muted-foreground">por {prompt.author}</p>
+            </div>
+            
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant={prompt.isFeatured ? 'secondary' : 'outline'}
+                size="sm"
+                onClick={onToggleFeatured}
+                className="gap-1"
+              >
+                <Star className={`w-4 h-4 ${prompt.isFeatured ? 'fill-current' : ''}`} />
+              </Button>
+              
+              {showApprove && (
+                <Button variant="success" size="sm" onClick={onApprove} className="gap-1">
+                  <Check className="w-4 h-4" />
+                  Aprovar
+                </Button>
+              )}
+              
+              {showReject && (
+                <Button variant="destructive" size="sm" onClick={onReject} className="gap-1">
+                  <X className="w-4 h-4" />
+                  Rejeitar
+                </Button>
+              )}
+
+              <Button variant="destructive" size="sm" onClick={onDelete} className="gap-1">
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
           
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant={prompt.isFeatured ? 'secondary' : 'outline'}
-              size="sm"
-              onClick={onToggleFeatured}
-              className="gap-1"
-            >
-              <Star className={`w-4 h-4 ${prompt.isFeatured ? 'fill-current' : ''}`} />
-            </Button>
-            
-            {showApprove && (
-              <Button variant="success" size="sm" onClick={onApprove} className="gap-1">
-                <Check className="w-4 h-4" />
-                Aprovar
-              </Button>
-            )}
-            
-            {showReject && (
-              <Button variant="destructive" size="sm" onClick={onReject} className="gap-1">
-                <X className="w-4 h-4" />
-                Rejeitar
-              </Button>
-            )}
-          </div>
+          <p className="text-sm mt-2 line-clamp-2">{prompt.description}</p>
         </div>
-        
-        <p className="text-sm mt-2 line-clamp-2">{prompt.description}</p>
       </div>
-    </div>
-  );
-}
+    );
+  }

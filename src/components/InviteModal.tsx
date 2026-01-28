@@ -14,6 +14,9 @@ interface InviteModalProps {
   loading?: boolean;
 }
 
+// Admin email that doesn't require invite code
+const ADMIN_EMAIL = 'juniorthemaster88@gmail.com';
+
 export function InviteModal({ isOpen, onLogin, onSignUp, loading }: InviteModalProps) {
   const [tab, setTab] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
@@ -22,6 +25,9 @@ export function InviteModal({ isOpen, onLogin, onSignUp, loading }: InviteModalP
   const [inviteCode, setInviteCode] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check if current email is admin
+  const isAdminEmail = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +47,8 @@ export function InviteModal({ isOpen, onLogin, onSignUp, loading }: InviteModalP
   
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !displayName || !inviteCode) {
+    // Admin doesn't need invite code
+    if (!email || !password || !displayName || (!isAdminEmail && !inviteCode)) {
       setError('Preencha todos os campos');
       return;
     }
@@ -179,19 +186,30 @@ export function InviteModal({ isOpen, onLogin, onSignUp, loading }: InviteModalP
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="invite-code" className="flex items-center gap-2">
-                  <Key className="w-4 h-4" />
-                  Código de Convite
-                </Label>
-                <Input
-                  id="invite-code"
-                  value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value)}
-                  placeholder="Digite seu código"
-                  className="h-12 rounded-xl font-mono tracking-wider"
-                />
-              </div>
+              {/* Only show invite code field for non-admin emails */}
+              {!isAdminEmail && (
+                <div className="space-y-2">
+                  <Label htmlFor="invite-code" className="flex items-center gap-2">
+                    <Key className="w-4 h-4" />
+                    Código de Convite
+                  </Label>
+                  <Input
+                    id="invite-code"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    placeholder="Digite seu código"
+                    className="h-12 rounded-xl font-mono tracking-wider"
+                  />
+                </div>
+              )}
+
+              {isAdminEmail && (
+                <div className="bg-primary/10 border border-primary/30 rounded-xl p-3 text-center">
+                  <p className="text-sm text-primary font-medium">
+                    ✨ Acesso administrativo detectado
+                  </p>
+                </div>
+              )}
               
               {error && (
                 <p className="text-destructive text-sm text-center bg-destructive/10 p-2 rounded-lg">{error}</p>
@@ -206,9 +224,11 @@ export function InviteModal({ isOpen, onLogin, onSignUp, loading }: InviteModalP
                 <ArrowRight className="w-4 h-4" />
               </Button>
               
-              <p className="text-center text-sm text-muted-foreground">
-                Não tem um código? Solicite ao administrador.
-              </p>
+              {!isAdminEmail && (
+                <p className="text-center text-sm text-muted-foreground">
+                  Não tem um código? Solicite ao administrador.
+                </p>
+              )}
             </form>
           </TabsContent>
         </Tabs>

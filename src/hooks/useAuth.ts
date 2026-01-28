@@ -92,12 +92,19 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, [fetchUserData]);
 
+  // Admin email that doesn't require invite code
+  const ADMIN_EMAIL = 'juniorthemaster88@gmail.com';
+
   const signUp = async (email: string, password: string, displayName: string, inviteCode: string) => {
-    // Validate invite code first
-    const { data: isValid } = await supabase.rpc('validate_invite_code', { _code: inviteCode });
+    const isAdminEmail = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
     
-    if (!isValid) {
-      return { error: { message: 'Código de convite inválido ou expirado' } };
+    // Skip invite code validation for admin email
+    if (!isAdminEmail) {
+      const { data: isValid } = await supabase.rpc('validate_invite_code', { _code: inviteCode });
+      
+      if (!isValid) {
+        return { error: { message: 'Código de convite inválido ou expirado' } };
+      }
     }
 
     const redirectUrl = `${window.location.origin}/`;
@@ -114,8 +121,13 @@ export function useAuth() {
     });
 
     if (!error && data.user) {
-      // Use the invite code - admin role assignment is handled server-side via database trigger
-      await supabase.rpc('use_invite_code', { _code: inviteCode, _user_id: data.user.id });
+      if (isAdminEmail) {
+        // Admin email gets admin role directly - handled via database
+        // We'll create a special system invite code usage for tracking
+      } else {
+        // Use the invite code - admin role assignment is handled server-side via database trigger
+        await supabase.rpc('use_invite_code', { _code: inviteCode, _user_id: data.user.id });
+      }
     }
 
     return { data, error };
