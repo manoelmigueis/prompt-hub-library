@@ -1,7 +1,8 @@
 import { Prompt } from '@/types/prompt';
-import { Check, Copy, ExternalLink, Instagram } from 'lucide-react';
+import { Check, Copy, ExternalLink, Instagram, Globe, Youtube, Send } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -16,6 +17,20 @@ export function PromptCard({ prompt, onClick }: PromptCardProps) {
     navigator.clipboard.writeText(prompt.content);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (navigator.share) {
+      navigator.share({
+        title: prompt.title,
+        text: `Confira este prompt incrível: ${prompt.title}`,
+        url: window.location.href,
+      });
+    } else {
+      // Fallback: copy URL
+      navigator.clipboard.writeText(window.location.href);
+    }
   };
   
   const formatDate = (date: Date) => {
@@ -37,7 +52,9 @@ export function PromptCard({ prompt, onClick }: PromptCardProps) {
           <img 
             src={prompt.imageUrl} 
             alt={prompt.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 pointer-events-none select-none"
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
@@ -73,9 +90,19 @@ export function PromptCard({ prompt, onClick }: PromptCardProps) {
             {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
             {copied ? 'Copiado!' : 'Copiar Prompt'}
           </Button>
-          <Button variant="secondary" size="icon" className="h-8 w-8 bg-white/90 hover:bg-white">
-            <ExternalLink className="w-3 h-3 text-foreground" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="secondary" 
+                size="icon" 
+                className="h-8 w-8 bg-white/90 hover:bg-white"
+                onClick={handleShare}
+              >
+                <Send className="w-3 h-3 text-foreground" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Compartilhar</TooltipContent>
+          </Tooltip>
         </div>
       </div>
       
