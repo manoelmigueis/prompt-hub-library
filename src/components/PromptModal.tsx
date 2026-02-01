@@ -1,8 +1,9 @@
 import { Prompt } from '@/types/prompt';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Copy, Check, ExternalLink, X } from 'lucide-react';
+import { Copy, Check, Instagram, Globe, Youtube, Send } from 'lucide-react';
 import { useState } from 'react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PromptModalProps {
   prompt: Prompt | null;
@@ -20,6 +21,18 @@ export function PromptModal({ prompt, isOpen, onClose }: PromptModalProps) {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: prompt.title,
+        text: `Confira este prompt incrível: ${prompt.title}`,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+    }
+  };
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -35,7 +48,9 @@ export function PromptModal({ prompt, isOpen, onClose }: PromptModalProps) {
               <img 
                 src={prompt.imageUrl} 
                 alt={prompt.title}
-                className="w-full h-auto"
+                className="w-full h-auto pointer-events-none select-none"
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
               />
             </div>
           )}
@@ -52,6 +67,21 @@ export function PromptModal({ prompt, isOpen, onClose }: PromptModalProps) {
               por <strong className="text-foreground">{prompt.author}</strong>
             </span>
           </div>
+
+          {/* Author Social Links */}
+          {prompt.authorHandle && (
+            <div className="flex flex-wrap gap-2">
+              <a 
+                href={`https://instagram.com/${prompt.authorHandle.replace('@', '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm rounded-full hover:opacity-90 transition-opacity"
+              >
+                <Instagram className="w-4 h-4" />
+                {prompt.authorHandle}
+              </a>
+            </div>
+          )}
           
           {/* Description */}
           <p className="text-muted-foreground">{prompt.description}</p>
@@ -77,13 +107,26 @@ export function PromptModal({ prompt, isOpen, onClose }: PromptModalProps) {
           
           {/* Actions */}
           <div className="flex gap-3">
-            <Button variant="generate" className="flex-1">
-              Usar Este Prompt
+            <Button 
+              variant="generate" 
+              className="flex-1"
+              onClick={handleCopy}
+            >
+              {copied ? 'Copiado!' : 'Copiar Este Prompt'}
             </Button>
-            <Button variant="outline" className="gap-2">
-              <ExternalLink className="w-4 h-4" />
-              Ver Original
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={handleShare}
+                >
+                  <Send className="w-4 h-4" />
+                  Compartilhar
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Compartilhar prompt</TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </DialogContent>
