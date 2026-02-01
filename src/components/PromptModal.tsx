@@ -1,9 +1,11 @@
 import { Prompt } from '@/types/prompt';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Copy, Check, Instagram, Globe, Youtube, Send } from 'lucide-react';
+import { Copy, Check, Instagram, Send } from 'lucide-react';
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useImageAspectRatio, getAspectRatioLabel } from '@/hooks/useImageAspectRatio';
+import { Badge } from '@/components/ui/badge';
 
 interface PromptModalProps {
   prompt: Prompt | null;
@@ -13,6 +15,7 @@ interface PromptModalProps {
 
 export function PromptModal({ prompt, isOpen, onClose }: PromptModalProps) {
   const [copied, setCopied] = useState(false);
+  const { ratio, className: aspectClassName, loading } = useImageAspectRatio(prompt?.imageUrl);
   
   if (!prompt) return null;
   
@@ -44,14 +47,25 @@ export function PromptModal({ prompt, isOpen, onClose }: PromptModalProps) {
         <div className="space-y-6">
           {/* Image */}
           {prompt.imageUrl && (
-            <div className="rounded-lg overflow-hidden border-2 border-primary">
-              <img 
-                src={prompt.imageUrl} 
-                alt={prompt.title}
-                className="w-full h-auto pointer-events-none select-none"
-                draggable={false}
-                onContextMenu={(e) => e.preventDefault()}
-              />
+            <div className="relative rounded-lg overflow-hidden border-2 border-primary">
+              <div className={loading ? 'aspect-[4/3]' : aspectClassName}>
+                <img 
+                  src={prompt.imageUrl} 
+                  alt={prompt.title}
+                  className="w-full h-full object-contain pointer-events-none select-none bg-black/5"
+                  draggable={false}
+                  onContextMenu={(e) => e.preventDefault()}
+                />
+              </div>
+              {/* Aspect Ratio Badge */}
+              {!loading && ratio !== 'unknown' && (
+                <Badge 
+                  variant="secondary" 
+                  className="absolute bottom-2 right-2 bg-black/70 text-white border-0"
+                >
+                  {ratio} • {getAspectRatioLabel(ratio)}
+                </Badge>
+              )}
             </div>
           )}
           

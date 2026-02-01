@@ -1,8 +1,10 @@
 import { Prompt } from '@/types/prompt';
-import { Check, Copy, ExternalLink, Instagram, Globe, Youtube, Send } from 'lucide-react';
+import { Check, Copy, Instagram, Send } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useImageAspectRatio, getAspectRatioLabel } from '@/hooks/useImageAspectRatio';
+import { Badge } from '@/components/ui/badge';
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -11,6 +13,7 @@ interface PromptCardProps {
 
 export function PromptCard({ prompt, onClick }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
+  const { ratio, className: aspectClassName, loading } = useImageAspectRatio(prompt.imageUrl);
   
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -47,7 +50,7 @@ export function PromptCard({ prompt, onClick }: PromptCardProps) {
       onClick={onClick}
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className={`relative overflow-hidden ${loading ? 'aspect-[4/3]' : aspectClassName}`}>
         {prompt.imageUrl ? (
           <img 
             src={prompt.imageUrl} 
@@ -64,6 +67,16 @@ export function PromptCard({ prompt, onClick }: PromptCardProps) {
         
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        {/* Aspect Ratio Badge */}
+        {!loading && ratio !== 'unknown' && (
+          <Badge 
+            variant="secondary" 
+            className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 text-white border-0 text-xs"
+          >
+            {ratio}
+          </Badge>
+        )}
         
         {/* Featured Badge */}
         {prompt.isFeatured && (
