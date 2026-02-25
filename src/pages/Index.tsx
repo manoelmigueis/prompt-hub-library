@@ -59,15 +59,19 @@ export default function Index() {
   
   // Filter prompts
   const filteredPrompts = useMemo(() => {
+    const q = searchQuery.toLowerCase();
     return prompts
       .filter(p => p.status === 'approved')
       .filter(p => selectedCategory === 'all' || p.category === selectedCategory)
-      .filter(p => 
-        searchQuery === '' ||
-        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.content.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      .filter(p => {
+        if (q === '') return true;
+        return (
+          p.title.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.content.toLowerCase().includes(q) ||
+          (p.tags && p.tags.some(tag => tag.toLowerCase().includes(q)))
+        );
+      });
   }, [prompts, selectedCategory, searchQuery]);
   
   // Handlers

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Prompt, PromptStatus, Category } from '@/types/prompt';
 import { toast } from 'sonner';
+import { generateTags } from '@/lib/seoHelpers';
 
 interface CreatePromptData {
   title: string;
@@ -44,6 +45,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         category: p.category as Category,
         status: p.status as PromptStatus,
         isFeatured: p.is_featured,
+        tags: generateTags(p.category as Category),
         createdAt: new Date(p.created_at),
         updatedAt: new Date(p.updated_at),
       }));

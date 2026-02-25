@@ -9,6 +9,7 @@ export interface Prompt {
   category: Category;
   status: PromptStatus;
   isFeatured: boolean;
+  tags?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
