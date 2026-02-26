@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Shield, Plus, LogOut, User, Settings } from 'lucide-react';
+import { Shield, Plus, LogOut, User, Settings, Menu } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -36,47 +36,59 @@ export function Header({
   const initials = displayName?.slice(0, 2).toUpperCase() || 'U';
   
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl border-b border-border">
+      <div className="container mx-auto px-4 h-14 flex items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center gap-2 shrink-0">
           <img 
             src={logo} 
             alt="Ensaios Impossíveis" 
-            className="h-10 w-auto logo-particles"
+            className="h-8 w-auto"
           />
-          <div className="flex flex-col">
-            <span className="font-display text-xl tracking-wider text-primary">ENSAIOS</span>
-            <span className="font-display text-sm tracking-widest text-secondary -mt-1">IMPOSSÍVEIS</span>
-          </div>
+          <span className="font-display text-lg tracking-wider text-primary hidden sm:inline">ENSAIOS</span>
         </div>
         
-        <div className="flex items-center gap-3">
+        {/* Nav Links - scrollable on mobile */}
+        <nav className="hidden md:flex items-center gap-1 mx-4">
+          <a href="#categorias" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted">
+            Categorias
+          </a>
+          <a href="#novos" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted">
+            Novos Prompts
+          </a>
+          <a href="#favoritos" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted">
+            Favoritos
+          </a>
+        </nav>
+        
+        {/* Actions */}
+        <div className="flex items-center gap-2">
           {isAuthenticated && (
             <>
               <Button 
                 onClick={onSubmitClick}
-                className="btn-gradient gap-2 rounded-full"
+                size="sm"
+                className="btn-gradient gap-1.5 rounded-full text-xs"
               >
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Enviar Ensaio</span>
+                <Plus className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Enviar</span>
               </Button>
               
               {(isAdmin || isModerator) && (
                 <Button 
                   variant="outline" 
-                  size="sm"
+                  size="icon"
                   onClick={onAdminClick}
-                  className="gap-2 rounded-full"
+                  className="rounded-full h-8 w-8"
                 >
-                  <Shield className="w-4 h-4" />
-                  <span className="hidden sm:inline">Painel</span>
+                  <Shield className="w-3.5 h-3.5" />
                 </Button>
               )}
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <Avatar className="h-8 w-8 border-2 border-primary/20">
+                  <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
+                    <Avatar className="h-7 w-7 border-2 border-primary/30">
                       <AvatarImage src={avatarUrl} alt={displayName} />
                       <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                         {initials}

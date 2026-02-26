@@ -24,7 +24,15 @@ export type Category =
   | 'youtube'
   | 'comics'
   | 'poster'
-  | 'app-design';
+  | 'app-design'
+  | 'retrato-realista'
+  | 'foto-artistica'
+  | 'moda-estilo'
+  | 'cenarios'
+  | 'video-effect'
+  | 'body-art'
+  | 'fotografia'
+  | 'arte-digital';
 
 export interface CategoryInfo {
   id: Category;
@@ -34,8 +42,16 @@ export interface CategoryInfo {
 
 export const CATEGORIES: CategoryInfo[] = [
   { id: 'all', label: 'All', labelPt: 'Tudo' },
+  { id: 'retrato-realista', label: 'Realistic Portrait', labelPt: 'Retrato Realista' },
+  { id: 'foto-artistica', label: 'Artistic Photo', labelPt: 'Foto Artística' },
+  { id: 'moda-estilo', label: 'Fashion & Style', labelPt: 'Moda & Estilo' },
+  { id: 'cenarios', label: 'Scenery', labelPt: 'Cenários Naturais' },
   { id: 'profile', label: 'Profile / Avatar', labelPt: 'Perfil / Avatar' },
   { id: 'social-media', label: 'Social Media', labelPt: 'Mídias Sociais' },
+  { id: 'video-effect', label: 'Video Effect', labelPt: 'Video Effect' },
+  { id: 'body-art', label: 'Body Painting', labelPt: 'Body Painting' },
+  { id: 'fotografia', label: 'Photography', labelPt: 'Fotografia' },
+  { id: 'arte-digital', label: 'Digital Art', labelPt: 'Arte Digital' },
   { id: 'infographic', label: 'Infographic', labelPt: 'Infográfico' },
   { id: 'youtube', label: 'YouTube Thumbnail', labelPt: 'Miniatura YouTube' },
   { id: 'comics', label: 'Comics / Storyboard', labelPt: 'Quadrinhos' },

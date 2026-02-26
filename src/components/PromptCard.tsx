@@ -1,9 +1,7 @@
 import { Prompt } from '@/types/prompt';
-import { Check, Copy, Instagram, Send } from 'lucide-react';
+import { Check, Copy, Send, User } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useImageAspectRatio, getAspectRatioLabel } from '@/hooks/useImageAspectRatio';
 import { Badge } from '@/components/ui/badge';
 
 interface PromptCardProps {
@@ -13,7 +11,6 @@ interface PromptCardProps {
 
 export function PromptCard({ prompt, onClick }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
-  const { ratio, className: aspectClassName, loading } = useImageAspectRatio(prompt.imageUrl);
   
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -27,129 +24,90 @@ export function PromptCard({ prompt, onClick }: PromptCardProps) {
     if (navigator.share) {
       navigator.share({
         title: prompt.title,
-        text: `Confira este prompt incrível: ${prompt.title}`,
+        text: `Confira este prompt: ${prompt.title}`,
         url: window.location.href,
       });
     } else {
-      // Fallback: copy URL
       navigator.clipboard.writeText(window.location.href);
     }
   };
-  
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('pt-BR', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(date);
-  };
+
+  const isNew = (Date.now() - prompt.createdAt.getTime()) < 7 * 24 * 60 * 60 * 1000;
   
   return (
     <article 
-      className="prompt-card cursor-pointer group"
+      className="prompt-card cursor-pointer group flex flex-col"
       onClick={onClick}
     >
       {/* Image */}
-      <div className={`relative overflow-hidden ${loading ? 'aspect-[4/3]' : aspectClassName}`}>
+      <div className="relative aspect-[4/5] overflow-hidden">
         {prompt.imageUrl ? (
           <img 
             src={prompt.imageUrl} 
             alt={prompt.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 pointer-events-none select-none"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
             draggable={false}
             onContextMenu={(e) => e.preventDefault()}
+            loading="lazy"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-            <span className="text-6xl opacity-50">📷</span>
+            <span className="text-5xl opacity-50">📷</span>
           </div>
         )}
         
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* Author badge overlay */}
+        <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 bg-background/80 backdrop-blur-sm rounded-full pl-1 pr-2.5 py-1">
+          <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
+            <User className="w-3 h-3 text-primary" />
+          </div>
+          <span className="text-[11px] font-medium text-foreground truncate max-w-[100px]">
+            {prompt.author}
+          </span>
+        </div>
         
-        {/* Aspect Ratio Badge */}
-        {!loading && ratio !== 'unknown' && (
-          <Badge 
-            variant="secondary" 
-            className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 text-white border-0 text-xs"
-          >
-            {ratio}
+        {/* New / Featured badge */}
+        {isNew && (
+          <Badge className="absolute top-2.5 right-2.5 bg-primary text-primary-foreground border-0 text-[10px] px-2 py-0.5">
+            Novo
           </Badge>
         )}
-        
-        {/* Featured Badge */}
-        {prompt.isFeatured && (
-          <div className="absolute top-3 right-3 badge-featured">
-            ⭐ DESTAQUE
-          </div>
+        {prompt.isFeatured && !isNew && (
+          <Badge className="absolute top-2.5 right-2.5 bg-secondary text-secondary-foreground border-0 text-[10px] px-2 py-0.5">
+            ⭐ Destaque
+          </Badge>
         )}
+      </div>
+      
+      {/* Content */}
+      <div className="p-3 flex flex-col flex-1">
+        <h3 className="font-display text-base tracking-wide leading-tight line-clamp-1 group-hover:text-primary transition-colors">
+          {prompt.title.toUpperCase()}
+        </h3>
         
-        {/* Status Badge for pending */}
-        {prompt.status === 'pending' && (
-          <div className="absolute top-3 left-3 badge-pending">
-            PENDENTE
-          </div>
-        )}
+        <p className="mt-1 text-xs text-muted-foreground line-clamp-2 flex-1">
+          {prompt.description}
+        </p>
         
-        {/* Hover actions */}
-        <div className="absolute bottom-3 left-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+        {/* Action buttons - always visible */}
+        <div className="flex gap-2 mt-3">
           <Button 
-            variant="secondary" 
             size="sm" 
-            className="flex-1 gap-2 bg-white/90 text-foreground hover:bg-white"
+            className="flex-1 gap-1.5 h-8 text-xs btn-gradient rounded-lg"
             onClick={handleCopy}
           >
             {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
             {copied ? 'Copiado!' : 'Copiar Prompt'}
           </Button>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="secondary" 
-                size="icon" 
-                className="h-8 w-8 bg-white/90 hover:bg-white"
-                onClick={handleShare}
-              >
-                <Send className="w-3 h-3 text-foreground" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Compartilhar</TooltipContent>
-          </Tooltip>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="h-8 w-8 rounded-lg shrink-0"
+            onClick={handleShare}
+          >
+            <Send className="w-3 h-3" />
+          </Button>
         </div>
-      </div>
-      
-      {/* Content */}
-      <div className="p-4">
-        {/* Author & Date */}
-        <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-foreground">{prompt.author}</span>
-            {prompt.authorHandle && (
-              <a 
-                href={`https://instagram.com/${prompt.authorHandle.replace('@', '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-primary hover:underline"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Instagram className="w-3 h-3" />
-                {prompt.authorHandle}
-              </a>
-            )}
-          </div>
-          <span className="text-xs">{formatDate(prompt.createdAt)}</span>
-        </div>
-        
-        {/* Title */}
-        <h3 className="font-display text-xl tracking-wide leading-tight group-hover:text-primary transition-colors">
-          {prompt.title.toUpperCase()}
-        </h3>
-        
-        {/* Description */}
-        <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
-          {prompt.description}
-        </p>
       </div>
     </article>
   );
