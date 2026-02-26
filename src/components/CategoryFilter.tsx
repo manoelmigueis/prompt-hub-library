@@ -1,5 +1,3 @@
-import { Button } from '@/components/ui/button';
-import { Filter } from 'lucide-react';
 import { Category, CATEGORIES } from '@/types/prompt';
 
 interface CategoryFilterProps {
@@ -16,42 +14,23 @@ export function CategoryFilter({
   totalPrompts,
 }: CategoryFilterProps) {
   return (
-    <section className="py-6 px-4 bg-muted/50 border-y border-border">
+    <section id="categorias" className="py-4 px-4 border-b border-border">
       <div className="container mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 className="font-display text-3xl tracking-wider">
-              ENSAIOS RECENTES
-            </h2>
-            <p className="text-muted-foreground text-sm mt-1">
-              {totalPrompts} {totalPrompts === 1 ? 'resultado' : 'resultados'}
-            </p>
-          </div>
-        </div>
-        
-        {/* Categories */}
-        <div className="flex flex-wrap gap-2">
+        {/* Scrollable category chips */}
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
           {CATEGORIES.map((cat) => (
-            <Button
+            <button
               key={cat.id}
-              variant={selectedCategory === cat.id ? 'default' : 'outline'}
               onClick={() => onCategoryChange(cat.id)}
-              size="sm"
-              className={`rounded-full ${
+              className={`shrink-0 px-3.5 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
                 selectedCategory === cat.id 
-                  ? 'btn-gradient border-0' 
-                  : 'hover:border-primary/50'
+                  ? 'btn-gradient text-primary-foreground' 
+                  : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
               }`}
             >
               {cat.labelPt}
-            </Button>
+            </button>
           ))}
-          
-          <Button variant="ghost" size="sm" className="gap-2 rounded-full">
-            <Filter className="w-3 h-3" />
-            Mais Filtros
-          </Button>
         </div>
       </div>
     </section>

@@ -1,6 +1,8 @@
 import { Prompt } from '@/types/prompt';
 import { PromptCard } from './PromptCard';
-import { Camera } from 'lucide-react';
+import { Camera, LayoutGrid, List } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface PromptGridProps {
   prompts: Prompt[];
@@ -8,6 +10,8 @@ interface PromptGridProps {
 }
 
 export function PromptGrid({ prompts, onPromptClick }: PromptGridProps) {
+  const [view, setView] = useState<'grid' | 'list'>('grid');
+
   if (prompts.length === 0) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
@@ -21,9 +25,32 @@ export function PromptGrid({ prompts, onPromptClick }: PromptGridProps) {
   }
   
   return (
-    <section className="py-8 px-4">
+    <section id="novos" className="py-6 px-4">
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Section header */}
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="font-display text-2xl sm:text-3xl tracking-wider">TODOS OS PROMPTS</h2>
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+            <Button 
+              variant={view === 'grid' ? 'default' : 'ghost'} 
+              size="icon" 
+              className="h-7 w-7 rounded-md"
+              onClick={() => setView('grid')}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+            </Button>
+            <Button 
+              variant={view === 'list' ? 'default' : 'ghost'} 
+              size="icon" 
+              className="h-7 w-7 rounded-md"
+              onClick={() => setView('list')}
+            >
+              <List className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {prompts.map((prompt, index) => (
             <div 
               key={prompt.id} 

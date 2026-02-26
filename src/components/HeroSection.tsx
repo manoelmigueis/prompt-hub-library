@@ -1,5 +1,6 @@
-import { Search, Sparkles } from 'lucide-react';
+import { Search, Sparkles, Image, Tag, Layers } from 'lucide-react';
 import logo from '@/assets/logo.png';
+import { CATEGORIES } from '@/types/prompt';
 
 interface HeroSectionProps {
   searchQuery: string;
@@ -8,55 +9,73 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ searchQuery, onSearchChange, totalPrompts }: HeroSectionProps) {
+  const totalCategories = CATEGORIES.length - 1; // exclude 'all'
+
   return (
-    <section className="pt-24 pb-16 px-4 relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+    <section className="pt-20 pb-10 px-4 relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/8 rounded-full blur-[120px] pointer-events-none" />
       
       <div className="container mx-auto text-center relative">
-        {/* Logo and Title */}
-        <div className="mb-10">
-          <div className="flex justify-center mb-6">
-            <img 
-              src={logo} 
-              alt="Ensaios Impossíveis" 
-              className="h-32 md:h-40 w-auto logo-particles drop-shadow-2xl"
-            />
-          </div>
-          <h1 className="hero-title mb-2">
-            <span className="hero-gradient-text">ENSAIOS</span>
+        {/* Title */}
+        <div className="mb-8">
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider text-primary leading-none mb-1">
+            O ENSAIO
           </h1>
-          <h2 className="hero-title text-foreground/80">
-            IMPOSSÍVEIS
+          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-wider text-foreground/80 leading-none">
+            IMPOSSÍVEL
           </h2>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="mt-4 text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
             Explore e compartilhe os melhores prompts para gerar ensaios fotográficos incríveis com IA
           </p>
         </div>
+
+        {/* Stats */}
+        <div className="flex items-center justify-center gap-6 sm:gap-10 mb-8">
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1.5 text-primary">
+              <Image className="w-4 h-4" />
+              <span className="font-display text-2xl sm:text-3xl">{totalPrompts}</span>
+            </div>
+            <span className="text-xs text-muted-foreground mt-0.5">Ensaios</span>
+          </div>
+          <div className="w-px h-8 bg-border" />
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1.5 text-secondary">
+              <Tag className="w-4 h-4" />
+              <span className="font-display text-2xl sm:text-3xl">50+</span>
+            </div>
+            <span className="text-xs text-muted-foreground mt-0.5">Tags</span>
+          </div>
+          <div className="w-px h-8 bg-border" />
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1.5 text-accent">
+              <Layers className="w-4 h-4" />
+              <span className="font-display text-2xl sm:text-3xl">{totalCategories}</span>
+            </div>
+            <span className="text-xs text-muted-foreground mt-0.5">Categorias</span>
+          </div>
+        </div>
         
         {/* Search Box */}
-        <div className="max-w-2xl mx-auto">
-          <div className="search-box p-2 flex gap-2">
+        <div className="max-w-xl mx-auto">
+          <div className="search-box p-1.5 flex gap-1.5">
             <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                placeholder="Buscar ensaios..."
-                className="w-full h-12 pl-12 pr-4 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-base"
+                placeholder="Buscar ensaios, tags..."
+                className="w-full h-10 pl-10 pr-4 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm"
               />
             </div>
-            
-            <button className="btn-gradient px-6 h-12 rounded-xl flex items-center gap-2 font-semibold">
-              <Sparkles className="w-4 h-4" />
+            <button className="btn-gradient px-5 h-10 rounded-xl flex items-center gap-1.5 font-semibold text-sm">
+              <Sparkles className="w-3.5 h-3.5" />
               Buscar
             </button>
           </div>
-          
-          <p className="mt-4 text-sm text-muted-foreground">
-            <span className="font-semibold text-primary">{totalPrompts}</span> ensaios disponíveis
-          </p>
         </div>
       </div>
     </section>
