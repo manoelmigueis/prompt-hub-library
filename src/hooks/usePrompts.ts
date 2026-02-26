@@ -62,7 +62,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     fetchPrompts();
   }, [fetchPrompts]);
 
-  const createPrompt = async (data: CreatePromptData, profile?: { display_name?: string | null; instagram?: string | null }) => {
+  const createPrompt = async (data: CreatePromptData, profile?: { display_name?: string | null; instagram?: string | null }, autoApprove?: boolean) => {
     if (!userId) {
       toast.error('Você precisa estar logado para enviar prompts');
       return null;
@@ -78,7 +78,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         user_id: userId,
         author_name: profile?.display_name || 'Anônimo',
         author_instagram: profile?.instagram || null,
-        status: 'pending',
+        status: autoApprove ? 'approved' : 'pending',
         is_featured: false,
       })
       .select()

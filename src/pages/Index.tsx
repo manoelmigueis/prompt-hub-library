@@ -55,7 +55,14 @@ export default function Index() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   
   // Admin settings (local)
-  const [autoApprove, setAutoApprove] = useState(false);
+  const [autoApprove, setAutoApprove] = useState(() => {
+    return localStorage.getItem('autoApprove') === 'true';
+  });
+  
+  const handleToggleAutoApprove = (value: boolean) => {
+    setAutoApprove(value);
+    localStorage.setItem('autoApprove', String(value));
+  };
   
   // Filter prompts
   const filteredPrompts = useMemo(() => {
@@ -101,9 +108,9 @@ export default function Index() {
   };
   
   const handleSubmitPrompt = async (data: SubmitPromptData) => {
-    const result = await createPrompt(data, profile);
+    const result = await createPrompt(data, profile, autoApprove);
     if (result) {
-      toast.success('Ensaio enviado para revisão!');
+      toast.success(autoApprove ? 'Ensaio publicado!' : 'Ensaio enviado para revisão!');
       setShowSubmitModal(false);
     }
   };
@@ -223,7 +230,7 @@ export default function Index() {
             onToggleFeatured={handleToggleFeatured}
             onDeletePrompt={handleDeletePrompt}
             autoApprove={autoApprove}
-            onToggleAutoApprove={setAutoApprove}
+            onToggleAutoApprove={handleToggleAutoApprove}
             inviteCodes={inviteCodes.map(c => c.code)}
             onGenerateCode={handleGenerateCode}
             onDeleteCode={handleDeleteCode}
