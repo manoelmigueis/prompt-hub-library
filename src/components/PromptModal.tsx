@@ -1,9 +1,8 @@
-import { Prompt } from '@/types/prompt';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Prompt, CATEGORIES } from '@/types/prompt';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Copy, Check, Instagram, Send } from 'lucide-react';
+import { Copy, Check, Instagram, Twitter, Youtube, Globe, Eye, Heart, X } from 'lucide-react';
 import { useState } from 'react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useImageAspectRatio, getAspectRatioLabel } from '@/hooks/useImageAspectRatio';
 import { Badge } from '@/components/ui/badge';
 
@@ -11,136 +10,135 @@ interface PromptModalProps {
   prompt: Prompt | null;
   isOpen: boolean;
   onClose: () => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
+  onCopy?: (id: string) => void;
 }
 
-export function PromptModal({ prompt, isOpen, onClose }: PromptModalProps) {
+export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavorite, onCopy }: PromptModalProps) {
   const [copied, setCopied] = useState(false);
   const { ratio, className: aspectClassName, loading } = useImageAspectRatio(prompt?.imageUrl);
   
   if (!prompt) return null;
+
+  const categoryLabel = CATEGORIES.find(c => c.id === prompt.category)?.labelPt || prompt.category;
   
   const handleCopy = () => {
     navigator.clipboard.writeText(prompt.content);
     setCopied(true);
+    onCopy?.(prompt.id);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: prompt.title,
-        text: `Confira este prompt incrível: ${prompt.title}`,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-    }
   };
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="font-display text-2xl pr-8">{prompt.title}</DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* Image */}
-          {prompt.imageUrl && (
-            <div className="relative rounded-lg overflow-hidden border-2 border-primary">
-              <div className={loading ? 'aspect-[4/3]' : aspectClassName}>
-                <img 
-                  src={prompt.imageUrl} 
-                  alt={prompt.title}
-                  className="w-full h-full object-contain pointer-events-none select-none bg-black/5"
-                  draggable={false}
-                  onContextMenu={(e) => e.preventDefault()}
-                />
-              </div>
-              {/* Aspect Ratio Badge */}
-              {!loading && ratio !== 'unknown' && (
-                <Badge 
-                  variant="secondary" 
-                  className="absolute bottom-2 right-2 bg-black/70 text-white border-0"
-                >
-                  {ratio} • {getAspectRatioLabel(ratio)}
-                </Badge>
-              )}
-            </div>
-          )}
-          
-          {/* Meta Info */}
-          <div className="flex flex-wrap items-center gap-4 text-sm">
-            <span className="bg-primary text-primary-foreground px-3 py-1 font-bold uppercase">
-              Prompt
-            </span>
-            {prompt.isFeatured && (
-              <span className="badge-featured">Em Destaque</span>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 gap-0">
+        <div className="flex flex-col md:flex-row">
+          {/* Left: Image */}
+          <div className="relative md:w-1/2 bg-black flex items-center justify-center min-h-[300px]">
+            {prompt.imageUrl && (
+              <img 
+                src={prompt.imageUrl} 
+                alt={prompt.title}
+                className="w-full h-full object-contain pointer-events-none select-none"
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
+              />
             )}
-            <span className="text-muted-foreground">
-              por <strong className="text-foreground">{prompt.author}</strong>
-            </span>
+            {/* Category badge */}
+            <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground border-0 text-xs">
+              {categoryLabel}
+            </Badge>
+            {/* Counters bottom */}
+            <div className="absolute bottom-3 left-3 flex items-center gap-3">
+              <div className="flex items-center gap-1 text-white/80 text-xs">
+                <Eye className="w-3.5 h-3.5" />
+                {prompt.viewCount} views
+              </div>
+              <div className="flex items-center gap-1 text-white/80 text-xs">
+                <Copy className="w-3.5 h-3.5" />
+                {prompt.copyCount} cópias
+              </div>
+              <button
+                onClick={() => onToggleFavorite?.(prompt.id)}
+                className={`flex items-center gap-1 text-xs ${isFavorite ? 'text-primary' : 'text-white/80 hover:text-primary'}`}
+              >
+                <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
+              </button>
+            </div>
           </div>
+          
+          {/* Right: Content */}
+          <div className="md:w-1/2 p-5 flex flex-col">
+            {/* Close button */}
+            <button onClick={onClose} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground z-10">
+              <X className="w-5 h-5" />
+            </button>
 
-          {/* Author Social Links */}
-          {prompt.authorHandle && (
-            <div className="flex flex-wrap gap-2">
-              <a 
-                href={`https://instagram.com/${prompt.authorHandle.replace('@', '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm rounded-full hover:opacity-90 transition-opacity"
-              >
-                <Instagram className="w-4 h-4" />
-                {prompt.authorHandle}
-              </a>
+            {/* Author */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+                {prompt.author.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="font-semibold text-sm">{prompt.author}</p>
+                <p className="text-xs text-muted-foreground">Criador do prompt</p>
+              </div>
             </div>
-          )}
-          
-          {/* Description */}
-          <p className="text-muted-foreground">{prompt.description}</p>
-          
-          {/* Prompt Content */}
-          <div className="bg-muted rounded-lg p-4 border-2 border-primary">
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-display font-bold text-sm uppercase">Prompt Completo</span>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleCopy}
-                className="gap-2"
-              >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? 'Copiado!' : 'Copiar'}
-              </Button>
+
+            {/* Social Links */}
+            {prompt.authorHandle && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                <a 
+                  href={`https://instagram.com/${prompt.authorHandle.replace('@', '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-muted text-xs rounded-full hover:bg-muted/80 transition-colors"
+                >
+                  <Instagram className="w-3.5 h-3.5" />
+                  Instagram
+                </a>
+              </div>
+            )}
+
+            {/* Title & Description */}
+            <h2 className="font-display text-xl tracking-wide mb-2">{prompt.title}</h2>
+            <p className="text-sm text-muted-foreground mb-4">{prompt.description}</p>
+            
+            {/* Tags */}
+            {prompt.tags && prompt.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {prompt.tags.map(tag => (
+                  <span key={tag} className="text-xs text-primary/80 bg-primary/10 rounded-full px-2.5 py-1">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            
+            {/* Prompt Content */}
+            <div className="flex-1">
+              <h3 className="font-display font-bold text-xs uppercase mb-2 text-muted-foreground">PROMPT COMPLETO</h3>
+              <div className="bg-muted rounded-lg p-3 border border-border max-h-[200px] overflow-y-auto">
+                <p className="text-xs leading-relaxed whitespace-pre-wrap font-mono">
+                  {prompt.content}
+                </p>
+              </div>
             </div>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap font-mono">
-              {prompt.content}
-            </p>
-          </div>
-          
-          {/* Actions */}
-          <div className="flex gap-3">
+            
+            {/* Copy Button */}
             <Button 
-              variant="generate" 
-              className="flex-1"
+              className="w-full mt-4 gap-2 btn-gradient h-11"
               onClick={handleCopy}
             >
-              {copied ? 'Copiado!' : 'Copiar Este Prompt'}
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied ? 'Copiado!' : 'Copiar Prompt'}
             </Button>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  className="gap-2"
-                  onClick={handleShare}
-                >
-                  <Send className="w-4 h-4" />
-                  Compartilhar
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Compartilhar prompt</TooltipContent>
-            </Tooltip>
+
+            {/* SEO Description */}
+            <p className="text-[11px] text-muted-foreground mt-3 italic">
+              {prompt.description}
+            </p>
           </div>
         </div>
       </DialogContent>

@@ -33,7 +33,6 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         return;
       }
 
-      // Map database format to app format
       const mappedPrompts: Prompt[] = (data || []).map(p => ({
         id: p.id,
         title: p.title,
@@ -46,6 +45,8 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         status: p.status as PromptStatus,
         isFeatured: p.is_featured,
         tags: generateTags(p.category as Category),
+        viewCount: (p as any).view_count || 0,
+        copyCount: (p as any).copy_count || 0,
         createdAt: new Date(p.created_at),
         updatedAt: new Date(p.updated_at),
       }));
@@ -62,11 +63,41 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     fetchPrompts();
   }, [fetchPrompts]);
 
-  const createPrompt = async (data: CreatePromptData, profile?: { display_name?: string | null; instagram?: string | null }, autoApprove?: boolean) => {
+  const getAutoApprove = async (): Promise<boolean> => {
+    try {
+      const { data } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'auto_approve')
+        .single();
+      return data?.value === true;
+    } catch {
+      return false;
+    }
+  };
+
+  const setAutoApprove = async (value: boolean) => {
+    const { error } = await supabase
+      .from('app_settings')
+      .update({ value: value as any, updated_at: new Date().toISOString() })
+      .eq('key', 'auto_approve');
+    
+    if (error) {
+      console.error('Error updating auto_approve:', error);
+      toast.error('Erro ao atualizar configuração');
+      return false;
+    }
+    return true;
+  };
+
+  const createPrompt = async (data: CreatePromptData, profile?: { display_name?: string | null; instagram?: string | null }) => {
     if (!userId) {
       toast.error('Você precisa estar logado para enviar prompts');
       return null;
     }
+
+    // Check global auto_approve setting
+    const autoApprove = await getAutoApprove();
 
     const { data: newPrompt, error } = await supabase
       .from('prompts')
@@ -90,7 +121,6 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
       return null;
     }
 
-    // Add to local state
     const mappedPrompt: Prompt = {
       id: newPrompt.id,
       title: newPrompt.title,
@@ -102,12 +132,28 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
       category: newPrompt.category as Category,
       status: newPrompt.status as PromptStatus,
       isFeatured: newPrompt.is_featured,
+      viewCount: 0,
+      copyCount: 0,
       createdAt: new Date(newPrompt.created_at),
       updatedAt: new Date(newPrompt.updated_at),
     };
 
     setPrompts(prev => [mappedPrompt, ...prev]);
-    return mappedPrompt;
+    return { ...mappedPrompt, autoApproved: autoApprove };
+  };
+
+  const incrementView = async (promptId: string) => {
+    await supabase.rpc('increment_view_count', { prompt_id: promptId });
+    setPrompts(prev => prev.map(p => 
+      p.id === promptId ? { ...p, viewCount: p.viewCount + 1 } : p
+    ));
+  };
+
+  const incrementCopy = async (promptId: string) => {
+    await supabase.rpc('increment_copy_count', { prompt_id: promptId });
+    setPrompts(prev => prev.map(p => 
+      p.id === promptId ? { ...p, copyCount: p.copyCount + 1 } : p
+    ));
   };
 
   const updatePromptStatus = async (id: string, status: PromptStatus) => {
@@ -175,5 +221,9 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     updatePromptStatus,
     toggleFeatured,
     deletePrompt,
+    incrementView,
+    incrementCopy,
+    getAutoApprove,
+    setAutoApprove,
   };
 }

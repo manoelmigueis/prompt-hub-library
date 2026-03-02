@@ -10,6 +10,8 @@ export interface Prompt {
   status: PromptStatus;
   isFeatured: boolean;
   tags?: string[];
+  viewCount: number;
+  copyCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,7 +34,9 @@ export type Category =
   | 'video-effect'
   | 'body-art'
   | 'fotografia'
-  | 'arte-digital';
+  | 'arte-digital'
+  | 'logo-marca'
+  | 'outro';
 
 export interface CategoryInfo {
   id: Category;
@@ -41,7 +45,7 @@ export interface CategoryInfo {
 }
 
 export const CATEGORIES: CategoryInfo[] = [
-  { id: 'all', label: 'All', labelPt: 'Tudo' },
+  { id: 'all', label: 'All', labelPt: 'Todos' },
   { id: 'retrato-realista', label: 'Realistic Portrait', labelPt: 'Retrato Realista' },
   { id: 'foto-artistica', label: 'Artistic Photo', labelPt: 'Foto Artística' },
   { id: 'moda-estilo', label: 'Fashion & Style', labelPt: 'Moda & Estilo' },
@@ -57,6 +61,8 @@ export const CATEGORIES: CategoryInfo[] = [
   { id: 'comics', label: 'Comics / Storyboard', labelPt: 'Quadrinhos' },
   { id: 'poster', label: 'Poster / Flyer', labelPt: 'Pôster / Flyer' },
   { id: 'app-design', label: 'App / Web Design', labelPt: 'Design App/Web' },
+  { id: 'logo-marca', label: 'Logo / Brand', labelPt: 'Logo / Marca' },
+  { id: 'outro', label: 'Other', labelPt: 'Outro' },
 ];
 
 export interface InviteCode {

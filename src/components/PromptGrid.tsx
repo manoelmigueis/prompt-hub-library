@@ -7,9 +7,12 @@ import { Button } from '@/components/ui/button';
 interface PromptGridProps {
   prompts: Prompt[];
   onPromptClick: (prompt: Prompt) => void;
+  onCopyPrompt: (id: string) => void;
+  isFavorite: (id: string) => boolean;
+  onToggleFavorite: (id: string) => void;
 }
 
-export function PromptGrid({ prompts, onPromptClick }: PromptGridProps) {
+export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, onToggleFavorite }: PromptGridProps) {
   const [view, setView] = useState<'grid' | 'list'>('grid');
 
   if (prompts.length === 0) {
@@ -29,7 +32,9 @@ export function PromptGrid({ prompts, onPromptClick }: PromptGridProps) {
       <div className="container mx-auto">
         {/* Section header */}
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display text-2xl sm:text-3xl tracking-wider">TODOS OS PROMPTS</h2>
+          <h2 className="font-display text-xl tracking-wider">
+            <span className="text-primary">{prompts.length}</span> prompts disponíveis
+          </h2>
           <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
             <Button 
               variant={view === 'grid' ? 'default' : 'ghost'} 
@@ -60,6 +65,9 @@ export function PromptGrid({ prompts, onPromptClick }: PromptGridProps) {
               <PromptCard 
                 prompt={prompt} 
                 onClick={() => onPromptClick(prompt)}
+                onCopy={onCopyPrompt}
+                isFavorite={isFavorite(prompt.id)}
+                onToggleFavorite={onToggleFavorite}
               />
             </div>
           ))}
