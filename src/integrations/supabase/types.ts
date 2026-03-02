@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      favorites: {
+        Row: {
+          created_at: string
+          id: string
+          prompt_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prompt_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prompt_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invite_codes: {
         Row: {
           code: string
@@ -104,6 +154,7 @@ export type Database = {
           author_name: string | null
           category: string
           content: string
+          copy_count: number | null
           created_at: string
           id: string
           image_url: string | null
@@ -112,12 +163,14 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string | null
+          view_count: number | null
         }
         Insert: {
           author_instagram?: string | null
           author_name?: string | null
           category?: string
           content: string
+          copy_count?: number | null
           created_at?: string
           id?: string
           image_url?: string | null
@@ -126,12 +179,14 @@ export type Database = {
           title: string
           updated_at?: string
           user_id?: string | null
+          view_count?: number | null
         }
         Update: {
           author_instagram?: string | null
           author_name?: string | null
           category?: string
           content?: string
+          copy_count?: number | null
           created_at?: string
           id?: string
           image_url?: string | null
@@ -140,6 +195,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string | null
+          view_count?: number | null
         }
         Relationships: []
       }
@@ -180,6 +236,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_copy_count: { Args: { prompt_id: string }; Returns: undefined }
+      increment_view_count: { Args: { prompt_id: string }; Returns: undefined }
       is_admin_or_moderator: { Args: { _user_id: string }; Returns: boolean }
       use_invite_code: {
         Args: { _code: string; _user_id: string }

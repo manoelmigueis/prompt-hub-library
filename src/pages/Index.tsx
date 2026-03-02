@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { HeroSection } from '@/components/HeroSection';
 import { CategoryFilter } from '@/components/CategoryFilter';
@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { usePrompts } from '@/hooks/usePrompts';
 import { useInviteCodes } from '@/hooks/useInviteCodes';
+import { useFavorites } from '@/hooks/useFavorites';
 
 export default function Index() {
   const { 
@@ -35,6 +36,10 @@ export default function Index() {
     updatePromptStatus,
     toggleFeatured,
     deletePrompt,
+    incrementView,
+    incrementCopy,
+    getAutoApprove,
+    setAutoApprove,
   } = usePrompts(user?.id, isAdmin);
 
   const {
@@ -42,6 +47,8 @@ export default function Index() {
     generateCode,
     deleteCode,
   } = useInviteCodes();
+
+  const { isFavorite, toggleFavorite } = useFavorites(user?.id);
   
   // UI state
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
@@ -54,14 +61,23 @@ export default function Index() {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   
-  // Admin settings (local)
-  const [autoApprove, setAutoApprove] = useState(() => {
-    return localStorage.getItem('autoApprove') === 'true';
-  });
-  
-  const handleToggleAutoApprove = (value: boolean) => {
-    setAutoApprove(value);
-    localStorage.setItem('autoApprove', String(value));
+  // Admin settings
+  const [autoApprove, setAutoApproveLocal] = useState(false);
+
+  useEffect(() => {
+    if (isAdmin) {
+      getAutoApprove().then(setAutoApproveLocal);
+    }
+  }, [isAdmin]);
+
+  const handleToggleAutoApprove = async (value: boolean) => {
+    setAutoApproveLocal(value);
+    const success = await setAutoApprove(value);
+    if (!success) {
+      setAutoApproveLocal(!value);
+    } else {
+      toast.success(value ? 'Aprovação automática ativada!' : 'Aprovação automática desativada');
+    }
   };
   
   // Filter prompts
@@ -105,12 +121,18 @@ export default function Index() {
   const handlePromptClick = (prompt: Prompt) => {
     setSelectedPrompt(prompt);
     setShowPromptModal(true);
+    incrementView(prompt.id);
+  };
+
+  const handleCopyPrompt = (id: string) => {
+    incrementCopy(id);
   };
   
   const handleSubmitPrompt = async (data: SubmitPromptData) => {
-    const result = await createPrompt(data, profile, autoApprove);
+    const result = await createPrompt(data, profile);
     if (result) {
-      toast.success(autoApprove ? 'Ensaio publicado!' : 'Ensaio enviado para revisão!');
+      const autoApproved = (result as any).autoApproved;
+      toast.success(autoApproved ? 'Ensaio publicado!' : 'Ensaio enviado para revisão!');
       setShowSubmitModal(false);
     }
   };
@@ -199,6 +221,9 @@ export default function Index() {
             <PromptGrid 
               prompts={filteredPrompts}
               onPromptClick={handlePromptClick}
+              onCopyPrompt={handleCopyPrompt}
+              isFavorite={isFavorite}
+              onToggleFavorite={toggleFavorite}
             />
           </main>
           
@@ -207,6 +232,9 @@ export default function Index() {
             prompt={selectedPrompt}
             isOpen={showPromptModal}
             onClose={() => setShowPromptModal(false)}
+            isFavorite={selectedPrompt ? isFavorite(selectedPrompt.id) : false}
+            onToggleFavorite={toggleFavorite}
+            onCopy={handleCopyPrompt}
           />
           
           <SubmitPromptModal 

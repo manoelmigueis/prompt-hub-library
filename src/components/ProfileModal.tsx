@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Instagram, Twitter, Youtube, Globe, Save } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Instagram, Twitter, Youtube, Globe, Save, Camera, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { UserProfile } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -21,7 +22,10 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
   const [youtube, setYoutube] = useState('');
   const [tiktok, setTiktok] = useState('');
   const [website, setWebsite] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
@@ -31,8 +35,43 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
       setYoutube(profile.youtube || '');
       setTiktok(profile.tiktok || '');
       setWebsite(profile.website || '');
+      setAvatarUrl(profile.avatar_url);
     }
   }, [profile]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) return;
+    if (file.size > 5 * 1024 * 1024) return;
+
+    setUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
+
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+      if (error) {
+        console.error('Avatar upload error:', error);
+        return;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(data.path);
+
+      setAvatarUrl(publicUrl);
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -42,7 +81,8 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
       twitter: twitter || null,
       youtube: youtube || null,
       tiktok: tiktok || null,
-      website: website || null
+      website: website || null,
+      avatar_url: avatarUrl,
     });
     setSaving(false);
     onClose();
@@ -58,14 +98,31 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Avatar */}
+          {/* Avatar with upload */}
           <div className="flex justify-center">
-            <Avatar className="h-24 w-24 border-4 border-primary/20">
-              <AvatarImage src={profile?.avatar_url || undefined} alt={displayName} />
-              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl font-bold">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-24 w-24 border-4 border-primary/20">
+                <AvatarImage src={avatarUrl || undefined} alt={displayName} />
+                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl font-bold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
+              >
+                {uploadingAvatar ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleAvatarUpload}
+                className="hidden"
+              />
+            </div>
           </div>
 
           {/* Display Name */}

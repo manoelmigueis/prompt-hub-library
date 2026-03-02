@@ -17,6 +17,8 @@ const categoryDescriptions: Record<Category, string> = {
   'body-art': 'Prompt para body painting, arte corporal e expressão artística.',
   'fotografia': 'Prompt para fotografia profissional e ensaios fotográficos.',
   'arte-digital': 'Prompt para arte digital, ilustrações e criações artísticas.',
+  'logo-marca': 'Prompt para criação de logotipos e identidade visual de marca.',
+  'outro': 'Prompt para outras categorias de criação com IA.',
 };
 
 const categoryTags: Record<Category, string[]> = {
@@ -36,6 +38,8 @@ const categoryTags: Record<Category, string[]> = {
   'body-art': ['body-painting', 'arte-corporal', 'pintura', 'expressão', 'corpo'],
   'fotografia': ['fotografia', 'ensaio', 'câmera', 'iluminação', 'estúdio', 'retrato'],
   'arte-digital': ['digital', 'ilustração', 'concept-art', 'fantasia', 'sci-fi', 'arte'],
+  'logo-marca': ['logo', 'marca', 'branding', 'identidade', 'visual', 'logotipo'],
+  'outro': ['outro', 'diversos', 'criativo', 'experimental'],
 };
 
 export function generateSEODescription(category: Category, title?: string): string {
@@ -77,6 +81,8 @@ function getCategoryLabel(category: Category): string {
     'body-art': 'Body Painting',
     'fotografia': 'Fotografia',
     'arte-digital': 'Arte Digital',
+    'logo-marca': 'Logo / Marca',
+    'outro': 'Outro',
   };
   return labels[category] || 'Imagem';
 }
