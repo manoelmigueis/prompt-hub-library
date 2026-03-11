@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Shield, Plus, LogOut, User, Settings, Menu } from 'lucide-react';
+import { Shield, Plus, LogOut, User, Settings, Menu, Wrench, Heart } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -8,6 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 
 interface HeaderProps {
@@ -34,12 +35,14 @@ export function Header({
   onLogout 
 }: HeaderProps) {
   const initials = displayName?.slice(0, 2).toUpperCase() || 'U';
+  const navigate = useNavigate();
+  const location = useLocation();
   
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl border-b border-border">
       <div className="container mx-auto px-4 h-14 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 cursor-pointer" onClick={() => navigate('/')}>
           <img 
             src={logo} 
             alt="Ensaios Impossíveis" 
@@ -48,40 +51,51 @@ export function Header({
           <span className="font-display text-lg tracking-wider text-primary hidden sm:inline">ENSAIOS</span>
         </div>
         
-        {/* Nav Links - scrollable on mobile */}
-        <nav className="hidden md:flex items-center gap-1 mx-4">
-          <a href="#categorias" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted">
-            Categorias
-          </a>
-          <a href="#novos" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted">
-            Novos Prompts
-          </a>
-          <a href="#favoritos" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted">
-            Favoritos
-          </a>
-        </nav>
-        
         {/* Actions */}
         <div className="flex items-center gap-2">
           {isAuthenticated && (
             <>
+              {/* Ferramentas */}
+              <Button
+                variant={location.pathname === '/ferramentas' ? 'default' : 'ghost'}
+                size="sm"
+                className={`gap-1.5 rounded-full text-xs ${location.pathname === '/ferramentas' ? 'bg-primary/20 text-primary' : ''}`}
+                onClick={() => navigate('/ferramentas')}
+              >
+                <Wrench className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Ferramentas</span>
+              </Button>
+
+              {/* Enviar Prompt */}
               <Button 
                 onClick={onSubmitClick}
                 size="sm"
                 className="btn-gradient gap-1.5 rounded-full text-xs"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Enviar</span>
+                <span className="hidden sm:inline">Enviar Prompt</span>
+              </Button>
+
+              {/* Favoritos */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 rounded-full text-xs"
+                onClick={() => { navigate('/'); /* scroll to favorites section could be added */ }}
+              >
+                <Heart className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Favoritos</span>
               </Button>
               
               {(isAdmin || isModerator) && (
                 <Button 
-                  variant="outline" 
-                  size="icon"
+                  variant="ghost" 
+                  size="sm"
                   onClick={onAdminClick}
-                  className="rounded-full h-8 w-8"
+                  className="gap-1.5 rounded-full text-xs"
                 >
                   <Shield className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Admin</span>
                 </Button>
               )}
               

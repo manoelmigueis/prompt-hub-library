@@ -6,6 +6,7 @@ export interface Prompt {
   imageUrl?: string;
   author: string;
   authorHandle?: string;
+  authorAvatar?: string;
   category: Category;
   status: PromptStatus;
   isFeatured: boolean;
