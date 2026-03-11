@@ -96,7 +96,7 @@
   }
 
   .btn-gradient {
-    background: var(--gradient-primary);
+    background: hsl(350 80% 55%);
     @apply text-white font-semibold shadow-[var(--shadow-button)] transition-all duration-200;
   }
   .btn-gradient:hover {
