@@ -75,7 +75,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
 
   const handleSave = async () => {
     setSaving(true);
-    await onSave({
+    const result = await onSave({
       display_name: displayName,
       instagram: instagram || null,
       twitter: twitter || null,
@@ -85,7 +85,9 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
       avatar_url: avatarUrl,
     });
     setSaving(false);
-    onClose();
+    if (!result.error) {
+      onClose();
+    }
   };
 
   const initials = displayName?.slice(0, 2).toUpperCase() || 'U';
