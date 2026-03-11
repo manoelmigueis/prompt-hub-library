@@ -12,7 +12,7 @@
     --card-foreground: 220 20% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 10%;
-    --primary: 350 80% 55%;
+    --primary: 356 78% 53%;
     --primary-foreground: 0 0% 100%;
     --secondary: 200 85% 55%;
     --secondary-foreground: 0 0% 100%;
@@ -26,13 +26,13 @@
     --success-foreground: 0 0% 100%;
     --border: 220 15% 85%;
     --input: 220 15% 95%;
-    --ring: 350 80% 55%;
+    --ring: 356 78% 53%;
     --radius: 0.75rem;
-    --gradient-primary: hsl(350 80% 55%);
-    --gradient-accent: hsl(350 80% 55%);
+    --gradient-primary: hsl(356 78% 53%);
+    --gradient-accent: hsl(356 78% 53%);
     --shadow-card: 0 4px 24px -4px hsl(220 20% 10% / 0.08);
     --shadow-card-hover: 0 12px 32px -8px hsl(220 20% 10% / 0.15);
-    --shadow-button: 0 4px 12px -2px hsl(350 80% 55% / 0.3);
+    --shadow-button: 0 4px 12px -2px hsl(356 78% 53% / 0.3);
     --font-display: 'Bebas Neue', sans-serif;
     --font-body: 'Inter', sans-serif;
   }
@@ -44,7 +44,7 @@
     --card-foreground: 220 10% 92%;
     --popover: 0 0% 6%;
     --popover-foreground: 220 10% 92%;
-    --primary: 350 80% 58%;
+    --primary: 356 78% 53%;
     --primary-foreground: 0 0% 100%;
     --secondary: 200 85% 58%;
     --secondary-foreground: 0 0% 100%;
@@ -56,7 +56,7 @@
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 12%;
     --input: 0 0% 8%;
-    --ring: 350 80% 58%;
+    --ring: 356 78% 53%;
     --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.3);
     --shadow-card-hover: 0 12px 32px -8px hsl(0 0% 0% / 0.5);
   }
@@ -81,7 +81,7 @@
   }
   .search-box:focus-within {
     @apply border-primary/40;
-    box-shadow: 0 0 0 3px hsl(350 80% 55% / 0.1);
+    box-shadow: 0 0 0 3px hsl(356 78% 53% / 0.1);
   }
 
   .prompt-card {
@@ -96,12 +96,12 @@
   }
 
   .btn-gradient {
-    background: hsl(350 80% 55%);
+    background: hsl(356 78% 53%);
     @apply text-white font-semibold shadow-[var(--shadow-button)] transition-all duration-200;
   }
   .btn-gradient:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px -4px hsl(350 80% 55% / 0.4);
+    box-shadow: 0 6px 20px -4px hsl(356 78% 53% / 0.4);
   }
 
   .glass-card {
@@ -109,7 +109,7 @@
   }
 
   .badge-featured {
-    background: hsl(350 80% 55%);
+    background: hsl(356 78% 53%);
     @apply text-white px-3 py-1 text-xs font-bold uppercase tracking-wide rounded-full;
   }
   .badge-pending {
@@ -182,8 +182,8 @@
     animation: pulseGlow 2s ease-in-out infinite;
   }
   @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 20px hsl(350 80% 55% / 0.3); }
-    50% { box-shadow: 0 0 40px hsl(350 80% 55% / 0.6); }
+    0%, 100% { box-shadow: 0 0 20px hsl(356 78% 53% / 0.3); }
+    50% { box-shadow: 0 0 40px hsl(356 78% 53% / 0.6); }
   }
 }
 
