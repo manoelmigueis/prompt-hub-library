@@ -3,6 +3,7 @@ import { Check, Copy, Eye, Heart, User } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface PromptCardProps {
   prompt: Prompt;
