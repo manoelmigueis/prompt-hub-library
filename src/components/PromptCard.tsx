@@ -109,9 +109,12 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
       <div className="p-3 flex flex-col flex-1">
         {/* Author */}
         <div className="flex items-center gap-1.5 mb-1.5">
-          <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-            <User className="w-3 h-3 text-primary" />
-          </div>
+          <Avatar className="h-5 w-5 shrink-0">
+            <AvatarImage src={prompt.authorAvatar} alt={prompt.author} />
+            <AvatarFallback className="bg-primary/20 text-primary text-[8px] font-bold">
+              {prompt.author?.slice(0, 2).toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
           <span className="text-[11px] font-medium text-muted-foreground truncate">
             {prompt.author}
             {prompt.authorHandle && <span className="text-primary/70 ml-1">{prompt.authorHandle}</span>}
