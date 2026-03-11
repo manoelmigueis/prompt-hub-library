@@ -28,8 +28,8 @@
     --input: 220 15% 95%;
     --ring: 350 80% 55%;
     --radius: 0.75rem;
-    --gradient-primary: linear-gradient(135deg, hsl(350 80% 55%) 0%, hsl(200 85% 55%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(350 80% 55%) 0%, hsl(270 60% 55%) 50%, hsl(200 85% 55%) 100%);
+    --gradient-primary: hsl(350 80% 55%);
+    --gradient-accent: hsl(350 80% 55%);
     --shadow-card: 0 4px 24px -4px hsl(220 20% 10% / 0.08);
     --shadow-card-hover: 0 12px 32px -8px hsl(220 20% 10% / 0.15);
     --shadow-button: 0 4px 12px -2px hsl(350 80% 55% / 0.3);
@@ -38,24 +38,24 @@
   }
 
   .dark {
-    --background: 220 25% 6%;
+    --background: 0 0% 3%;
     --foreground: 220 10% 92%;
-    --card: 220 20% 10%;
+    --card: 0 0% 6%;
     --card-foreground: 220 10% 92%;
-    --popover: 220 20% 10%;
+    --popover: 0 0% 6%;
     --popover-foreground: 220 10% 92%;
     --primary: 350 80% 58%;
     --primary-foreground: 0 0% 100%;
     --secondary: 200 85% 58%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 220 18% 15%;
+    --muted: 0 0% 10%;
     --muted-foreground: 220 10% 50%;
     --accent: 270 60% 58%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 15% 16%;
-    --input: 220 15% 12%;
+    --border: 0 0% 12%;
+    --input: 0 0% 8%;
     --ring: 350 80% 58%;
     --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.3);
     --shadow-card-hover: 0 12px 32px -8px hsl(0 0% 0% / 0.5);
@@ -96,7 +96,7 @@
   }
 
   .btn-gradient {
-    background: var(--gradient-primary);
+    background: hsl(350 80% 55%);
     @apply text-white font-semibold shadow-[var(--shadow-button)] transition-all duration-200;
   }
   .btn-gradient:hover {
@@ -109,7 +109,7 @@
   }
 
   .badge-featured {
-    background: var(--gradient-primary);
+    background: hsl(350 80% 55%);
     @apply text-white px-3 py-1 text-xs font-bold uppercase tracking-wide rounded-full;
   }
   .badge-pending {

@@ -103,7 +103,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
             <div className="relative">
               <Avatar className="h-24 w-24 border-4 border-primary/20">
                 <AvatarImage src={avatarUrl || undefined} alt={displayName} />
-                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl font-bold">
+                <AvatarFallback className="bg-primary text-white text-2xl font-bold">
                   {initials}
                 </AvatarFallback>
               </Avatar>

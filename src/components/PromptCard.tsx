@@ -71,7 +71,7 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+          <div className="w-full h-full bg-primary/20 flex items-center justify-center">
             <span className="text-5xl opacity-50">📷</span>
           </div>
         )}
