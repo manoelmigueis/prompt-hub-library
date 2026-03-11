@@ -33,23 +33,42 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         return;
       }
 
-      const mappedPrompts: Prompt[] = (data || []).map(p => ({
-        id: p.id,
-        title: p.title,
-        description: p.content.substring(0, 100) + (p.content.length > 100 ? '...' : ''),
-        content: p.content,
-        imageUrl: p.image_url || undefined,
-        author: p.author_name || 'Anônimo',
-        authorHandle: p.author_instagram ? `@${p.author_instagram}` : undefined,
-        category: p.category as Category,
-        status: p.status as PromptStatus,
-        isFeatured: p.is_featured,
-        tags: generateTags(p.category as Category),
-        viewCount: (p as any).view_count || 0,
-        copyCount: (p as any).copy_count || 0,
-        createdAt: new Date(p.created_at),
-        updatedAt: new Date(p.updated_at),
-      }));
+      // Fetch author profiles for avatars
+      const userIds = [...new Set((data || []).map(p => p.user_id).filter(Boolean))] as string[];
+      let profilesMap: Record<string, { avatar_url: string | null; display_name: string | null; instagram: string | null }> = {};
+      
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, avatar_url, display_name, instagram')
+          .in('id', userIds);
+        
+        if (profiles) {
+          profiles.forEach(p => { profilesMap[p.id] = p; });
+        }
+      }
+
+      const mappedPrompts: Prompt[] = (data || []).map(p => {
+        const authorProfile = p.user_id ? profilesMap[p.user_id] : null;
+        return {
+          id: p.id,
+          title: p.title,
+          description: p.content.substring(0, 100) + (p.content.length > 100 ? '...' : ''),
+          content: p.content,
+          imageUrl: p.image_url || undefined,
+          author: authorProfile?.display_name || p.author_name || 'Anônimo',
+          authorHandle: authorProfile?.instagram ? `@${authorProfile.instagram}` : (p.author_instagram ? `@${p.author_instagram}` : undefined),
+          authorAvatar: authorProfile?.avatar_url || undefined,
+          category: p.category as Category,
+          status: p.status as PromptStatus,
+          isFeatured: p.is_featured,
+          tags: generateTags(p.category as Category),
+          viewCount: (p as any).view_count || 0,
+          copyCount: (p as any).copy_count || 0,
+          createdAt: new Date(p.created_at),
+          updatedAt: new Date(p.updated_at),
+        };
+      });
 
       setPrompts(mappedPrompts);
     } catch (error) {
