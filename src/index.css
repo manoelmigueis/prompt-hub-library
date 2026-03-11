@@ -54,8 +54,8 @@
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 15% 16%;
-    --input: 220 15% 12%;
+    --border: 0 0% 12%;
+    --input: 0 0% 8%;
     --ring: 350 80% 58%;
     --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.3);
     --shadow-card-hover: 0 12px 32px -8px hsl(0 0% 0% / 0.5);
