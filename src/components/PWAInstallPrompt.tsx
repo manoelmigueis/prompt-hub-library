@@ -206,7 +206,7 @@ const PWAInstallPrompt = () => {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-foreground/60 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="w-full max-w-md bg-card rounded-2xl border-2 border-primary shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
         {/* Header */}
-        <div className="bg-gradient-to-r from-coral to-coral-dark p-6 relative">
+        <div className="bg-primary p-6 relative">
           <button
             onClick={handleDismiss}
             className="absolute top-3 right-3 p-2 rounded-full bg-card/20 hover:bg-card/40 transition-colors"

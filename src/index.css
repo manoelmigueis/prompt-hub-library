@@ -109,7 +109,7 @@
   }
 
   .badge-featured {
-    background: var(--gradient-primary);
+    background: hsl(350 80% 55%);
     @apply text-white px-3 py-1 text-xs font-bold uppercase tracking-wide rounded-full;
   }
   .badge-pending {
