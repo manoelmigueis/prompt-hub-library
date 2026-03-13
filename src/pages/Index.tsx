@@ -10,7 +10,7 @@ import { InviteModal } from '@/components/InviteModal';
 import { ProfileModal } from '@/components/ProfileModal';
 import { Category, Prompt, PromptStatus } from '@/types/prompt';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, UserProfile } from '@/hooks/useAuth';
 import { usePrompts } from '@/hooks/usePrompts';
 import { useInviteCodes } from '@/hooks/useInviteCodes';
 import { useFavorites } from '@/hooks/useFavorites';
