@@ -122,6 +122,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
       .from('prompts')
       .insert({
         title: data.title,
+        description: data.description,
         content: data.content,
         category: data.category,
         image_url: data.imageUrl || null,
