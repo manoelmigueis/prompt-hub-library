@@ -40,6 +40,7 @@ export default function Index() {
     incrementCopy,
     getAutoApprove,
     setAutoApprove,
+    fetchPrompts,
   } = usePrompts(user?.id, isAdmin);
 
   const {
