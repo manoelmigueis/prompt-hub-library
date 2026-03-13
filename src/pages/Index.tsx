@@ -169,7 +169,7 @@ export default function Index() {
     }
   };
 
-  const handleSaveProfile = async (updates: any) => {
+  const handleSaveProfile = async (updates: Partial<UserProfile>) => {
     const result = await updateProfile(updates);
     if (!result.error) {
       await fetchPrompts();
