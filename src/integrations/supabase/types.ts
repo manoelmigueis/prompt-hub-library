@@ -156,6 +156,7 @@ export type Database = {
           content: string
           copy_count: number | null
           created_at: string
+          description: string | null
           id: string
           image_url: string | null
           is_featured: boolean
@@ -172,6 +173,7 @@ export type Database = {
           content: string
           copy_count?: number | null
           created_at?: string
+          description?: string | null
           id?: string
           image_url?: string | null
           is_featured?: boolean
@@ -188,6 +190,7 @@ export type Database = {
           content?: string
           copy_count?: number | null
           created_at?: string
+          description?: string | null
           id?: string
           image_url?: string | null
           is_featured?: boolean

@@ -53,7 +53,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         return {
           id: p.id,
           title: p.title,
-          description: p.content.substring(0, 100) + (p.content.length > 100 ? '...' : ''),
+          description: (p as any).description || (p.content.substring(0, 100) + (p.content.length > 100 ? '...' : '')),
           content: p.content,
           imageUrl: p.image_url || undefined,
           author: authorProfile?.display_name || p.author_name || 'Anônimo',
@@ -122,6 +122,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
       .from('prompts')
       .insert({
         title: data.title,
+        description: data.description,
         content: data.content,
         category: data.category,
         image_url: data.imageUrl || null,
