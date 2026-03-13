@@ -169,6 +169,14 @@ export default function Index() {
     }
   };
 
+  const handleSaveProfile = async (updates: any) => {
+    const result = await updateProfile(updates);
+    if (!result.error) {
+      await fetchPrompts();
+    }
+    return result;
+  };
+
   const loading = authLoading || promptsLoading;
 
   if (loading) {
