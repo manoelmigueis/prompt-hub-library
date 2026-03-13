@@ -33,11 +33,11 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         return;
       }
 
-      // Fetch author profiles for avatars
+      // Fetch author profiles for avatars (only after auth to respect RLS)
       const userIds = [...new Set((data || []).map(p => p.user_id).filter(Boolean))] as string[];
       let profilesMap: Record<string, { avatar_url: string | null; display_name: string | null; instagram: string | null }> = {};
       
-      if (userIds.length > 0) {
+      if (userIds.length > 0 && userId) {
         const { data: profiles } = await supabase
           .from('profiles')
           .select('id, avatar_url, display_name, instagram')
@@ -76,7 +76,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     fetchPrompts();

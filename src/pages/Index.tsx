@@ -10,7 +10,7 @@ import { InviteModal } from '@/components/InviteModal';
 import { ProfileModal } from '@/components/ProfileModal';
 import { Category, Prompt, PromptStatus } from '@/types/prompt';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, UserProfile } from '@/hooks/useAuth';
 import { usePrompts } from '@/hooks/usePrompts';
 import { useInviteCodes } from '@/hooks/useInviteCodes';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -40,6 +40,7 @@ export default function Index() {
     incrementCopy,
     getAutoApprove,
     setAutoApprove,
+    fetchPrompts,
   } = usePrompts(user?.id, isAdmin);
 
   const {
@@ -168,6 +169,14 @@ export default function Index() {
     }
   };
 
+  const handleSaveProfile = async (updates: Partial<UserProfile>) => {
+    const result = await updateProfile(updates);
+    if (!result.error) {
+      await fetchPrompts();
+    }
+    return result;
+  };
+
   const loading = authLoading || promptsLoading;
 
   if (loading) {
@@ -247,7 +256,7 @@ export default function Index() {
             isOpen={showProfileModal}
             onClose={() => setShowProfileModal(false)}
             profile={profile}
-            onSave={updateProfile}
+            onSave={handleSaveProfile}
           />
           
           <AdminPanel 
