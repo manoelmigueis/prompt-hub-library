@@ -1,10 +1,10 @@
 import { Prompt, CATEGORIES } from '@/types/prompt';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Copy, Check, Instagram, Twitter, Youtube, Globe, Eye, Heart, X } from 'lucide-react';
+import { Copy, Check, Instagram, Eye, Heart, X } from 'lucide-react';
 import { useState } from 'react';
-import { useImageAspectRatio, getAspectRatioLabel } from '@/hooks/useImageAspectRatio';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface PromptModalProps {
   prompt: Prompt | null;
@@ -17,19 +17,18 @@ interface PromptModalProps {
 
 export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavorite, onCopy }: PromptModalProps) {
   const [copied, setCopied] = useState(false);
-  const { ratio, className: aspectClassName, loading } = useImageAspectRatio(prompt?.imageUrl);
-  
+
   if (!prompt) return null;
 
-  const categoryLabel = CATEGORIES.find(c => c.id === prompt.category)?.labelPt || prompt.category;
-  
+  const categoryLabel = CATEGORIES.find((c) => c.id === prompt.category)?.labelPt || prompt.category;
+
   const handleCopy = () => {
     navigator.clipboard.writeText(prompt.content);
     setCopied(true);
     onCopy?.(prompt.id);
     setTimeout(() => setCopied(false), 2000);
   };
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 gap-0">
@@ -37,8 +36,8 @@ export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavor
           {/* Left: Image */}
           <div className="relative md:w-1/2 bg-black flex items-center justify-center min-h-[300px]">
             {prompt.imageUrl && (
-              <img 
-                src={prompt.imageUrl} 
+              <img
+                src={prompt.imageUrl}
                 alt={prompt.title}
                 className="w-full h-full object-contain pointer-events-none select-none"
                 draggable={false}
@@ -67,7 +66,7 @@ export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavor
               </button>
             </div>
           </div>
-          
+
           {/* Right: Content */}
           <div className="md:w-1/2 p-5 flex flex-col">
             {/* Close button */}
@@ -77,9 +76,12 @@ export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavor
 
             {/* Author */}
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
-                {prompt.author.charAt(0).toUpperCase()}
-              </div>
+              <Avatar className="h-10 w-10 border border-border">
+                <AvatarImage src={prompt.authorAvatar} alt={prompt.author} />
+                <AvatarFallback className="bg-primary/20 text-primary font-bold text-sm">
+                  {prompt.author.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               <div>
                 <p className="font-semibold text-sm">{prompt.author}</p>
                 <p className="text-xs text-muted-foreground">Criador do prompt</p>
@@ -89,7 +91,7 @@ export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavor
             {/* Social Links */}
             {prompt.authorHandle && (
               <div className="flex flex-wrap gap-2 mb-4">
-                <a 
+                <a
                   href={`https://instagram.com/${prompt.authorHandle.replace('@', '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -104,41 +106,34 @@ export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavor
             {/* Title & Description */}
             <h2 className="font-display text-xl tracking-wide mb-2">{prompt.title}</h2>
             <p className="text-sm text-muted-foreground mb-4">{prompt.description}</p>
-            
+
             {/* Tags */}
             {prompt.tags && prompt.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-4">
-                {prompt.tags.map(tag => (
+                {prompt.tags.map((tag) => (
                   <span key={tag} className="text-xs text-primary/80 bg-primary/10 rounded-full px-2.5 py-1">
                     #{tag}
                   </span>
                 ))}
               </div>
             )}
-            
+
             {/* Prompt Content */}
             <div className="flex-1">
               <h3 className="font-display font-bold text-xs uppercase mb-2 text-muted-foreground">PROMPT COMPLETO</h3>
               <div className="bg-muted rounded-lg p-3 border border-border max-h-[200px] overflow-y-auto">
-                <p className="text-xs leading-relaxed whitespace-pre-wrap font-mono">
-                  {prompt.content}
-                </p>
+                <p className="text-xs leading-relaxed whitespace-pre-wrap font-mono">{prompt.content}</p>
               </div>
             </div>
-            
+
             {/* Copy Button */}
-            <Button 
-              className="w-full mt-4 gap-2 btn-gradient h-11"
-              onClick={handleCopy}
-            >
+            <Button className="w-full mt-4 gap-2 btn-gradient h-11" onClick={handleCopy}>
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               {copied ? 'Copiado!' : 'Copiar Prompt'}
             </Button>
 
             {/* SEO Description */}
-            <p className="text-[11px] text-muted-foreground mt-3 italic">
-              {prompt.description}
-            </p>
+            <p className="text-[11px] text-muted-foreground mt-3 italic">{prompt.description}</p>
           </div>
         </div>
       </DialogContent>

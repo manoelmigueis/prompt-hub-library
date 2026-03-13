@@ -256,7 +256,7 @@ export default function Index() {
             isOpen={showProfileModal}
             onClose={() => setShowProfileModal(false)}
             profile={profile}
-            onSave={updateProfile}
+            onSave={handleSaveProfile}
           />
           
           <AdminPanel 
