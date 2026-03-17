@@ -230,47 +230,47 @@ function AdminPromptCard({
   showReject = true,
 }: AdminPromptCardProps) {
   return (
-    <div className="bg-card border-2 border-primary rounded-lg p-4 flex gap-4">
+    <div className="bg-card border-2 border-primary rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
       {prompt.imageUrl && (
         <img 
           src={prompt.imageUrl} 
           alt={prompt.title}
-          className="w-24 h-24 object-cover rounded-lg border-2 border-primary"
+          className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded-lg border-2 border-primary"
         />
       )}
       
       <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h4 className="font-display font-bold text-lg truncate">{prompt.title}</h4>
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h4 className="font-display font-bold text-base sm:text-lg truncate">{prompt.title}</h4>
               <p className="text-sm text-muted-foreground">por {prompt.author}</p>
             </div>
             
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
               <Button
                 variant={prompt.isFeatured ? 'secondary' : 'outline'}
                 size="sm"
                 onClick={onToggleFeatured}
-                className="gap-1"
+                className="gap-1 h-8"
               >
                 <Star className={`w-4 h-4 ${prompt.isFeatured ? 'fill-current' : ''}`} />
               </Button>
               
               {showApprove && (
-                <Button variant="success" size="sm" onClick={onApprove} className="gap-1">
+                <Button variant="success" size="sm" onClick={onApprove} className="gap-1 h-8">
                   <Check className="w-4 h-4" />
-                  Aprovar
+                  <span className="hidden sm:inline">Aprovar</span>
                 </Button>
               )}
               
               {showReject && (
-                <Button variant="destructive" size="sm" onClick={onReject} className="gap-1">
+                <Button variant="destructive" size="sm" onClick={onReject} className="gap-1 h-8">
                   <X className="w-4 h-4" />
-                  Rejeitar
+                  <span className="hidden sm:inline">Rejeitar</span>
                 </Button>
               )}
 
-              <Button variant="destructive" size="sm" onClick={onDelete} className="gap-1">
+              <Button variant="destructive" size="sm" onClick={onDelete} className="gap-1 h-8">
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
