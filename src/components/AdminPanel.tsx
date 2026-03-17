@@ -56,29 +56,29 @@ export function AdminPanel({
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full p-3 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl flex items-center gap-2">
+          <DialogTitle className="font-display text-lg sm:text-2xl flex items-center gap-2">
             🛡️ Painel Administrativo
           </DialogTitle>
         </DialogHeader>
         
         <Tabs defaultValue="pending" className="mt-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="pending" className="gap-2">
-              <Clock className="w-4 h-4" />
-              Pendentes ({pendingPrompts.length})
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1">
+            <TabsTrigger value="pending" className="gap-1 text-xs sm:text-sm px-2 py-1.5">
+              <Clock className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Pendentes ({pendingPrompts.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="approved" className="gap-2">
-              <CheckCircle className="w-4 h-4" />
-              Aprovados ({approvedPrompts.length})
+            <TabsTrigger value="approved" className="gap-1 text-xs sm:text-sm px-2 py-1.5">
+              <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Aprovados ({approvedPrompts.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="rejected" className="gap-2">
-              <XCircle className="w-4 h-4" />
-              Rejeitados ({rejectedPrompts.length})
+            <TabsTrigger value="rejected" className="gap-1 text-xs sm:text-sm px-2 py-1.5">
+              <XCircle className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Rejeitados ({rejectedPrompts.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              ⚙️ Configurações
+            <TabsTrigger value="settings" className="gap-1 text-xs sm:text-sm px-2 py-1.5">
+              ⚙️ <span className="truncate">Config</span>
             </TabsTrigger>
           </TabsList>
           
@@ -173,29 +173,31 @@ export function AdminPanel({
                   </p>
                 ) : (
                   inviteCodes.map(code => (
-                    <div key={code} className="flex items-center gap-2 bg-card p-3 rounded-lg border">
-                      <code className="flex-1 font-mono text-lg font-bold">{code}</code>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleCopyCode(code)}
-                      >
-                        {copiedCode === code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => copyInviteLink(code)}
-                      >
-                        Link
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        size="sm"
-                        onClick={() => onDeleteCode(code)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <div key={code} className="flex flex-wrap items-center gap-2 bg-card p-2 sm:p-3 rounded-lg border">
+                      <code className="flex-1 min-w-0 font-mono text-sm sm:text-lg font-bold truncate">{code}</code>
+                      <div className="flex items-center gap-1.5">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleCopyCode(code)}
+                        >
+                          {copiedCode === code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => copyInviteLink(code)}
+                        >
+                          Link
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => onDeleteCode(code)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))
                 )}
@@ -228,47 +230,47 @@ function AdminPromptCard({
   showReject = true,
 }: AdminPromptCardProps) {
   return (
-    <div className="bg-card border-2 border-primary rounded-lg p-4 flex gap-4">
+    <div className="bg-card border-2 border-primary rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
       {prompt.imageUrl && (
         <img 
           src={prompt.imageUrl} 
           alt={prompt.title}
-          className="w-24 h-24 object-cover rounded-lg border-2 border-primary"
+          className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded-lg border-2 border-primary"
         />
       )}
       
       <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h4 className="font-display font-bold text-lg truncate">{prompt.title}</h4>
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h4 className="font-display font-bold text-base sm:text-lg truncate">{prompt.title}</h4>
               <p className="text-sm text-muted-foreground">por {prompt.author}</p>
             </div>
             
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
               <Button
                 variant={prompt.isFeatured ? 'secondary' : 'outline'}
                 size="sm"
                 onClick={onToggleFeatured}
-                className="gap-1"
+                className="gap-1 h-8"
               >
                 <Star className={`w-4 h-4 ${prompt.isFeatured ? 'fill-current' : ''}`} />
               </Button>
               
               {showApprove && (
-                <Button variant="success" size="sm" onClick={onApprove} className="gap-1">
+                <Button variant="success" size="sm" onClick={onApprove} className="gap-1 h-8">
                   <Check className="w-4 h-4" />
-                  Aprovar
+                  <span className="hidden sm:inline">Aprovar</span>
                 </Button>
               )}
               
               {showReject && (
-                <Button variant="destructive" size="sm" onClick={onReject} className="gap-1">
+                <Button variant="destructive" size="sm" onClick={onReject} className="gap-1 h-8">
                   <X className="w-4 h-4" />
-                  Rejeitar
+                  <span className="hidden sm:inline">Rejeitar</span>
                 </Button>
               )}
 
-              <Button variant="destructive" size="sm" onClick={onDelete} className="gap-1">
+              <Button variant="destructive" size="sm" onClick={onDelete} className="gap-1 h-8">
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
