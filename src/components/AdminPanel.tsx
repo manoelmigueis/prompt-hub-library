@@ -56,29 +56,29 @@ export function AdminPanel({
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full p-3 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl flex items-center gap-2">
+          <DialogTitle className="font-display text-lg sm:text-2xl flex items-center gap-2">
             🛡️ Painel Administrativo
           </DialogTitle>
         </DialogHeader>
         
         <Tabs defaultValue="pending" className="mt-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="pending" className="gap-2">
-              <Clock className="w-4 h-4" />
-              Pendentes ({pendingPrompts.length})
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1">
+            <TabsTrigger value="pending" className="gap-1 text-xs sm:text-sm px-2 py-1.5">
+              <Clock className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Pendentes ({pendingPrompts.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="approved" className="gap-2">
-              <CheckCircle className="w-4 h-4" />
-              Aprovados ({approvedPrompts.length})
+            <TabsTrigger value="approved" className="gap-1 text-xs sm:text-sm px-2 py-1.5">
+              <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Aprovados ({approvedPrompts.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="rejected" className="gap-2">
-              <XCircle className="w-4 h-4" />
-              Rejeitados ({rejectedPrompts.length})
+            <TabsTrigger value="rejected" className="gap-1 text-xs sm:text-sm px-2 py-1.5">
+              <XCircle className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Rejeitados ({rejectedPrompts.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              ⚙️ Configurações
+            <TabsTrigger value="settings" className="gap-1 text-xs sm:text-sm px-2 py-1.5">
+              ⚙️ <span className="truncate">Config</span>
             </TabsTrigger>
           </TabsList>
           
