@@ -56,6 +56,84 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
     return labels[prompt.category] || prompt.category;
   };
   
+  if (layout === 'list') {
+    return (
+      <article 
+        className="prompt-card cursor-pointer group flex flex-row items-center gap-3 p-3"
+        onClick={onClick}
+      >
+        {/* Thumbnail */}
+        <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-lg overflow-hidden">
+          {prompt.imageUrl ? (
+            <img 
+              src={prompt.imageUrl} 
+              alt={prompt.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
+              draggable={false}
+              onContextMenu={(e) => e.preventDefault()}
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full bg-primary/20 flex items-center justify-center">
+              <span className="text-2xl opacity-50">📷</span>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <Badge className="bg-primary text-primary-foreground border-0 text-[10px] px-2 py-0.5 shrink-0">
+              {getCategoryLabel()}
+            </Badge>
+            {isNew && (
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/50 text-primary shrink-0">NEW</Badge>
+            )}
+          </div>
+          <h3 className="font-display text-sm tracking-wide leading-tight line-clamp-1 group-hover:text-primary transition-colors">
+            {prompt.title}
+          </h3>
+          <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-1">
+            {prompt.description}
+          </p>
+          <div className="flex items-center gap-1.5 mt-1">
+            <Avatar className="h-4 w-4 shrink-0">
+              <AvatarImage src={prompt.authorAvatar} alt={prompt.author} />
+              <AvatarFallback className="bg-primary/20 text-primary text-[7px] font-bold">
+                {prompt.author?.slice(0, 2).toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-[10px] text-muted-foreground truncate">{prompt.author}</span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <div className="hidden sm:flex items-center gap-1.5">
+            <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+              <Eye className="w-3 h-3" />{prompt.viewCount}
+            </div>
+            <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+              <Copy className="w-3 h-3" />{prompt.copyCount}
+            </div>
+          </div>
+          <button
+            onClick={handleFavorite}
+            className={`rounded-full p-1.5 transition-colors ${
+              isFavorite ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+          </button>
+          <Button size="sm" className="gap-1 h-7 text-[11px] btn-gradient rounded-lg" onClick={handleCopy}>
+            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            {copied ? 'Copiado!' : 'Copiar'}
+          </Button>
+        </div>
+      </article>
+    );
+  }
+
   return (
     <article 
       className="prompt-card cursor-pointer group flex flex-col"
