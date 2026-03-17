@@ -53,16 +53,19 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
     setIsGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-prompt-meta', {
-        body: { prompt: formData.content, category: formData.category },
+        body: { prompt: formData.content },
       });
 
       if (error) throw error;
+
+      const validCategories = ['retrato-realista','foto-artistica','moda-estilo','cenarios','profile','social-media','video-effect','body-art','fotografia','arte-digital','infographic','youtube','comics','poster','app-design','logo-marca','outro'];
 
       setFormData(prev => ({
         ...prev,
         title: data.title || prev.title,
         description: data.description || prev.description,
         tags: data.tags || prev.tags,
+        category: (data.category && validCategories.includes(data.category)) ? data.category as Category : prev.category,
       }));
 
       toast({
