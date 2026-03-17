@@ -14,6 +14,7 @@ import { useAuth, UserProfile } from '@/hooks/useAuth';
 import { usePrompts } from '@/hooks/usePrompts';
 import { useInviteCodes } from '@/hooks/useInviteCodes';
 import { useFavorites } from '@/hooks/useFavorites';
+import { expandSearchTerms } from '@/lib/searchTranslations';
 
 export default function Index() {
   const { 
