@@ -24,16 +24,42 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are an SEO expert for an AI image prompt gallery. Given a prompt text and category, generate:
+            content: `You are an SEO expert for an AI image prompt gallery. Given a prompt text, generate:
 1. A concise, creative title (max 60 chars, in Portuguese)
 2. An SEO-optimized description (max 155 chars, in Portuguese)
 3. Relevant tags (5-8 tags, in Portuguese, lowercase)
+4. The most appropriate category for this prompt based on its content
+
+Available categories (use EXACTLY one of these IDs):
+- "retrato-realista" = Realistic Portrait (realistic human portraits, headshots, lifelike faces)
+- "foto-artistica" = Artistic Photo (artistic/creative photography, abstract, surreal imagery)
+- "moda-estilo" = Fashion & Style (fashion, clothing, style, outfits, runway)
+- "cenarios" = Scenery (landscapes, nature scenes, environments, backgrounds)
+- "profile" = Profile / Avatar (profile pictures, avatars, icons for social accounts)
+- "social-media" = Social Media (posts, stories, social media content)
+- "video-effect" = Video Effect (video-related effects, animations, motion)
+- "body-art" = Body Painting (body art, tattoo, body painting)
+- "fotografia" = Photography (general photography, camera shots, photographic techniques)
+- "arte-digital" = Digital Art (digital illustrations, digital paintings, CG art)
+- "infographic" = Infographic (infographics, data visualization, charts)
+- "youtube" = YouTube Thumbnail (YouTube thumbnails, video covers)
+- "comics" = Comics / Storyboard (comics, manga, storyboards, sequential art)
+- "poster" = Poster / Flyer (posters, flyers, event banners)
+- "app-design" = App / Web Design (UI/UX, app interfaces, web design)
+- "logo-marca" = Logo / Brand (logos, branding, brand identity)
+- "outro" = Other (anything that doesn't fit above)
+
+IMPORTANT: Analyze the prompt content carefully to choose the RIGHT category. Do NOT default to "profile". 
+- If the prompt describes a woman/man in a scene or artistic setting, it's likely "foto-artistica" or "retrato-realista", NOT "profile".
+- "profile" is ONLY for prompts specifically about profile pictures or avatars.
+- If it involves fashion/clothing focus, use "moda-estilo".
+- If it's a landscape or environment, use "cenarios".
 
 Respond using the generate_meta tool.`,
           },
           {
             role: "user",
-            content: `Prompt: "${prompt}"\nCategoria: ${category}`,
+            content: `Prompt: "${prompt}"`,
           },
         ],
         tools: [
@@ -41,7 +67,7 @@ Respond using the generate_meta tool.`,
             type: "function",
             function: {
               name: "generate_meta",
-              description: "Return title, description and tags for the prompt",
+              description: "Return title, description, tags and category for the prompt",
               parameters: {
                 type: "object",
                 properties: {
@@ -52,8 +78,12 @@ Respond using the generate_meta tool.`,
                     items: { type: "string" },
                     description: "5-8 relevant tags in Portuguese, lowercase",
                   },
+                  category: { 
+                    type: "string", 
+                    description: "The category ID that best fits this prompt. Must be one of: retrato-realista, foto-artistica, moda-estilo, cenarios, profile, social-media, video-effect, body-art, fotografia, arte-digital, infographic, youtube, comics, poster, app-design, logo-marca, outro",
+                  },
                 },
-                required: ["title", "description", "tags"],
+                required: ["title", "description", "tags", "category"],
                 additionalProperties: false,
               },
             },
