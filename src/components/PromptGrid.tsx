@@ -55,7 +55,11 @@ export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, o
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className={
+          view === 'grid' 
+            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            : "flex flex-col gap-3"
+        }>
           {prompts.map((prompt, index) => (
             <div 
               key={prompt.id} 
@@ -68,6 +72,7 @@ export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, o
                 onCopy={onCopyPrompt}
                 isFavorite={isFavorite(prompt.id)}
                 onToggleFavorite={onToggleFavorite}
+                layout={view}
               />
             </div>
           ))}
