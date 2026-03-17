@@ -173,29 +173,31 @@ export function AdminPanel({
                   </p>
                 ) : (
                   inviteCodes.map(code => (
-                    <div key={code} className="flex items-center gap-2 bg-card p-3 rounded-lg border">
-                      <code className="flex-1 font-mono text-lg font-bold">{code}</code>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleCopyCode(code)}
-                      >
-                        {copiedCode === code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => copyInviteLink(code)}
-                      >
-                        Link
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        size="sm"
-                        onClick={() => onDeleteCode(code)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <div key={code} className="flex flex-wrap items-center gap-2 bg-card p-2 sm:p-3 rounded-lg border">
+                      <code className="flex-1 min-w-0 font-mono text-sm sm:text-lg font-bold truncate">{code}</code>
+                      <div className="flex items-center gap-1.5">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleCopyCode(code)}
+                        >
+                          {copiedCode === code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => copyInviteLink(code)}
+                        >
+                          Link
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => onDeleteCode(code)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))
                 )}
