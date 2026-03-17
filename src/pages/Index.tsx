@@ -81,20 +81,25 @@ export default function Index() {
     }
   };
   
-  // Filter prompts
+  // Filter prompts with cross-language search
   const filteredPrompts = useMemo(() => {
-    const q = searchQuery.toLowerCase();
+    if (searchQuery.trim() === '') {
+      return prompts
+        .filter(p => p.status === 'approved')
+        .filter(p => selectedCategory === 'all' || p.category === selectedCategory);
+    }
+
+    const expandedTerms = expandSearchTerms(searchQuery);
+    const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
     return prompts
       .filter(p => p.status === 'approved')
       .filter(p => selectedCategory === 'all' || p.category === selectedCategory)
       .filter(p => {
-        if (q === '') return true;
-        return (
-          p.title.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.content.toLowerCase().includes(q) ||
-          (p.tags && p.tags.some(tag => tag.toLowerCase().includes(q)))
+        const searchableText = normalize(
+          `${p.title} ${p.description} ${p.content} ${(p.tags || []).join(' ')}`
         );
+        return expandedTerms.some(term => searchableText.includes(term));
       });
   }, [prompts, selectedCategory, searchQuery]);
   
