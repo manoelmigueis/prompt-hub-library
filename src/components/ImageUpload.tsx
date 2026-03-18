@@ -183,7 +183,7 @@ export function ImageUpload({ value, onChange, onError, bucket = "prompt-images"
                     Arraste uma imagem ou clique para selecionar
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    JPG, PNG, WebP ou GIF • Máximo 20MB
+                    JPG, PNG, WebP ou GIF • Máximo {maxSizeMB}MB
                   </p>
                 </div>
                 <Button type="button" variant="outline" size="sm" className="gap-2">
