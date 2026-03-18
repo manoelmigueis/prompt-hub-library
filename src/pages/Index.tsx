@@ -50,7 +50,7 @@ export default function Index() {
     deleteCode,
   } = useInviteCodes();
 
-  const { favorites, isFavorite, toggleFavorite } = useFavorites(user?.id);
+  const { favorites, isFavorite, toggleFavorite, favoriteIds } = useFavorites(user?.id);
   
   // UI state
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
