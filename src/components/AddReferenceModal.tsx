@@ -209,8 +209,8 @@ export function AddReferenceModal({ open, onOpenChange, editingReference }: AddR
             />
           </div>
 
-          <Button type="submit" className="w-full btn-gradient" disabled={isSubmitting}>
-            {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar Alterações' : 'Adicionar Referência'}
+          <Button type="submit" className="w-full btn-gradient" disabled={isSubmitting || isUploading}>
+            {isUploading ? 'Enviando imagem...' : isSubmitting ? 'Salvando...' : isEditing ? 'Salvar Alterações' : 'Adicionar Referência'}
           </Button>
         </form>
       </DialogContent>
