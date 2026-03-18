@@ -46,6 +46,7 @@ export type Database = {
           name: string
           prompt_example: string | null
           prompt_keyword: string
+          pt_explanation: string | null
           purpose: string | null
           type: string
           updated_at: string
@@ -60,6 +61,7 @@ export type Database = {
           name: string
           prompt_example?: string | null
           prompt_keyword: string
+          pt_explanation?: string | null
           purpose?: string | null
           type?: string
           updated_at?: string
@@ -74,6 +76,7 @@ export type Database = {
           name?: string
           prompt_example?: string | null
           prompt_keyword?: string
+          pt_explanation?: string | null
           purpose?: string | null
           type?: string
           updated_at?: string

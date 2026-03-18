@@ -8,6 +8,7 @@ export interface CameraReference {
   prompt_keyword: string;
   prompt_example: string | null;
   image_url: string | null;
+  pt_explanation: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;

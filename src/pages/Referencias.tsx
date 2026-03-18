@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Search, Camera, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import type { ReferenceCategory, ReferenceType } from '@/types/reference';
+import { toast } from '@/hooks/use-toast';
+import type { ReferenceCategory, ReferenceType, CameraReference } from '@/types/reference';
 
 const CATEGORY_FILTERS: { id: ReferenceCategory; label: string }[] = [
   { id: 'all', label: 'Todos' },
@@ -27,11 +28,14 @@ const TYPE_FILTERS: { id: ReferenceType; label: string }[] = [
 
 export default function Referencias() {
   const { user, isAdmin, isModerator, profile, signOut } = useAuth();
-  const { references, isLoading, error } = useReferences();
-  const [showAddModal, setShowAddModal] = useState(false);
+  const { references, isLoading, error, deleteReference } = useReferences();
+  const [showModal, setShowModal] = useState(false);
+  const [editingRef, setEditingRef] = useState<CameraReference | null>(null);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<ReferenceCategory>('all');
   const [typeFilter, setTypeFilter] = useState<ReferenceType>('all');
+
+  const canManage = isAdmin || isModerator;
 
   const filtered = useMemo(() => {
     return references.filter((ref) => {
@@ -43,12 +47,32 @@ export default function Referencias() {
           ref.name.toLowerCase().includes(q) ||
           ref.prompt_keyword.toLowerCase().includes(q) ||
           ref.description?.toLowerCase().includes(q) ||
-          ref.prompt_example?.toLowerCase().includes(q)
+          ref.prompt_example?.toLowerCase().includes(q) ||
+          ref.pt_explanation?.toLowerCase().includes(q)
         );
       }
       return true;
     });
   }, [references, categoryFilter, typeFilter, search]);
+
+  const handleEdit = (ref: CameraReference) => {
+    setEditingRef(ref);
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteReference.mutateAsync(id);
+      toast({ title: 'Referência excluída!' });
+    } catch {
+      toast({ title: 'Erro ao excluir', variant: 'destructive' });
+    }
+  };
+
+  const handleCloseModal = (open: boolean) => {
+    setShowModal(open);
+    if (!open) setEditingRef(null);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -79,8 +103,8 @@ export default function Referencias() {
               Planos, ângulos e movimentos de câmera para seus prompts de IA.
             </p>
           </div>
-          {user && (
-            <Button onClick={() => setShowAddModal(true)} className="btn-gradient gap-2 rounded-full shrink-0">
+          {canManage && (
+            <Button onClick={() => { setEditingRef(null); setShowModal(true); }} className="btn-gradient gap-2 rounded-full shrink-0">
               <Plus className="w-4 h-4" />
               Nova Referência
             </Button>
@@ -99,7 +123,6 @@ export default function Referencias() {
             />
           </div>
 
-          {/* Category pills */}
           <div className="flex flex-wrap gap-2 items-center">
             <Filter className="w-3.5 h-3.5 text-muted-foreground" />
             {CATEGORY_FILTERS.map((c) => (
@@ -117,7 +140,6 @@ export default function Referencias() {
             ))}
           </div>
 
-          {/* Type pills */}
           <div className="flex flex-wrap gap-1.5">
             {TYPE_FILTERS.filter((t) => {
               if (categoryFilter === 'all') return true;
@@ -163,12 +185,18 @@ export default function Referencias() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((ref, i) => (
-              <ReferenceCard key={ref.id} reference={ref} index={i} />
+              <ReferenceCard
+                key={ref.id}
+                reference={ref}
+                index={i}
+                isAdmin={canManage}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         )}
 
-        {/* Counter */}
         {!isLoading && filtered.length > 0 && (
           <p className="text-center text-xs text-muted-foreground mt-6">
             {filtered.length} referência{filtered.length !== 1 ? 's' : ''} encontrada{filtered.length !== 1 ? 's' : ''}
@@ -176,7 +204,7 @@ export default function Referencias() {
         )}
       </main>
 
-      <AddReferenceModal open={showAddModal} onOpenChange={setShowAddModal} />
+      <AddReferenceModal open={showModal} onOpenChange={handleCloseModal} editingReference={editingRef} />
     </div>
   );
 }
