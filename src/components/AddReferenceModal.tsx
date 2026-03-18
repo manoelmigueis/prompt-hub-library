@@ -46,6 +46,7 @@ export function AddReferenceModal({ open, onOpenChange, editingReference }: AddR
   const [ptExplanation, setPtExplanation] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const isEditing = !!editingReference;
 
