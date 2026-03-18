@@ -50,10 +50,11 @@ export default function Index() {
     deleteCode,
   } = useInviteCodes();
 
-  const { isFavorite, toggleFavorite } = useFavorites(user?.id);
+  const { favorites, isFavorite, toggleFavorite } = useFavorites(user?.id);
   
   // UI state
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   
