@@ -50,10 +50,11 @@ export default function Index() {
     deleteCode,
   } = useInviteCodes();
 
-  const { isFavorite, toggleFavorite } = useFavorites(user?.id);
+  const { favorites, isFavorite, toggleFavorite } = useFavorites(user?.id);
   
   // UI state
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   
@@ -82,27 +83,40 @@ export default function Index() {
     }
   };
   
+  const handleCategoryChange = (category: Category) => {
+    setSelectedCategory(category);
+    if (category !== 'all') setShowFavoritesOnly(false);
+  };
+
+  const handleFavoritesFilter = () => {
+    setShowFavoritesOnly(prev => !prev);
+    if (!showFavoritesOnly) setSelectedCategory('all');
+  };
+
   // Filter prompts with cross-language search
   const filteredPrompts = useMemo(() => {
-    if (searchQuery.trim() === '') {
-      return prompts
-        .filter(p => p.status === 'approved')
-        .filter(p => selectedCategory === 'all' || p.category === selectedCategory);
+    let filtered = prompts.filter(p => p.status === 'approved');
+
+    if (showFavoritesOnly) {
+      filtered = filtered.filter(p => favorites.has(p.id));
     }
+
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(p => p.category === selectedCategory);
+    }
+
+    if (searchQuery.trim() === '') return filtered;
 
     const expandedTerms = expandSearchTerms(searchQuery);
     const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-    return prompts
-      .filter(p => p.status === 'approved')
-      .filter(p => selectedCategory === 'all' || p.category === selectedCategory)
-      .filter(p => {
-        const searchableText = normalize(
-          `${p.title} ${p.description} ${p.content} ${(p.tags || []).join(' ')}`
-        );
-        return expandedTerms.some(term => searchableText.includes(term));
-      });
-  }, [prompts, selectedCategory, searchQuery]);
+    return filtered.filter(p => {
+      const searchableText = normalize(
+        `${p.title} ${p.description} ${p.content} ${(p.tags || []).join(' ')}`
+      );
+      return expandedTerms.some(term => searchableText.includes(term));
+    });
+  }, [prompts, selectedCategory, searchQuery, showFavoritesOnly, favorites]);
   
   // Handlers
   const handleLogin = async (email: string, password: string) => {
@@ -227,10 +241,12 @@ export default function Index() {
             
             <CategoryFilter 
               selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
+              onCategoryChange={handleCategoryChange}
               totalPrompts={filteredPrompts.length}
               onSearchClick={() => {}}
               onAddClick={() => setShowSubmitModal(true)}
+              showFavoritesOnly={showFavoritesOnly}
+              onToggleFavorites={handleFavoritesFilter}
             />
             
             <PromptGrid 
