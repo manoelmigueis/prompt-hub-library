@@ -202,6 +202,10 @@ export function AddReferenceModal({ open, onOpenChange, editingReference }: AddR
             <ImageUpload
               value={imageUrl}
               onChange={setImageUrl}
+              bucket="reference-images"
+              maxSizeMB={5}
+              onUploadingChange={setIsUploading}
+              onError={(msg) => toast({ title: 'Erro no upload', description: msg, variant: 'destructive' })}
             />
           </div>
 
