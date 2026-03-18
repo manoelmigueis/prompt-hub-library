@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Shield, Plus, LogOut, User, Settings, Menu, Wrench, Heart } from 'lucide-react';
+import { Shield, Plus, LogOut, User, Settings, Menu, Wrench, Heart, Library } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
