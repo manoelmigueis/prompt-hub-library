@@ -201,7 +201,6 @@ export function AddReferenceModal({ open, onOpenChange, editingReference }: AddR
             <ImageUpload
               value={imageUrl}
               onChange={setImageUrl}
-              bucket="reference-images"
             />
           </div>
 
