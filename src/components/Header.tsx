@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Shield, Plus, LogOut, User, Settings, Menu, Wrench, Heart } from 'lucide-react';
+import { Shield, Plus, LogOut, User, Settings, Menu, Wrench, Heart, Library } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -64,6 +64,17 @@ export function Header({
               >
                 <Wrench className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Ferramentas</span>
+              </Button>
+
+              {/* Referências */}
+              <Button
+                variant={location.pathname === '/referencias' ? 'default' : 'ghost'}
+                size="sm"
+                className={`gap-1.5 rounded-full text-xs ${location.pathname === '/referencias' ? 'bg-primary/20 text-primary' : ''}`}
+                onClick={() => navigate('/referencias')}
+              >
+                <Library className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Referências</span>
               </Button>
 
               {/* Enviar Prompt */}

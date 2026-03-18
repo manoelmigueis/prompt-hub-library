@@ -35,6 +35,51 @@ export type Database = {
         }
         Relationships: []
       }
+      camera_references: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          prompt_example: string | null
+          prompt_keyword: string
+          purpose: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          prompt_example?: string | null
+          prompt_keyword: string
+          purpose?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          prompt_example?: string | null
+          prompt_keyword?: string
+          purpose?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
