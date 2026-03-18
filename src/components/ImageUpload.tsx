@@ -60,7 +60,7 @@ export function ImageUpload({ value, onChange, onError, bucket = "prompt-images"
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
-        .from("prompt-images")
+        .from(bucket)
         .upload(fileName, file, {
           cacheControl: "3600",
           upsert: false,
