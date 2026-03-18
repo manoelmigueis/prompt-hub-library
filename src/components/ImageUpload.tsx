@@ -7,6 +7,9 @@ interface ImageUploadProps {
   value?: string;
   onChange: (url: string) => void;
   onError?: (error: string) => void;
+  bucket?: string;
+  maxSizeMB?: number;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
 export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
