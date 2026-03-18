@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -20,10 +20,12 @@ import { toast } from '@/hooks/use-toast';
 import { useReferences } from '@/hooks/useReferences';
 import { useAuth } from '@/hooks/useAuth';
 import { ImageUpload } from '@/components/ImageUpload';
+import type { CameraReference } from '@/types/reference';
 
 interface AddReferenceModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editingReference?: CameraReference | null;
 }
 
 const TYPES_BY_CATEGORY: Record<string, string[]> = {
@@ -31,8 +33,8 @@ const TYPES_BY_CATEGORY: Record<string, string[]> = {
   Movement: ['Basic Moves', 'Advanced Physical', 'Cinematic & AI'],
 };
 
-export function AddReferenceModal({ open, onOpenChange }: AddReferenceModalProps) {
-  const { addReference } = useReferences();
+export function AddReferenceModal({ open, onOpenChange, editingReference }: AddReferenceModalProps) {
+  const { addReference, updateReference } = useReferences();
   const { user } = useAuth();
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Shots');
@@ -41,8 +43,27 @@ export function AddReferenceModal({ open, onOpenChange }: AddReferenceModalProps
   const [purpose, setPurpose] = useState('');
   const [promptKeyword, setPromptKeyword] = useState('');
   const [promptExample, setPromptExample] = useState('');
+  const [ptExplanation, setPtExplanation] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isEditing = !!editingReference;
+
+  useEffect(() => {
+    if (editingReference) {
+      setName(editingReference.name);
+      setCategory(editingReference.category);
+      setType(editingReference.type);
+      setDescription(editingReference.description || '');
+      setPurpose(editingReference.purpose || '');
+      setPromptKeyword(editingReference.prompt_keyword);
+      setPromptExample(editingReference.prompt_example || '');
+      setPtExplanation(editingReference.pt_explanation || '');
+      setImageUrl(editingReference.image_url || '');
+    } else {
+      resetForm();
+    }
+  }, [editingReference, open]);
 
   const resetForm = () => {
     setName('');
@@ -52,6 +73,7 @@ export function AddReferenceModal({ open, onOpenChange }: AddReferenceModalProps
     setPurpose('');
     setPromptKeyword('');
     setPromptExample('');
+    setPtExplanation('');
     setImageUrl('');
   };
 
@@ -65,24 +87,42 @@ export function AddReferenceModal({ open, onOpenChange }: AddReferenceModalProps
 
     setIsSubmitting(true);
     try {
-      await addReference.mutateAsync({
-        name: name.trim(),
-        category,
-        type,
-        prompt_keyword: promptKeyword.trim(),
-        description: description.trim() || undefined,
-        purpose: purpose.trim() || undefined,
-        prompt_example: promptExample.trim() || undefined,
-        image_url: imageUrl.trim() || undefined,
-        created_by: user?.id,
-      });
-      console.log('[ReferencesModule] Reference added successfully');
-      toast({ title: 'Referência adicionada!', description: name });
+      if (isEditing) {
+        await updateReference.mutateAsync({
+          id: editingReference!.id,
+          name: name.trim(),
+          category,
+          type,
+          prompt_keyword: promptKeyword.trim(),
+          description: description.trim() || null,
+          purpose: purpose.trim() || null,
+          prompt_example: promptExample.trim() || null,
+          pt_explanation: ptExplanation.trim() || null,
+          image_url: imageUrl.trim() || null,
+        });
+        console.log('[ReferencesModule] Reference updated successfully');
+        toast({ title: 'Referência atualizada!', description: name });
+      } else {
+        await addReference.mutateAsync({
+          name: name.trim(),
+          category,
+          type,
+          prompt_keyword: promptKeyword.trim(),
+          description: description.trim() || undefined,
+          purpose: purpose.trim() || undefined,
+          prompt_example: promptExample.trim() || undefined,
+          pt_explanation: ptExplanation.trim() || undefined,
+          image_url: imageUrl.trim() || undefined,
+          created_by: user?.id,
+        });
+        console.log('[ReferencesModule] Reference added successfully');
+        toast({ title: 'Referência adicionada!', description: name });
+      }
       resetForm();
       onOpenChange(false);
     } catch (err) {
-      console.error('[ReferencesModule] Failed to add reference:', err);
-      toast({ title: 'Erro', description: 'Não foi possível adicionar a referência.', variant: 'destructive' });
+      console.error('[ReferencesModule] Failed to save reference:', err);
+      toast({ title: 'Erro', description: 'Não foi possível salvar a referência.', variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -92,7 +132,9 @@ export function AddReferenceModal({ open, onOpenChange }: AddReferenceModalProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl tracking-wide">Nova Referência</DialogTitle>
+          <DialogTitle className="font-display text-xl tracking-wide">
+            {isEditing ? 'Editar Referência' : 'Nova Referência'}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -145,15 +187,26 @@ export function AddReferenceModal({ open, onOpenChange }: AddReferenceModalProps
           </div>
 
           <div className="space-y-2">
+            <Label>Explicação em Português</Label>
+            <Textarea
+              value={ptExplanation}
+              onChange={(e) => setPtExplanation(e.target.value)}
+              placeholder="Ex: A câmera se move para frente, criando intensidade..."
+              rows={2}
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label>Imagem (URL ou Upload)</Label>
             <ImageUpload
               value={imageUrl}
               onChange={setImageUrl}
+              bucket="reference-images"
             />
           </div>
 
           <Button type="submit" className="w-full btn-gradient" disabled={isSubmitting}>
-            {isSubmitting ? 'Adicionando...' : 'Adicionar Referência'}
+            {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar Alterações' : 'Adicionar Referência'}
           </Button>
         </form>
       </DialogContent>
