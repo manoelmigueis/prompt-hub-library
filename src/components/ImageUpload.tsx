@@ -85,6 +85,7 @@ export function ImageUpload({ value, onChange, onError, bucket = "prompt-images"
       onError?.("Erro inesperado ao fazer upload. Tente novamente.");
     } finally {
       setIsUploading(false);
+      onUploadingChange?.(false);
     }
   };
 
