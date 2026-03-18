@@ -12,7 +12,7 @@ interface ImageUploadProps {
   onUploadingChange?: (uploading: boolean) => void;
 }
 
-export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, onError, bucket = "prompt-images", maxSizeMB = 20, onUploadingChange }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(value || null);
   const [dragActive, setDragActive] = useState(false);
