@@ -31,13 +31,18 @@ export function ImageUpload({ value, onChange, onError, bucket = "prompt-images"
       return;
     }
 
-    // Validate file size (20MB - matches bucket limit)
-    if (file.size > 20 * 1024 * 1024) {
-      onError?.("Arquivo muito grande. O tamanho máximo é 20MB.");
+    // Validate file size
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      onError?.(`Arquivo muito grande. O tamanho máximo é ${maxSizeMB}MB.`);
       return;
     }
 
+    // Show local preview immediately
+    const localPreview = URL.createObjectURL(file);
+    setPreview(localPreview);
+
     setIsUploading(true);
+    onUploadingChange?.(true);
 
     try {
       // Get current user
