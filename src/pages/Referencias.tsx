@@ -56,8 +56,8 @@ export default function Referencias() {
         isAdmin={isAdmin}
         isModerator={isModerator}
         isAuthenticated={!!user}
-        displayName={displayName}
-        avatarUrl={avatarUrl}
+        displayName={profile?.display_name || undefined}
+        avatarUrl={profile?.avatar_url || undefined}
         onAdminClick={() => {}}
         onSubmitClick={() => {}}
         onProfileClick={() => {}}
