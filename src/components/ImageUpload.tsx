@@ -75,7 +75,7 @@ export function ImageUpload({ value, onChange, onError, bucket = "prompt-images"
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from("prompt-images")
+        .from(bucket)
         .getPublicUrl(data.path);
 
       setPreview(publicUrl);
