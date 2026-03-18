@@ -7,9 +7,12 @@ interface ImageUploadProps {
   value?: string;
   onChange: (url: string) => void;
   onError?: (error: string) => void;
+  bucket?: string;
+  maxSizeMB?: number;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
-export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, onError, bucket = "prompt-images", maxSizeMB = 20, onUploadingChange }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(value || null);
   const [dragActive, setDragActive] = useState(false);
@@ -28,13 +31,18 @@ export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
       return;
     }
 
-    // Validate file size (20MB - matches bucket limit)
-    if (file.size > 20 * 1024 * 1024) {
-      onError?.("Arquivo muito grande. O tamanho máximo é 20MB.");
+    // Validate file size
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      onError?.(`Arquivo muito grande. O tamanho máximo é ${maxSizeMB}MB.`);
       return;
     }
 
+    // Show local preview immediately
+    const localPreview = URL.createObjectURL(file);
+    setPreview(localPreview);
+
     setIsUploading(true);
+    onUploadingChange?.(true);
 
     try {
       // Get current user
@@ -52,7 +60,7 @@ export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
-        .from("prompt-images")
+        .from(bucket)
         .upload(fileName, file, {
           cacheControl: "3600",
           upsert: false,
@@ -67,7 +75,7 @@ export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from("prompt-images")
+        .from(bucket)
         .getPublicUrl(data.path);
 
       setPreview(publicUrl);
@@ -77,6 +85,7 @@ export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
       onError?.("Erro inesperado ao fazer upload. Tente novamente.");
     } finally {
       setIsUploading(false);
+      onUploadingChange?.(false);
     }
   };
 
@@ -174,7 +183,7 @@ export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
                     Arraste uma imagem ou clique para selecionar
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    JPG, PNG, WebP ou GIF • Máximo 20MB
+                    JPG, PNG, WebP ou GIF • Máximo {maxSizeMB}MB
                   </p>
                 </div>
                 <Button type="button" variant="outline" size="sm" className="gap-2">

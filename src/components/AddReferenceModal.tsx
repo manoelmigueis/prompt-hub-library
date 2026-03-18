@@ -46,6 +46,7 @@ export function AddReferenceModal({ open, onOpenChange, editingReference }: AddR
   const [ptExplanation, setPtExplanation] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const isEditing = !!editingReference;
 
@@ -201,11 +202,15 @@ export function AddReferenceModal({ open, onOpenChange, editingReference }: AddR
             <ImageUpload
               value={imageUrl}
               onChange={setImageUrl}
+              bucket="reference-images"
+              maxSizeMB={5}
+              onUploadingChange={setIsUploading}
+              onError={(msg) => toast({ title: 'Erro no upload', description: msg, variant: 'destructive' })}
             />
           </div>
 
-          <Button type="submit" className="w-full btn-gradient" disabled={isSubmitting}>
-            {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar Alterações' : 'Adicionar Referência'}
+          <Button type="submit" className="w-full btn-gradient" disabled={isSubmitting || isUploading}>
+            {isUploading ? 'Enviando imagem...' : isSubmitting ? 'Salvando...' : isEditing ? 'Salvar Alterações' : 'Adicionar Referência'}
           </Button>
         </form>
       </DialogContent>
