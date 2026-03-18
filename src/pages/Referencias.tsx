@@ -26,7 +26,7 @@ const TYPE_FILTERS: { id: ReferenceType; label: string }[] = [
 ];
 
 export default function Referencias() {
-  const { user, isAdmin, isModerator, displayName, avatarUrl, signOut } = useAuth();
+  const { user, isAdmin, isModerator, profile, signOut } = useAuth();
   const { references, isLoading, error } = useReferences();
   const [showAddModal, setShowAddModal] = useState(false);
   const [search, setSearch] = useState('');

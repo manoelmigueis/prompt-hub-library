@@ -147,10 +147,8 @@ export function AddReferenceModal({ open, onOpenChange }: AddReferenceModalProps
           <div className="space-y-2">
             <Label>Imagem (URL ou Upload)</Label>
             <ImageUpload
-              currentImageUrl={imageUrl}
-              onImageChange={setImageUrl}
-              bucket="prompt-images"
-              folder="references"
+              value={imageUrl}
+              onChange={setImageUrl}
             />
           </div>
 
