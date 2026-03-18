@@ -2,23 +2,28 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export function useFavorites(userId?: string) {
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
 
   const fetchFavorites = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      setFavoriteIds([]);
+      return;
+    }
     const { data } = await supabase
       .from('favorites')
       .select('prompt_id')
       .eq('user_id', userId);
     
     if (data) {
-      setFavorites(new Set(data.map(f => f.prompt_id)));
+      setFavoriteIds(data.map(f => f.prompt_id));
     }
   }, [userId]);
 
   useEffect(() => {
     fetchFavorites();
   }, [fetchFavorites]);
+
+  const favorites = new Set(favoriteIds);
 
   const toggleFavorite = async (promptId: string) => {
     if (!userId) return;
@@ -29,20 +34,16 @@ export function useFavorites(userId?: string) {
         .delete()
         .eq('user_id', userId)
         .eq('prompt_id', promptId);
-      setFavorites(prev => {
-        const next = new Set(prev);
-        next.delete(promptId);
-        return next;
-      });
+      setFavoriteIds(prev => prev.filter(id => id !== promptId));
     } else {
       await supabase
         .from('favorites')
         .insert({ user_id: userId, prompt_id: promptId });
-      setFavorites(prev => new Set(prev).add(promptId));
+      setFavoriteIds(prev => [...prev, promptId]);
     }
   };
 
   const isFavorite = (promptId: string) => favorites.has(promptId);
 
-  return { favorites, toggleFavorite, isFavorite };
+  return { favorites, toggleFavorite, isFavorite, favoriteIds };
 }
