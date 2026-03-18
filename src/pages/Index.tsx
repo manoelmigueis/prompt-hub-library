@@ -116,7 +116,7 @@ export default function Index() {
       );
       return expandedTerms.some(term => searchableText.includes(term));
     });
-  }, [prompts, selectedCategory, searchQuery, showFavoritesOnly, favorites]);
+  }, [prompts, selectedCategory, searchQuery, showFavoritesOnly, favoriteIds]);
   
   // Handlers
   const handleLogin = async (email: string, password: string) => {
