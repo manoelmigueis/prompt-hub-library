@@ -241,10 +241,12 @@ export default function Index() {
             
             <CategoryFilter 
               selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
+              onCategoryChange={handleCategoryChange}
               totalPrompts={filteredPrompts.length}
               onSearchClick={() => {}}
               onAddClick={() => setShowSubmitModal(true)}
+              showFavoritesOnly={showFavoritesOnly}
+              onToggleFavorites={handleFavoritesFilter}
             />
             
             <PromptGrid 
