@@ -2,11 +2,12 @@ import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { useAuth } from '@/hooks/useAuth';
 import { useReferences } from '@/hooks/useReferences';
+import { useReferenceFavorites } from '@/hooks/useReferenceFavorites';
 import { ReferenceCard } from '@/components/ReferenceCard';
 import { AddReferenceModal } from '@/components/AddReferenceModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Camera, Filter } from 'lucide-react';
+import { Plus, Search, Camera, Filter, Heart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import type { ReferenceCategory, ReferenceType, CameraReference } from '@/types/reference';
@@ -29,18 +30,22 @@ const TYPE_FILTERS: { id: ReferenceType; label: string }[] = [
 export default function Referencias() {
   const { user, isAdmin, isModerator, profile, signOut } = useAuth();
   const { references, isLoading, error, deleteReference } = useReferences();
+  const { favoriteIds, isFavorite, toggleFavorite } = useReferenceFavorites(user?.id);
   const [showModal, setShowModal] = useState(false);
   const [editingRef, setEditingRef] = useState<CameraReference | null>(null);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<ReferenceCategory>('all');
   const [typeFilter, setTypeFilter] = useState<ReferenceType>('all');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   const canManage = isAdmin || isModerator;
 
   const filtered = useMemo(() => {
     return references.filter((ref) => {
+      if (showFavoritesOnly && !favoriteIds.includes(ref.id)) return false;
       if (categoryFilter !== 'all' && ref.category !== categoryFilter) return false;
       if (typeFilter !== 'all' && ref.type !== typeFilter) return false;
+
       if (search) {
         const q = search.toLowerCase();
         return (
@@ -51,9 +56,10 @@ export default function Referencias() {
           ref.pt_explanation?.toLowerCase().includes(q)
         );
       }
+
       return true;
     });
-  }, [references, categoryFilter, typeFilter, search]);
+  }, [references, showFavoritesOnly, favoriteIds, categoryFilter, typeFilter, search]);
 
   const handleEdit = (ref: CameraReference) => {
     setEditingRef(ref);
@@ -74,6 +80,23 @@ export default function Referencias() {
     if (!open) setEditingRef(null);
   };
 
+  const handleCategoryChange = (category: ReferenceCategory) => {
+    setShowFavoritesOnly(false);
+    setCategoryFilter(category);
+    setTypeFilter('all');
+  };
+
+  const handleFavoritesTab = () => {
+    if (showFavoritesOnly) {
+      setShowFavoritesOnly(false);
+      return;
+    }
+
+    setShowFavoritesOnly(true);
+    setCategoryFilter('all');
+    setTypeFilter('all');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header
@@ -89,7 +112,6 @@ export default function Referencias() {
       />
 
       <main className="container mx-auto px-4 pt-20 pb-12">
-        {/* Title */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -111,7 +133,6 @@ export default function Referencias() {
           )}
         </div>
 
-        {/* Search & Filters */}
         <div className="space-y-3 mb-8">
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -125,12 +146,24 @@ export default function Referencias() {
 
           <div className="flex flex-wrap gap-2 items-center">
             <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+            <button
+              onClick={handleFavoritesTab}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold uppercase tracking-wide rounded-full border-2 transition-colors ${
+                showFavoritesOnly
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-primary bg-card text-foreground hover:bg-secondary'
+              }`}
+            >
+              <Heart className={`w-3.5 h-3.5 ${showFavoritesOnly ? 'fill-current' : ''}`} />
+              Favoritos
+            </button>
+
             {CATEGORY_FILTERS.map((c) => (
               <button
                 key={c.id}
-                onClick={() => { setCategoryFilter(c.id); setTypeFilter('all'); }}
+                onClick={() => handleCategoryChange(c.id)}
                 className={`px-3 py-1 text-xs font-semibold uppercase tracking-wide rounded-full border-2 transition-colors ${
-                  categoryFilter === c.id
+                  categoryFilter === c.id && !showFavoritesOnly
                     ? 'border-primary bg-primary text-primary-foreground'
                     : 'border-primary bg-card text-foreground hover:bg-secondary'
                 }`}
@@ -159,7 +192,6 @@ export default function Referencias() {
           </div>
         </div>
 
-        {/* Content */}
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -178,10 +210,19 @@ export default function Referencias() {
             <p className="text-destructive text-sm">Erro ao carregar referências. Tente novamente.</p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-20">
-            <Camera className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">Nenhuma referência encontrada.</p>
-          </div>
+          showFavoritesOnly ? (
+            <div className="text-center py-20">
+              <Heart className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">
+                Você ainda não tem nenhum favorito. Clique no coração nos cards para salvá-los aqui!
+              </p>
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <Camera className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">Nenhuma referência encontrada.</p>
+            </div>
+          )
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((ref, i) => (
@@ -190,8 +231,10 @@ export default function Referencias() {
                 reference={ref}
                 index={i}
                 isAdmin={canManage}
+                isFavorite={isFavorite(ref.id)}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onToggleFavorite={toggleFavorite}
               />
             ))}
           </div>

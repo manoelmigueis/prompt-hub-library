@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Camera, Pencil, Trash2, Maximize } from 'lucide-react';
+import { Copy, Camera, Pencil, Trash2, Maximize, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
@@ -23,11 +23,21 @@ interface ReferenceCardProps {
   reference: CameraReference;
   index: number;
   isAdmin?: boolean;
+  isFavorite?: boolean;
   onEdit?: (reference: CameraReference) => void;
   onDelete?: (id: string) => void;
+  onToggleFavorite?: (id: string) => void;
 }
 
-export function ReferenceCard({ reference, index, isAdmin, onEdit, onDelete }: ReferenceCardProps) {
+export function ReferenceCard({
+  reference,
+  index,
+  isAdmin,
+  isFavorite = false,
+  onEdit,
+  onDelete,
+  onToggleFavorite,
+}: ReferenceCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
 
@@ -48,13 +58,17 @@ export function ReferenceCard({ reference, index, isAdmin, onEdit, onDelete }: R
     setShowDeleteConfirm(false);
   };
 
+  const handleFavorite = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onToggleFavorite?.(reference.id);
+  };
+
   return (
     <>
       <div
         className="group relative bg-card/60 backdrop-blur-md border border-border/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-card-hover)] hover:border-primary/30 animate-in fade-in slide-in-from-bottom-4"
         style={{ animationDelay: `${Math.min(index * 50, 500)}ms`, animationFillMode: 'both' }}
       >
-        {/* Image */}
         <div className="relative aspect-video overflow-hidden bg-muted cursor-pointer" onClick={() => reference.image_url && setShowLightbox(true)}>
           {reference.image_url ? (
             <>
@@ -64,7 +78,6 @@ export function ReferenceCard({ reference, index, isAdmin, onEdit, onDelete }: R
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
               />
-              {/* Zoom overlay on hover */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <Maximize className="w-6 h-6 text-white drop-shadow-lg" />
               </div>
@@ -75,7 +88,6 @@ export function ReferenceCard({ reference, index, isAdmin, onEdit, onDelete }: R
             </div>
           )}
 
-          {/* Category badge overlay */}
           <div className="absolute top-2 left-2 flex gap-1.5">
             <Badge variant="secondary" className="text-[10px] bg-background/80 backdrop-blur-sm border-0">
               {reference.category}
@@ -85,26 +97,41 @@ export function ReferenceCard({ reference, index, isAdmin, onEdit, onDelete }: R
             </Badge>
           </div>
 
-          {/* Admin actions overlay */}
-          {isAdmin && (
-            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <button
-                onClick={(e) => { e.stopPropagation(); onEdit?.(reference); }}
-                className="p-1.5 rounded-md bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
-              >
-                <Pencil className="w-3.5 h-3.5 text-foreground" />
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }}
-                className="p-1.5 rounded-md bg-background/80 backdrop-blur-sm hover:bg-destructive/80 hover:text-destructive-foreground transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
+          <div className="absolute top-2 right-2 flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleFavorite}
+              aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+              className={`p-1.5 rounded-md backdrop-blur-sm transition-colors ${
+                isFavorite
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-background/80 text-foreground hover:text-primary hover:bg-background'
+              }`}
+            >
+              <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
+            </button>
+
+            {isAdmin && (
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); onEdit?.(reference); }}
+                  className="p-1.5 rounded-md bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-foreground" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }}
+                  className="p-1.5 rounded-md bg-background/80 backdrop-blur-sm hover:bg-destructive/80 hover:text-destructive-foreground transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Content */}
         <div className="p-4 space-y-2">
           <h3 className="font-display text-lg leading-tight tracking-wide text-foreground">
             {reference.name}
@@ -115,7 +142,6 @@ export function ReferenceCard({ reference, index, isAdmin, onEdit, onDelete }: R
             </p>
           )}
 
-          {/* Portuguese explanation */}
           {reference.pt_explanation && (
             <div className="pt-1">
               <p className="text-[11px] font-medium text-primary/70 mb-0.5">Como usar:</p>
@@ -125,7 +151,6 @@ export function ReferenceCard({ reference, index, isAdmin, onEdit, onDelete }: R
             </div>
           )}
 
-          {/* Keywords */}
           <div className="flex flex-wrap gap-1 pt-1">
             {reference.prompt_keyword.split(',').map((kw, i) => (
               <span
@@ -137,7 +162,6 @@ export function ReferenceCard({ reference, index, isAdmin, onEdit, onDelete }: R
             ))}
           </div>
 
-          {/* Copy button */}
           <Button
             variant="outline"
             size="sm"
@@ -150,7 +174,6 @@ export function ReferenceCard({ reference, index, isAdmin, onEdit, onDelete }: R
         </div>
       </div>
 
-      {/* Delete confirmation */}
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -168,7 +191,6 @@ export function ReferenceCard({ reference, index, isAdmin, onEdit, onDelete }: R
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Lightbox / Zoom modal */}
       <Dialog open={showLightbox} onOpenChange={setShowLightbox}>
         <DialogContent className="max-w-[95vw] max-h-[90vh] p-0 bg-black/90 border-0 overflow-hidden flex items-center justify-center">
           {reference.image_url && (
