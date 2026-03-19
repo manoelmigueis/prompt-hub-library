@@ -6,8 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Ferramentas from "./pages/Ferramentas";
 import Referencias from "./pages/Referencias";
+import InviteCode from "./pages/InviteCode";
 import NotFound from "./pages/NotFound";
 import OfflineIndicator from "./components/OfflineIndicator";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -19,9 +21,12 @@ const App = () => (
       <OfflineIndicator />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/ferramentas" element={<Ferramentas />} />
-          <Route path="/referencias" element={<Referencias />} />
+          <Route path="/invite" element={<InviteCode />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Index />} />
+            <Route path="/ferramentas" element={<Ferramentas />} />
+            <Route path="/referencias" element={<Referencias />} />
+          </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
