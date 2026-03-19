@@ -1,10 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Search, Plus, Sparkles, Wrench, ExternalLink, Star, Pencil, Trash2 } from 'lucide-react';
+import { Search, Plus, Sparkles, Wrench, ExternalLink, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { AddToolModal } from '@/components/AddToolModal';
-import { EditToolModal } from '@/components/EditToolModal';
 import { useTools, Tool, ToolCategory, TOOL_CATEGORIES } from '@/hooks/useTools';
 import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/Header';
@@ -17,7 +16,7 @@ import { useInviteCodes } from '@/hooks/useInviteCodes';
 import { toast } from 'sonner';
 
 export default function Ferramentas() {
-  const { tools, loading, createTool, updateTool, deleteTool } = useTools();
+  const { tools, loading, createTool, deleteTool } = useTools();
   const { isAuthenticated, isAdmin, isModerator, profile, user, loading: authLoading, signIn, signUp, signOut, updateProfile } = useAuth();
   const { prompts, updatePromptStatus, toggleFeatured, deletePrompt, createPrompt, getAutoApprove, setAutoApprove } = usePrompts(user?.id, isAdmin);
   const { inviteCodes, generateCode, deleteCode } = useInviteCodes();
@@ -28,7 +27,6 @@ export default function Ferramentas() {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
-  const [editingTool, setEditingTool] = useState<Tool | null>(null);
 
   const filteredTools = useMemo(() => {
     return tools
@@ -129,7 +127,7 @@ export default function Ferramentas() {
             </div>
 
             {/* Add button for admins */}
-            {isAdmin && (
+            {(isAdmin || isModerator) && (
               <div className="flex justify-end px-4 max-w-6xl mx-auto mb-6">
                 <Button onClick={() => setShowAddModal(true)} className="btn-gradient gap-2 rounded-full">
                   <Plus className="w-4 h-4" />
@@ -150,8 +148,11 @@ export default function Ferramentas() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {filteredTools.map(tool => (
-                    <div
+                    <a
                       key={tool.id}
+                      href={tool.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="prompt-card group flex flex-col overflow-hidden"
                     >
                       {tool.imageUrl ? (
@@ -178,44 +179,23 @@ export default function Ferramentas() {
                           <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                         </div>
                       </div>
-                      <div className="px-4 pb-3 flex gap-2">
-                        <a
-                          href={tool.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1"
-                        >
+                      {(isAdmin || isModerator) && (
+                        <div className="px-4 pb-3">
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="w-full text-xs h-8 gap-1.5"
+                            variant="destructive"
+                            className="w-full text-xs h-7"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              deleteTool(tool.id);
+                            }}
                           >
-                            <ExternalLink className="w-3 h-3" />
-                            Acessar
+                            Excluir
                           </Button>
-                        </a>
-                        {isAdmin && (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-xs h-8 px-2"
-                              onClick={() => setEditingTool(tool)}
-                            >
-                              <Pencil className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              className="text-xs h-8 px-2"
-                              onClick={() => deleteTool(tool.id)}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
+                        </div>
+                      )}
+                    </a>
                   ))}
                 </div>
               )}
@@ -223,7 +203,6 @@ export default function Ferramentas() {
           </main>
 
           <AddToolModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} onSubmit={createTool} />
-          <EditToolModal isOpen={!!editingTool} onClose={() => setEditingTool(null)} tool={editingTool} onSubmit={updateTool} />
           <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} profile={profile} onSave={updateProfile} />
           <SubmitPromptModal isOpen={showSubmitModal} onClose={() => setShowSubmitModal(false)} onSubmit={async (data: SubmitPromptData) => { await createPrompt(data, profile); setShowSubmitModal(false); }} />
           <AdminPanel

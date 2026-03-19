@@ -40,8 +40,6 @@ export interface CreateToolData {
   isFeatured?: boolean;
 }
 
-export type UpdateToolData = Partial<CreateToolData>;
-
 export function useTools() {
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,42 +109,6 @@ export function useTools() {
     return true;
   };
 
-  const updateTool = async (id: string, data: UpdateToolData) => {
-    const updates: any = {};
-    if (data.name !== undefined) updates.name = data.name;
-    if (data.url !== undefined) updates.url = data.url;
-    if (data.description !== undefined) updates.description = data.description || null;
-    if (data.category !== undefined) updates.category = data.category;
-    if (data.imageUrl !== undefined) updates.image_url = data.imageUrl || null;
-    if (data.isFeatured !== undefined) updates.is_featured = data.isFeatured;
-
-    const { data: updated, error } = await supabase
-      .from('tools')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      toast.error('Erro ao atualizar ferramenta');
-      return false;
-    }
-
-    setTools(prev => prev.map(t => t.id === id ? {
-      id: updated.id,
-      name: updated.name,
-      url: updated.url,
-      description: updated.description,
-      category: updated.category as ToolCategory,
-      imageUrl: updated.image_url,
-      isFeatured: updated.is_featured,
-      createdAt: new Date(updated.created_at),
-    } : t));
-
-    toast.success('Ferramenta atualizada!');
-    return true;
-  };
-
   const deleteTool = async (id: string) => {
     const { error } = await supabase.from('tools').delete().eq('id', id);
     if (error) {
@@ -158,5 +120,5 @@ export function useTools() {
     return true;
   };
 
-  return { tools, loading, createTool, updateTool, deleteTool, fetchTools };
+  return { tools, loading, createTool, deleteTool, fetchTools };
 }
