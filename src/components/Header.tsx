@@ -31,9 +31,11 @@ export function Header({
   isAuthenticated, 
   displayName,
   avatarUrl,
+  showFavoritesOnly,
   onAdminClick, 
   onSubmitClick,
   onProfileClick,
+  onFavoritesClick,
   onLogout 
 }: HeaderProps) {
   const initials = displayName?.slice(0, 2).toUpperCase() || 'U';
