@@ -93,12 +93,15 @@ export function Header({
 
               {/* Favoritos */}
               <Button
-                variant="ghost"
+                variant={showFavoritesOnly ? 'default' : 'ghost'}
                 size="sm"
-                className="gap-1.5 rounded-full text-xs"
-                onClick={() => { navigate('/'); /* scroll to favorites section could be added */ }}
+                className={`gap-1.5 rounded-full text-xs ${showFavoritesOnly ? 'bg-primary/20 text-primary' : ''}`}
+                onClick={() => {
+                  if (location.pathname !== '/') navigate('/');
+                  onFavoritesClick?.();
+                }}
               >
-                <Heart className="w-3.5 h-3.5" />
+                <Heart className={`w-3.5 h-3.5 ${showFavoritesOnly ? 'fill-current' : ''}`} />
                 <span className="hidden sm:inline">Favoritos</span>
               </Button>
               
