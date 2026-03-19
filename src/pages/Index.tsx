@@ -226,9 +226,11 @@ export default function Index() {
             isAuthenticated={isAuthenticated}
             displayName={profile?.display_name || undefined}
             avatarUrl={profile?.avatar_url || undefined}
+            showFavoritesOnly={showFavoritesOnly}
             onAdminClick={() => setShowAdminPanel(true)}
             onSubmitClick={() => setShowSubmitModal(true)}
             onProfileClick={() => setShowProfileModal(true)}
+            onFavoritesClick={handleFavoritesFilter}
             onLogout={handleLogout}
           />
           
