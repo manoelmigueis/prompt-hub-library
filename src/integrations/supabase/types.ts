@@ -156,6 +156,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           display_name: string | null
+          has_access: boolean
           id: string
           instagram: string | null
           invite_code_used: string | null
@@ -170,6 +171,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          has_access?: boolean
           id: string
           instagram?: string | null
           invite_code_used?: string | null
@@ -184,6 +186,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          has_access?: boolean
           id?: string
           instagram?: string | null
           invite_code_used?: string | null
