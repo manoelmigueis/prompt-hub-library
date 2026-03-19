@@ -17,9 +17,11 @@ interface HeaderProps {
   isAuthenticated: boolean;
   displayName?: string;
   avatarUrl?: string;
+  showFavoritesOnly?: boolean;
   onAdminClick: () => void;
   onSubmitClick: () => void;
   onProfileClick?: () => void;
+  onFavoritesClick?: () => void;
   onLogout: () => void;
 }
 
