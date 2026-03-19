@@ -40,6 +40,8 @@ export interface CreateToolData {
   isFeatured?: boolean;
 }
 
+export type UpdateToolData = Partial<CreateToolData>;
+
 export function useTools() {
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(true);
