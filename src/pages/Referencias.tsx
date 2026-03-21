@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { useAuth } from '@/hooks/useAuth';
+import { InviteCodeGate } from '@/components/auth/InviteCodeGate';
 import { useReferences } from '@/hooks/useReferences';
 import { useReferenceFavorites } from '@/hooks/useReferenceFavorites';
 import { ReferenceCard } from '@/components/ReferenceCard';
