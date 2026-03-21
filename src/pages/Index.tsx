@@ -30,7 +30,8 @@ export default function Index() {
     signUp,
     signOut,
     updateProfile,
-    fetchUserData
+    fetchUserData,
+    grantAccess
   } = useAuth();
 
   const {
