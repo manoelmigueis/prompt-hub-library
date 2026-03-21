@@ -22,13 +22,15 @@ export default function Index() {
     isAuthenticated, 
     isAdmin, 
     isModerator,
+    hasAccess,
     profile,
     user,
     loading: authLoading,
     signIn,
     signUp,
     signOut,
-    updateProfile
+    updateProfile,
+    fetchUserData
   } = useAuth();
 
   const {
