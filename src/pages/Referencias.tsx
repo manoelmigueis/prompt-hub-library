@@ -100,6 +100,9 @@ export default function Referencias() {
 
   return (
     <div className="min-h-screen bg-background">
+      {user && !hasAccess && (
+        <InviteCodeGate isOpen={true} userId={user.id} onAccessGranted={() => fetchUserData(user.id)} />
+      )}
       <Header
         isAdmin={isAdmin}
         isModerator={isModerator}
