@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 
 export default function Ferramentas() {
   const { tools, loading, createTool, deleteTool } = useTools();
-  const { isAuthenticated, isAdmin, isModerator, hasAccess, profile, user, loading: authLoading, signIn, signUp, signOut, updateProfile, fetchUserData } = useAuth();
+  const { isAuthenticated, isAdmin, isModerator, hasAccess, profile, user, loading: authLoading, signIn, signUp, signOut, updateProfile, fetchUserData, grantAccess } = useAuth();
   const { prompts, updatePromptStatus, toggleFeatured, deletePrompt, createPrompt, getAutoApprove, setAutoApprove } = usePrompts(user?.id, isAdmin);
   const { inviteCodes, generateCode, deleteCode } = useInviteCodes();
   
