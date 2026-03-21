@@ -219,9 +219,18 @@ export default function Index() {
         onSignUp={handleSignUp}
         loading={authLoading}
       />
+
+      {/* Invite Code Gate - shown after login if no access */}
+      {isAuthenticated && user && !hasAccess && (
+        <InviteCodeGate
+          isOpen={true}
+          userId={user.id}
+          onAccessGranted={() => fetchUserData(user.id)}
+        />
+      )}
       
       {/* Main Content */}
-      {isAuthenticated && (
+      {isAuthenticated && hasAccess && (
         <>
           <Header 
             isAdmin={isAdmin}
