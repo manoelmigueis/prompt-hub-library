@@ -16,6 +16,7 @@ export interface UserProfile {
   website: string | null;
   avatar_url: string | null;
   status: UserStatus;
+  has_access: boolean;
   invite_code_used: string | null;
   created_at: string;
   updated_at: string;
