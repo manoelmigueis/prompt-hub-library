@@ -195,6 +195,7 @@ export function useAuth() {
     isAuthenticated,
     isAdmin,
     isModerator,
+    hasAccess,
     signUp,
     signIn,
     signOut,
