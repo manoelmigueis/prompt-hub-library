@@ -29,7 +29,7 @@ const TYPE_FILTERS: { id: ReferenceType; label: string }[] = [
 ];
 
 export default function Referencias() {
-  const { user, isAdmin, isModerator, hasAccess, profile, signOut, fetchUserData } = useAuth();
+  const { user, isAdmin, isModerator, hasAccess, profile, signOut, fetchUserData, grantAccess } = useAuth();
   const { references, isLoading, error, deleteReference } = useReferences();
   const { favoriteIds, isFavorite, toggleFavorite } = useReferenceFavorites(user?.id);
   const [showModal, setShowModal] = useState(false);
@@ -101,7 +101,7 @@ export default function Referencias() {
   return (
     <div className="min-h-screen bg-background">
       {user && !hasAccess && (
-        <InviteCodeGate isOpen={true} userId={user.id} onAccessGranted={() => fetchUserData(user.id)} />
+        <InviteCodeGate isOpen={true} userId={user.id} onAccessGranted={() => { grantAccess(); fetchUserData(user.id); }} />
       )}
       <Header
         isAdmin={isAdmin}

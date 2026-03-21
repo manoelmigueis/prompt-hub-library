@@ -30,7 +30,8 @@ export default function Index() {
     signUp,
     signOut,
     updateProfile,
-    fetchUserData
+    fetchUserData,
+    grantAccess
   } = useAuth();
 
   const {
@@ -225,7 +226,7 @@ export default function Index() {
         <InviteCodeGate
           isOpen={true}
           userId={user.id}
-          onAccessGranted={() => fetchUserData(user.id)}
+          onAccessGranted={() => { grantAccess(); fetchUserData(user.id); }}
         />
       )}
       
