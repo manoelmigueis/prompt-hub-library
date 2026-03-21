@@ -7,6 +7,7 @@ import { PromptModal } from '@/components/PromptModal';
 import { SubmitPromptModal, SubmitPromptData } from '@/components/SubmitPromptModal';
 import { AdminPanel } from '@/components/AdminPanel';
 import { InviteModal } from '@/components/InviteModal';
+import { InviteCodeGate } from '@/components/auth/InviteCodeGate';
 import { ProfileModal } from '@/components/ProfileModal';
 import { Category, Prompt, PromptStatus } from '@/types/prompt';
 import { toast } from 'sonner';
