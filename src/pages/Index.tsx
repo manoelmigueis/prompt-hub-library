@@ -225,7 +225,7 @@ export default function Index() {
         <InviteCodeGate
           isOpen={true}
           userId={user.id}
-          onAccessGranted={() => fetchUserData(user.id)}
+          onAccessGranted={() => { grantAccess(); fetchUserData(user.id); }}
         />
       )}
       

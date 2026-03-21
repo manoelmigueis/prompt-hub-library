@@ -64,7 +64,7 @@ export default function Ferramentas() {
       <InviteModal isOpen={!isAuthenticated} onLogin={handleLogin} onSignUp={handleSignUp} loading={authLoading} />
       
       {isAuthenticated && user && !hasAccess && (
-        <InviteCodeGate isOpen={true} userId={user.id} onAccessGranted={() => fetchUserData(user.id)} />
+        <InviteCodeGate isOpen={true} userId={user.id} onAccessGranted={() => { grantAccess(); fetchUserData(user.id); }} />
       )}
 
       {isAuthenticated && hasAccess && (

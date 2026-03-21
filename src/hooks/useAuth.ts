@@ -204,6 +204,7 @@ export function useAuth() {
     signIn,
     signOut,
     updateProfile,
-    fetchUserData
+    fetchUserData,
+    grantAccess
   };
 }
