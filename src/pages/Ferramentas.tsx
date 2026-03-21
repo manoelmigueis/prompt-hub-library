@@ -11,6 +11,7 @@ import { AdminPanel } from '@/components/AdminPanel';
 import { ProfileModal } from '@/components/ProfileModal';
 import { SubmitPromptModal, SubmitPromptData } from '@/components/SubmitPromptModal';
 import { InviteModal } from '@/components/InviteModal';
+import { InviteCodeGate } from '@/components/auth/InviteCodeGate';
 import { usePrompts } from '@/hooks/usePrompts';
 import { useInviteCodes } from '@/hooks/useInviteCodes';
 import { toast } from 'sonner';
