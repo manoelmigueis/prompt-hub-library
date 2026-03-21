@@ -32,6 +32,7 @@ export function useAuth() {
   const isAdmin = roles.includes('admin');
   const isModerator = roles.includes('moderator') || isAdmin;
   const isAuthenticated = !!session && !!user;
+  const hasAccess = profile?.has_access === true || isAdmin;
 
   const fetchUserData = useCallback(async (userId: string) => {
     try {
