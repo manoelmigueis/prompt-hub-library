@@ -61,6 +61,10 @@ export function useAuth() {
     }
   }, []);
 
+  const grantAccess = useCallback(() => {
+    setProfile(prev => prev ? { ...prev, has_access: true } : null);
+  }, []);
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
