@@ -7,6 +7,7 @@ import { PromptModal } from '@/components/PromptModal';
 import { SubmitPromptModal, SubmitPromptData } from '@/components/SubmitPromptModal';
 import { AdminPanel } from '@/components/AdminPanel';
 import { InviteModal } from '@/components/InviteModal';
+import { InviteCodeGate } from '@/components/auth/InviteCodeGate';
 import { ProfileModal } from '@/components/ProfileModal';
 import { Category, Prompt, PromptStatus } from '@/types/prompt';
 import { toast } from 'sonner';
@@ -21,13 +22,15 @@ export default function Index() {
     isAuthenticated, 
     isAdmin, 
     isModerator,
+    hasAccess,
     profile,
     user,
     loading: authLoading,
     signIn,
     signUp,
     signOut,
-    updateProfile
+    updateProfile,
+    fetchUserData
   } = useAuth();
 
   const {
@@ -216,9 +219,18 @@ export default function Index() {
         onSignUp={handleSignUp}
         loading={authLoading}
       />
+
+      {/* Invite Code Gate - shown after login if no access */}
+      {isAuthenticated && user && !hasAccess && (
+        <InviteCodeGate
+          isOpen={true}
+          userId={user.id}
+          onAccessGranted={() => fetchUserData(user.id)}
+        />
+      )}
       
       {/* Main Content */}
-      {isAuthenticated && (
+      {isAuthenticated && hasAccess && (
         <>
           <Header 
             isAdmin={isAdmin}
