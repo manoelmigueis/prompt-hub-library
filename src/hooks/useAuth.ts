@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 export type UserRole = 'admin' | 'moderator' | 'user';
 export type UserStatus = 'active' | 'banned' | 'suspended';
 
+const ADMIN_EMAIL = 'juniorthemaster88@gmail.com';
+
 export interface UserProfile {
   id: string;
   display_name: string | null;
@@ -29,30 +31,32 @@ export function useAuth() {
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isAdmin = roles.includes('admin');
+  const isPrimaryAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const isAdmin = roles.includes('admin') || isPrimaryAdmin;
   const isModerator = roles.includes('moderator') || isAdmin;
   const isAuthenticated = !!session && !!user;
   const hasAccess = profile?.has_access === true || isAdmin;
 
   const fetchUserData = useCallback(async (userId: string) => {
     try {
-      // Fetch profile
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
+      const [profileResponse, rolesResponse] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single(),
+        supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId),
+      ]);
+
+      const { data: profileData } = profileResponse;
       if (profileData) {
         setProfile(profileData as UserProfile);
       }
 
-      // Fetch roles
-      const { data: rolesData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId);
-      
+      const { data: rolesData } = rolesResponse;
       if (rolesData) {
         setRoles(rolesData.map(r => r.role as UserRole));
       }
@@ -68,38 +72,40 @@ export function useAuth() {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        // Defer Supabase calls with setTimeout
+
         if (session?.user) {
-          setTimeout(() => {
-            fetchUserData(session.user.id);
-          }, 0);
+          setLoading(true);
+          await fetchUserData(session.user.id);
         } else {
           setProfile(null);
           setRoles([]);
+          setLoading(false);
         }
-        setLoading(false);
+
+        if (session?.user) {
+          setLoading(false);
+        }
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+
       if (session?.user) {
-        fetchUserData(session.user.id);
+        setLoading(true);
+        await fetchUserData(session.user.id);
       }
+
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, [fetchUserData]);
-
-  // Admin email that doesn't require invite code
-  const ADMIN_EMAIL = 'juniorthemaster88@gmail.com';
 
   const signUp = async (email: string, password: string, displayName: string, inviteCode: string) => {
     const isAdminEmail = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
