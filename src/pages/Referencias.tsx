@@ -29,7 +29,7 @@ const TYPE_FILTERS: { id: ReferenceType; label: string }[] = [
 ];
 
 export default function Referencias() {
-  const { user, isAuthenticated, isAdmin, isModerator, hasAccess, profile, signOut, fetchUserData, grantAccess, loading: authLoading } = useAuth();
+  const { user, isAdmin, isModerator, hasAccess, profile, signOut, fetchUserData, grantAccess } = useAuth();
   const { references, isLoading, error, deleteReference } = useReferences();
   const { favoriteIds, isFavorite, toggleFavorite } = useReferenceFavorites(user?.id);
   const [showModal, setShowModal] = useState(false);
@@ -98,17 +98,9 @@ export default function Referencias() {
     setTypeFilter('all');
   };
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
-      {isAuthenticated && user && !hasAccess && (
+      {user && !hasAccess && (
         <InviteCodeGate isOpen={true} userId={user.id} onAccessGranted={() => { grantAccess(); fetchUserData(user.id); }} />
       )}
       <Header

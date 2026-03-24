@@ -6,8 +6,6 @@ import { toast } from 'sonner';
 export type UserRole = 'admin' | 'moderator' | 'user';
 export type UserStatus = 'active' | 'banned' | 'suspended';
 
-const ADMIN_EMAIL = 'juniorthemaster88@gmail.com';
-
 export interface UserProfile {
   id: string;
   display_name: string | null;
@@ -30,37 +28,36 @@ export function useAuth() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
-  const [authTimedOut, setAuthTimedOut] = useState(false);
 
-  const isPrimaryAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-  const isAdmin = roles.includes('admin') || isPrimaryAdmin;
+  const isAdmin = roles.includes('admin');
   const isModerator = roles.includes('moderator') || isAdmin;
   const isAuthenticated = !!session && !!user;
   const hasAccess = profile?.has_access === true || isAdmin;
 
   const fetchUserData = useCallback(async (userId: string) => {
     try {
-      const [profileResponse, rolesResponse] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single(),
-        supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', userId),
-      ]);
+      // Fetch profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (profileData) {
+        setProfile(profileData as UserProfile);
+      }
 
-      const { data: profileData } = profileResponse;
-      setProfile(profileData ? (profileData as UserProfile) : null);
-
-      const { data: rolesData } = rolesResponse;
-      setRoles((rolesData || []).map(r => r.role as UserRole));
+      // Fetch roles
+      const { data: rolesData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
+      
+      if (rolesData) {
+        setRoles(rolesData.map(r => r.role as UserRole));
+      }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      setProfile(null);
-      setRoles([]);
     }
   }, []);
 
@@ -68,67 +65,41 @@ export function useAuth() {
     setProfile(prev => prev ? { ...prev, has_access: true } : null);
   }, []);
 
-  const hydrateSession = useCallback(async (nextSession: Session | null) => {
-    setAuthTimedOut(false);
-    setSession(nextSession);
-
-    const nextUser = nextSession?.user ?? null;
-    setUser(nextUser);
-
-    if (!nextUser) {
-      setProfile(null);
-      setRoles([]);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await fetchUserData(nextUser.id);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchUserData]);
-
   useEffect(() => {
-    let isActive = true;
-
-    const syncSession = async (nextSession: Session | null) => {
-      if (!isActive) return;
-      await hydrateSession(nextSession);
-    };
-
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        await syncSession(session);
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Defer Supabase calls with setTimeout
+        if (session?.user) {
+          setTimeout(() => {
+            fetchUserData(session.user.id);
+          }, 0);
+        } else {
+          setProfile(null);
+          setRoles([]);
+        }
+        setLoading(false);
       }
     );
 
-    void supabase.auth.getSession().then(async ({ data: { session } }) => {
-      await syncSession(session);
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUserData(session.user.id);
+      }
+      setLoading(false);
     });
 
-    return () => {
-      isActive = false;
-      subscription.unsubscribe();
-    };
-  }, [hydrateSession]);
+    return () => subscription.unsubscribe();
+  }, [fetchUserData]);
 
-  useEffect(() => {
-    if (!loading) {
-      setAuthTimedOut(false);
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      console.warn('[DEBUG_LOAD] Auth loading timeout reached, releasing UI fallback');
-      setAuthTimedOut(true);
-      setLoading(false);
-    }, 5000);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [loading]);
+  // Admin email that doesn't require invite code
+  const ADMIN_EMAIL = 'juniorthemaster88@gmail.com';
 
   const signUp = async (email: string, password: string, displayName: string, inviteCode: string) => {
     const isAdminEmail = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -225,7 +196,6 @@ export function useAuth() {
     profile,
     roles,
     loading,
-    authTimedOut,
     isAuthenticated,
     isAdmin,
     isModerator,
