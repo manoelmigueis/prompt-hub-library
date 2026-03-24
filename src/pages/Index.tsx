@@ -25,7 +25,9 @@ export default function Index() {
     hasAccess,
     profile,
     user,
+    session,
     loading: authLoading,
+    authTimedOut,
     signIn,
     signUp,
     signOut,
@@ -76,6 +78,10 @@ export default function Index() {
       getAutoApprove().then(setAutoApproveLocal);
     }
   }, [isAdmin]);
+
+  useEffect(() => {
+    console.log('[DEBUG_LOAD]', { user, loading: authLoading, session });
+  }, [user, authLoading, session]);
 
   const handleToggleAutoApprove = async (value: boolean) => {
     setAutoApproveLocal(value);
@@ -203,8 +209,19 @@ export default function Index() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="text-center space-y-4">
+          <div className="animate-pulse text-primary font-display text-2xl">CARREGANDO...</div>
+          {authTimedOut && (
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="text-sm text-muted-foreground underline underline-offset-4"
+            >
+              Recarregar
+            </button>
+          )}
+        </div>
       </div>
     );
   }

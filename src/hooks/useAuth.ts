@@ -30,6 +30,7 @@ export function useAuth() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authTimedOut, setAuthTimedOut] = useState(false);
 
   const isPrimaryAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
   const isAdmin = roles.includes('admin') || isPrimaryAdmin;
@@ -68,6 +69,7 @@ export function useAuth() {
   }, []);
 
   const hydrateSession = useCallback(async (nextSession: Session | null) => {
+    setAuthTimedOut(false);
     setSession(nextSession);
 
     const nextUser = nextSession?.user ?? null;
@@ -112,6 +114,21 @@ export function useAuth() {
       subscription.unsubscribe();
     };
   }, [hydrateSession]);
+
+  useEffect(() => {
+    if (!loading) {
+      setAuthTimedOut(false);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      console.warn('[DEBUG_LOAD] Auth loading timeout reached, releasing UI fallback');
+      setAuthTimedOut(true);
+      setLoading(false);
+    }, 5000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [loading]);
 
   const signUp = async (email: string, password: string, displayName: string, inviteCode: string) => {
     const isAdminEmail = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -208,6 +225,7 @@ export function useAuth() {
     profile,
     roles,
     loading,
+    authTimedOut,
     isAuthenticated,
     isAdmin,
     isModerator,
