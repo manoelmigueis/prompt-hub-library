@@ -201,9 +201,7 @@ export default function Index() {
     return result;
   };
 
-  const loading = authLoading || promptsLoading;
-
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
@@ -271,6 +269,12 @@ export default function Index() {
               isFavorite={isFavorite}
               onToggleFavorite={toggleFavorite}
             />
+
+            {promptsLoading && (
+              <div className="container mx-auto px-4 pb-8 text-center text-sm text-muted-foreground">
+                Carregando prompts...
+              </div>
+            )}
           </main>
           
           {/* Modals */}

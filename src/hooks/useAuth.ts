@@ -52,16 +52,14 @@ export function useAuth() {
       ]);
 
       const { data: profileData } = profileResponse;
-      if (profileData) {
-        setProfile(profileData as UserProfile);
-      }
+      setProfile(profileData ? (profileData as UserProfile) : null);
 
       const { data: rolesData } = rolesResponse;
-      if (rolesData) {
-        setRoles(rolesData.map(r => r.role as UserRole));
-      }
+      setRoles((rolesData || []).map(r => r.role as UserRole));
     } catch (error) {
       console.error('Error fetching user data:', error);
+      setProfile(null);
+      setRoles([]);
     }
   }, []);
 
@@ -69,43 +67,51 @@ export function useAuth() {
     setProfile(prev => prev ? { ...prev, has_access: true } : null);
   }, []);
 
+  const hydrateSession = useCallback(async (nextSession: Session | null) => {
+    setSession(nextSession);
+
+    const nextUser = nextSession?.user ?? null;
+    setUser(nextUser);
+
+    if (!nextUser) {
+      setProfile(null);
+      setRoles([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await fetchUserData(nextUser.id);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchUserData]);
+
   useEffect(() => {
-    // Set up auth state listener FIRST
+    let isActive = true;
+
+    const syncSession = async (nextSession: Session | null) => {
+      if (!isActive) return;
+      await hydrateSession(nextSession);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          setLoading(true);
-          await fetchUserData(session.user.id);
-        } else {
-          setProfile(null);
-          setRoles([]);
-          setLoading(false);
-        }
-
-        if (session?.user) {
-          setLoading(false);
-        }
+        await syncSession(session);
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        setLoading(true);
-        await fetchUserData(session.user.id);
-      }
-
-      setLoading(false);
+    void supabase.auth.getSession().then(async ({ data: { session } }) => {
+      await syncSession(session);
     });
 
-    return () => subscription.unsubscribe();
-  }, [fetchUserData]);
+    return () => {
+      isActive = false;
+      subscription.unsubscribe();
+    };
+  }, [hydrateSession]);
 
   const signUp = async (email: string, password: string, displayName: string, inviteCode: string) => {
     const isAdminEmail = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
