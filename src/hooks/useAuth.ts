@@ -39,28 +39,33 @@ export function useAuth() {
 
   const fetchUserData = useCallback(async (userId: string) => {
     try {
-      // Fetch profile
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
+      const [{ data: profileData }, { data: rolesData }] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single(),
+        supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId),
+      ]);
+
       if (profileData) {
         setProfile(profileData as UserProfile);
+      } else {
+        setProfile(null);
       }
 
-      // Fetch roles
-      const { data: rolesData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId);
-      
       if (rolesData) {
         setRoles(rolesData.map(r => r.role as UserRole));
+      } else {
+        setRoles([]);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
+      setProfile(null);
+      setRoles([]);
     }
   }, []);
 
@@ -74,17 +79,18 @@ export function useAuth() {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        // Defer Supabase calls with setTimeout
+
         if (session?.user) {
+          setLoading(true);
           setTimeout(() => {
-            fetchUserData(session.user.id);
+            fetchUserData(session.user.id)
+              .finally(() => setLoading(false));
           }, 0);
         } else {
           setProfile(null);
           setRoles([]);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
@@ -92,14 +98,30 @@ export function useAuth() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+
       if (session?.user) {
-        fetchUserData(session.user.id);
+        setLoading(true);
+        fetchUserData(session.user.id)
+          .finally(() => setLoading(false));
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, [fetchUserData]);
+
+  useEffect(() => {
+    if (!user || loading) return;
+
+    const roleLabel = isAdmin
+      ? 'admin'
+      : roles.includes('moderator')
+        ? 'moderator'
+        : roles[0] ?? 'user';
+
+    console.log('[AccessGuard]', 'User Role:', roleLabel, 'Is Validated:', hasAccess);
+  }, [user, loading, isAdmin, roles, hasAccess]);
 
   // Admin email that doesn't require invite code
   const ADMIN_EMAIL = 'juniorthemaster88@gmail.com';
