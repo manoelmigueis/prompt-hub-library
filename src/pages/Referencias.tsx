@@ -100,7 +100,7 @@ export default function Referencias() {
 
   return (
     <div className="min-h-screen bg-background">
-      {user && !hasAccess && (
+      {user && !authLoading && !hasAccess && (
         <InviteCodeGate isOpen={true} userId={user.id} onAccessGranted={() => { grantAccess(); fetchUserData(user.id); }} />
       )}
       <Header

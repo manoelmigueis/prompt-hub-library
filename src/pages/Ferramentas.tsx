@@ -63,7 +63,7 @@ export default function Ferramentas() {
     <div className="min-h-screen bg-background">
       <InviteModal isOpen={!isAuthenticated} onLogin={handleLogin} onSignUp={handleSignUp} loading={authLoading} />
       
-      {isAuthenticated && user && !hasAccess && (
+      {isAuthenticated && user && !authLoading && !hasAccess && (
         <InviteCodeGate isOpen={true} userId={user.id} onAccessGranted={() => { grantAccess(); fetchUserData(user.id); }} />
       )}
 
