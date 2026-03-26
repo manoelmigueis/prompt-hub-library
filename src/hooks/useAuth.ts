@@ -30,6 +30,7 @@ export function useAuth() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   const isAdminBypass = user?.email?.toLowerCase() === ADMIN_BYPASS_EMAIL.toLowerCase();
   const isAdmin = roles.includes('admin') || isAdminBypass;
@@ -88,18 +89,20 @@ export function useAuth() {
           return newSession;
         });
 
-        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-          if (newSession?.user) {
-            setLoading(true);
-            setTimeout(() => {
-              fetchUserData(newSession.user.id)
-                .finally(() => setLoading(false));
-            }, 0);
-          } else {
-            setProfile(null);
-            setRoles([]);
-            setLoading(false);
-          }
+        if (event === 'SIGNED_OUT') {
+          setProfile(null);
+          setRoles([]);
+          setLoading(false);
+        } else if (event === 'SIGNED_IN' && !initialLoadDone) {
+          // Only show loading on first sign-in, not on token refreshes
+          setLoading(true);
+          setTimeout(() => {
+            fetchUserData(newSession!.user.id)
+              .finally(() => setLoading(false));
+          }, 0);
+        } else if (event === 'SIGNED_IN' && newSession?.user) {
+          // Silent background update - no loading state change
+          fetchUserData(newSession.user.id);
         }
       }
     );
@@ -112,9 +115,13 @@ export function useAuth() {
       if (session?.user) {
         setLoading(true);
         fetchUserData(session.user.id)
-          .finally(() => setLoading(false));
+          .finally(() => {
+            setLoading(false);
+            setInitialLoadDone(true);
+          });
       } else {
         setLoading(false);
+        setInitialLoadDone(true);
       }
     });
 
