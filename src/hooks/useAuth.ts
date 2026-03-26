@@ -30,6 +30,7 @@ export function useAuth() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   const isAdminBypass = user?.email?.toLowerCase() === ADMIN_BYPASS_EMAIL.toLowerCase();
   const isAdmin = roles.includes('admin') || isAdminBypass;
