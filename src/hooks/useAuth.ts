@@ -80,16 +80,18 @@ export function useAuth() {
         setSession(session);
         setUser(session?.user ?? null);
 
-        if (session?.user) {
-          setLoading(true);
-          setTimeout(() => {
-            fetchUserData(session.user.id)
-              .finally(() => setLoading(false));
-          }, 0);
-        } else {
-          setProfile(null);
-          setRoles([]);
-          setLoading(false);
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+          if (session?.user) {
+            setLoading(true);
+            setTimeout(() => {
+              fetchUserData(session.user.id)
+                .finally(() => setLoading(false));
+            }, 0);
+          } else {
+            setProfile(null);
+            setRoles([]);
+            setLoading(false);
+          }
         }
       }
     );
