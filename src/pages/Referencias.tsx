@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { useAuth } from '@/hooks/useAuth';
-import { InviteCodeGate } from '@/components/auth/InviteCodeGate';
 import { useReferences } from '@/hooks/useReferences';
 import { useReferenceFavorites } from '@/hooks/useReferenceFavorites';
 import { ReferenceCard } from '@/components/ReferenceCard';
@@ -29,7 +28,7 @@ const TYPE_FILTERS: { id: ReferenceType; label: string }[] = [
 ];
 
 export default function Referencias() {
-  const { user, isAdmin, isModerator, hasAccess, profile, loading: authLoading, signOut, fetchUserData, grantAccess } = useAuth();
+  const { user, isAdmin, isModerator, profile, signOut } = useAuth();
   const { references, isLoading, error, deleteReference } = useReferences();
   const { favoriteIds, isFavorite, toggleFavorite } = useReferenceFavorites(user?.id);
   const [showModal, setShowModal] = useState(false);
@@ -100,9 +99,6 @@ export default function Referencias() {
 
   return (
     <div className="min-h-screen bg-background">
-      {user && !authLoading && !hasAccess && (
-        <InviteCodeGate isOpen={true} userId={user.id} onAccessGranted={() => { grantAccess(); fetchUserData(user.id); }} />
-      )}
       <Header
         isAdmin={isAdmin}
         isModerator={isModerator}

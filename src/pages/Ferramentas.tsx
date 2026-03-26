@@ -11,14 +11,13 @@ import { AdminPanel } from '@/components/AdminPanel';
 import { ProfileModal } from '@/components/ProfileModal';
 import { SubmitPromptModal, SubmitPromptData } from '@/components/SubmitPromptModal';
 import { InviteModal } from '@/components/InviteModal';
-import { InviteCodeGate } from '@/components/auth/InviteCodeGate';
 import { usePrompts } from '@/hooks/usePrompts';
 import { useInviteCodes } from '@/hooks/useInviteCodes';
 import { toast } from 'sonner';
 
 export default function Ferramentas() {
   const { tools, loading, createTool, deleteTool } = useTools();
-  const { isAuthenticated, isAdmin, isModerator, hasAccess, profile, user, loading: authLoading, signIn, signUp, signOut, updateProfile, fetchUserData, grantAccess } = useAuth();
+  const { isAuthenticated, isAdmin, isModerator, profile, user, loading: authLoading, signIn, signUp, signOut, updateProfile } = useAuth();
   const { prompts, updatePromptStatus, toggleFeatured, deletePrompt, createPrompt, getAutoApprove, setAutoApprove } = usePrompts(user?.id, isAdmin);
   const { inviteCodes, generateCode, deleteCode } = useInviteCodes();
   
@@ -63,11 +62,7 @@ export default function Ferramentas() {
     <div className="min-h-screen bg-background">
       <InviteModal isOpen={!isAuthenticated} onLogin={handleLogin} onSignUp={handleSignUp} loading={authLoading} />
       
-      {isAuthenticated && user && !authLoading && !hasAccess && (
-        <InviteCodeGate isOpen={true} userId={user.id} onAccessGranted={() => { grantAccess(); fetchUserData(user.id); }} />
-      )}
-
-      {isAuthenticated && hasAccess && (
+      {isAuthenticated && (
         <>
           <Header
             isAdmin={isAdmin}

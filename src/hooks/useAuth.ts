@@ -6,8 +6,6 @@ import { toast } from 'sonner';
 export type UserRole = 'admin' | 'moderator' | 'user';
 export type UserStatus = 'active' | 'banned' | 'suspended';
 
-const ADMIN_BYPASS_EMAIL = 'juniorthemaster88@gmail.com';
-
 export interface UserProfile {
   id: string;
   display_name: string | null;
@@ -18,7 +16,6 @@ export interface UserProfile {
   website: string | null;
   avatar_url: string | null;
   status: UserStatus;
-  has_access: boolean;
   invite_code_used: string | null;
   created_at: string;
   updated_at: string;
@@ -30,80 +27,55 @@ export function useAuth() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
-  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
-  const isAdminBypass = user?.email?.toLowerCase() === ADMIN_BYPASS_EMAIL.toLowerCase();
-  const isAdmin = roles.includes('admin') || isAdminBypass;
+  const isAdmin = roles.includes('admin');
   const isModerator = roles.includes('moderator') || isAdmin;
   const isAuthenticated = !!session && !!user;
-  const hasAccess = profile?.has_access === true || isAdmin;
 
   const fetchUserData = useCallback(async (userId: string) => {
     try {
-      const [{ data: profileData }, { data: rolesData }] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single(),
-        supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', userId),
-      ]);
-
+      // Fetch profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
       if (profileData) {
         setProfile(profileData as UserProfile);
-      } else {
-        setProfile(null);
       }
 
+      // Fetch roles
+      const { data: rolesData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
+      
       if (rolesData) {
         setRoles(rolesData.map(r => r.role as UserRole));
-      } else {
-        setRoles([]);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      setProfile(null);
-      setRoles([]);
     }
-  }, []);
-
-  const grantAccess = useCallback(() => {
-    setProfile(prev => prev ? { ...prev, has_access: true } : null);
   }, []);
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
-        // Only update state if user actually changed to avoid re-renders on TOKEN_REFRESHED
-        setUser(prev => {
-          const newUser = newSession?.user ?? null;
-          if (prev?.id === newUser?.id) return prev;
-          return newUser;
-        });
-        setSession(prev => {
-          if (prev?.access_token === newSession?.access_token) return prev;
-          return newSession;
-        });
-
-        if (event === 'SIGNED_OUT') {
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Defer Supabase calls with setTimeout
+        if (session?.user) {
+          setTimeout(() => {
+            fetchUserData(session.user.id);
+          }, 0);
+        } else {
           setProfile(null);
           setRoles([]);
-          setLoading(false);
-        } else if (event === 'SIGNED_IN' && !initialLoadDone) {
-          // Only show loading on first sign-in, not on token refreshes
-          setLoading(true);
-          setTimeout(() => {
-            fetchUserData(newSession!.user.id)
-              .finally(() => setLoading(false));
-          }, 0);
-        } else if (event === 'SIGNED_IN' && newSession?.user) {
-          // Silent background update - no loading state change
-          fetchUserData(newSession.user.id);
         }
+        setLoading(false);
       }
     );
 
@@ -111,34 +83,14 @@ export function useAuth() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-
       if (session?.user) {
-        setLoading(true);
-        fetchUserData(session.user.id)
-          .finally(() => {
-            setLoading(false);
-            setInitialLoadDone(true);
-          });
-      } else {
-        setLoading(false);
-        setInitialLoadDone(true);
+        fetchUserData(session.user.id);
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, [fetchUserData]);
-
-  useEffect(() => {
-    if (!user || loading) return;
-
-    const roleLabel = isAdmin
-      ? 'admin'
-      : roles.includes('moderator')
-        ? 'moderator'
-        : roles[0] ?? 'user';
-
-    console.log('[AccessGuard]', 'User Role:', roleLabel, 'Is Validated:', hasAccess);
-  }, [user, loading, isAdmin, roles, hasAccess]);
 
   // Admin email that doesn't require invite code
   const ADMIN_EMAIL = 'juniorthemaster88@gmail.com';
@@ -241,12 +193,10 @@ export function useAuth() {
     isAuthenticated,
     isAdmin,
     isModerator,
-    hasAccess,
     signUp,
     signIn,
     signOut,
     updateProfile,
-    fetchUserData,
-    grantAccess
+    fetchUserData
   };
 }
