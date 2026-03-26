@@ -89,10 +89,10 @@ export function useAuth() {
         });
 
         if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-          if (session?.user) {
+          if (newSession?.user) {
             setLoading(true);
             setTimeout(() => {
-              fetchUserData(session.user.id)
+              fetchUserData(newSession.user.id)
                 .finally(() => setLoading(false));
             }, 0);
           } else {
