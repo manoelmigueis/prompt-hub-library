@@ -76,15 +76,23 @@ export function useAuth() {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+      (event, newSession) => {
+        // Only update state if user actually changed to avoid re-renders on TOKEN_REFRESHED
+        setUser(prev => {
+          const newUser = newSession?.user ?? null;
+          if (prev?.id === newUser?.id) return prev;
+          return newUser;
+        });
+        setSession(prev => {
+          if (prev?.access_token === newSession?.access_token) return prev;
+          return newSession;
+        });
 
         if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-          if (session?.user) {
+          if (newSession?.user) {
             setLoading(true);
             setTimeout(() => {
-              fetchUserData(session.user.id)
+              fetchUserData(newSession.user.id)
                 .finally(() => setLoading(false));
             }, 0);
           } else {
