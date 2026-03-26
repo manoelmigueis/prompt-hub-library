@@ -115,9 +115,13 @@ export function useAuth() {
       if (session?.user) {
         setLoading(true);
         fetchUserData(session.user.id)
-          .finally(() => setLoading(false));
+          .finally(() => {
+            setLoading(false);
+            setInitialLoadDone(true);
+          });
       } else {
         setLoading(false);
+        setInitialLoadDone(true);
       }
     });
 
