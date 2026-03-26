@@ -18,7 +18,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
 
   const fetchPrompts = useCallback(async () => {
     try {
-      setLoading(true);
+      if (prompts.length === 0) setLoading(true);
       
       let query = supabase
         .from('prompts')

@@ -9,7 +9,13 @@ import Referencias from "./pages/Referencias";
 import NotFound from "./pages/NotFound";
 import OfflineIndicator from "./components/OfflineIndicator";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
