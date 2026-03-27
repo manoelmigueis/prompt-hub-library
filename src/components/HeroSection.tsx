@@ -1,4 +1,4 @@
-import { Search, Sparkles, Image, Tag, Layers } from 'lucide-react';
+import { Search, Sparkles, Image, Tag, Layers, X } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { CATEGORIES } from '@/types/prompt';
 
@@ -68,8 +68,17 @@ export function HeroSection({ searchQuery, onSearchChange, totalPrompts }: HeroS
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder="Buscar ensaios, tags..."
-                className="w-full h-10 pl-10 pr-4 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm"
+                className="w-full h-10 pl-10 pr-9 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm"
               />
+              {searchQuery.length > 0 && (
+                <button
+                  onClick={() => onSearchChange('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:text-foreground transition-opacity duration-200 opacity-70 hover:opacity-100"
+                  aria-label="Limpar busca"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
             <button className="btn-gradient px-5 h-10 rounded-xl flex items-center gap-1.5 font-semibold text-sm">
               <Sparkles className="w-3.5 h-3.5" />
