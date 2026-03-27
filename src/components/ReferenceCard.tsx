@@ -132,7 +132,7 @@ export function ReferenceCard({
           </div>
         </div>
 
-        <div className="p-4 space-y-2">
+        <div className="p-4 space-y-2 flex flex-col flex-1">
           <h3 className="font-display text-lg leading-tight tracking-wide text-foreground">
             {reference.name}
           </h3>
