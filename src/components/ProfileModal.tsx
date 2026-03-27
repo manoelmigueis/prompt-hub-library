@@ -185,7 +185,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md rounded-2xl">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl tracking-wider">MEU PERFIL</DialogTitle>
         </DialogHeader>
@@ -362,7 +362,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
 
           <Button
             onClick={handleSave}
-            className="w-full h-12 btn-gradient rounded-xl gap-2"
+            className="w-full h-12 btn-gradient rounded-xl gap-2 mb-4"
             disabled={saving || uploadingAvatar || !!cropImageSrc}
           >
             <Save className="w-4 h-4" />
