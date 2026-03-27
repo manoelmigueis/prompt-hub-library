@@ -66,7 +66,7 @@ export function ReferenceCard({
   return (
     <>
       <div
-        className="group relative bg-card/60 backdrop-blur-md border border-border/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-card-hover)] hover:border-primary/30 animate-in fade-in slide-in-from-bottom-4"
+        className="group relative flex flex-col h-full bg-card/60 backdrop-blur-md border border-border/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-card-hover)] hover:border-primary/30 animate-in fade-in slide-in-from-bottom-4"
         style={{ animationDelay: `${Math.min(index * 50, 500)}ms`, animationFillMode: 'both' }}
       >
         <div className="relative aspect-video overflow-hidden bg-muted cursor-pointer" onClick={() => reference.image_url && setShowLightbox(true)}>
