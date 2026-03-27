@@ -362,7 +362,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
 
           <Button
             onClick={handleSave}
-            className="w-full h-12 btn-gradient rounded-xl gap-2"
+            className="w-full h-12 btn-gradient rounded-xl gap-2 mb-4"
             disabled={saving || uploadingAvatar || !!cropImageSrc}
           >
             <Save className="w-4 h-4" />

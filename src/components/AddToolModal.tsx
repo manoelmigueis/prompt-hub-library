@@ -122,7 +122,7 @@ export function AddToolModal({ isOpen, onClose, onSubmit }: AddToolModalProps) {
             <Switch checked={isFeatured} onCheckedChange={setIsFeatured} />
           </div>
 
-          <Button onClick={handleSubmit} disabled={submitting || !name.trim() || !url.trim()} className="w-full h-12 btn-gradient rounded-xl gap-2">
+          <Button onClick={handleSubmit} disabled={submitting || !name.trim() || !url.trim()} className="w-full h-12 btn-gradient rounded-xl gap-2 mb-4">
             <Plus className="w-4 h-4" />
             {submitting ? 'Adicionando...' : 'Adicionar Ferramenta'}
           </Button>
