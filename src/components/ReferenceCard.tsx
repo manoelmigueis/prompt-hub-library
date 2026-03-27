@@ -66,7 +66,7 @@ export function ReferenceCard({
   return (
     <>
       <div
-        className="group relative bg-card/60 backdrop-blur-md border border-border/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-card-hover)] hover:border-primary/30 animate-in fade-in slide-in-from-bottom-4"
+        className="group relative flex flex-col h-full bg-card/60 backdrop-blur-md border border-border/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-card-hover)] hover:border-primary/30 animate-in fade-in slide-in-from-bottom-4"
         style={{ animationDelay: `${Math.min(index * 50, 500)}ms`, animationFillMode: 'both' }}
       >
         <div className="relative aspect-video overflow-hidden bg-muted cursor-pointer" onClick={() => reference.image_url && setShowLightbox(true)}>
@@ -132,7 +132,7 @@ export function ReferenceCard({
           </div>
         </div>
 
-        <div className="p-4 space-y-2">
+        <div className="p-4 space-y-2 flex flex-col flex-1">
           <h3 className="font-display text-lg leading-tight tracking-wide text-foreground">
             {reference.name}
           </h3>
@@ -143,9 +143,9 @@ export function ReferenceCard({
           )}
 
           {reference.pt_explanation && (
-            <div className="pt-1">
+            <div className="pt-1 flex-1">
               <p className="text-[11px] font-medium text-primary/70 mb-0.5">Como usar:</p>
-              <p className="text-xs text-muted-foreground/80 italic line-clamp-3">
+              <p className="text-xs text-muted-foreground/80 italic">
                 {reference.pt_explanation}
               </p>
             </div>
