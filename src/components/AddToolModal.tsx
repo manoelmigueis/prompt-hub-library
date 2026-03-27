@@ -58,7 +58,7 @@ export function AddToolModal({ isOpen, onClose, onSubmit }: AddToolModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md rounded-2xl">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl tracking-wider">Adicionar Ferramenta</DialogTitle>
         </DialogHeader>
