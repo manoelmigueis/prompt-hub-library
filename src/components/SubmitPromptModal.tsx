@@ -292,7 +292,7 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
             )}
           </div>
           
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-4 pb-4">
             <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
               Cancelar
             </Button>
