@@ -1,4 +1,4 @@
-import { Search, Sparkles, Image, Tag, Layers } from 'lucide-react';
+import { Search, Sparkles, Image, Tag, Layers, X } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { CATEGORIES } from '@/types/prompt';
 
