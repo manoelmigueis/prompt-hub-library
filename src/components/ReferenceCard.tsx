@@ -143,9 +143,9 @@ export function ReferenceCard({
           )}
 
           {reference.pt_explanation && (
-            <div className="pt-1">
+            <div className="pt-1 flex-1">
               <p className="text-[11px] font-medium text-primary/70 mb-0.5">Como usar:</p>
-              <p className="text-xs text-muted-foreground/80 italic line-clamp-3">
+              <p className="text-xs text-muted-foreground/80 italic">
                 {reference.pt_explanation}
               </p>
             </div>
