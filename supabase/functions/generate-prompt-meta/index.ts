@@ -118,6 +118,22 @@ Respond using the generate_meta tool.`,
     }
 
     const result = JSON.parse(toolCall.function.arguments);
+    
+    // Normalize tags to kebab-case
+    if (result.tags && Array.isArray(result.tags)) {
+      result.tags = result.tags.map((tag: string) =>
+        tag
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "")
+      );
+      console.log("[TagGenerator] Tags recebidas da IA:", result.tags);
+    }
+    
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
