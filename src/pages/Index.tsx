@@ -123,18 +123,21 @@ export default function Index() {
       filtered = filtered.filter(p => p.category === selectedCategory);
     }
 
-    if (searchQuery.trim() === '') return filtered;
+    if (debouncedSearch.trim() === '') return filtered;
 
-    const expandedTerms = expandSearchTerms(searchQuery);
+    const expandedTerms = expandSearchTerms(debouncedSearch);
+    console.log('[Search] Original:', debouncedSearch, '→ Expanded terms:', expandedTerms.slice(0, 15));
     const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-    return filtered.filter(p => {
+    const results = filtered.filter(p => {
       const searchableText = normalize(
         `${p.title} ${p.description} ${p.content} ${(p.tags || []).join(' ')}`
       );
       return expandedTerms.some(term => searchableText.includes(term));
     });
-  }, [prompts, selectedCategory, searchQuery, showFavoritesOnly, favoriteIds]);
+    console.log('[Search] Results found:', results.length);
+    return results;
+  }, [prompts, selectedCategory, debouncedSearch, showFavoritesOnly, favoriteIds]);
   
   // Handlers
   const handleLogin = async (email: string, password: string) => {
