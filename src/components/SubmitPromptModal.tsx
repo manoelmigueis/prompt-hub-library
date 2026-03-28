@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { CATEGORIES, Category } from '@/types/prompt';
 import { useState } from 'react';
 import { Send, Image, Link, Sparkles, Tag, Loader2 } from 'lucide-react';
