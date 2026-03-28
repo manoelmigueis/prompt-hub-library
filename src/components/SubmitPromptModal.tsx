@@ -203,7 +203,20 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
           </div>
 
           {/* Tags */}
-          {formData.tags && formData.tags.length > 0 && (
+          {isGenerating && (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Tag className="w-4 h-4" />
+                Tags
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-6 rounded-full" style={{ width: `${60 + Math.random() * 40}px` }} />
+                ))}
+              </div>
+            </div>
+          )}
+          {!isGenerating && formData.tags && formData.tags.length > 0 && (
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Tag className="w-4 h-4" />
@@ -213,7 +226,7 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
                 {formData.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium"
+                    className="px-3 py-1 bg-white/10 text-foreground text-sm rounded-full font-medium transition-opacity hover:opacity-80"
                   >
                     #{tag}
                   </span>
