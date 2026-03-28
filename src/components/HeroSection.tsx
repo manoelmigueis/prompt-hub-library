@@ -1,4 +1,4 @@
-import { Search, Sparkles, Image, Tag, Layers, X } from 'lucide-react';
+import { Search, Sparkles, Image, Tag, Layers, X, Loader2 } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { CATEGORIES } from '@/types/prompt';
 
@@ -6,9 +6,10 @@ interface HeroSectionProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   totalPrompts: number;
+  isSearching?: boolean;
 }
 
-export function HeroSection({ searchQuery, onSearchChange, totalPrompts }: HeroSectionProps) {
+export function HeroSection({ searchQuery, onSearchChange, totalPrompts, isSearching }: HeroSectionProps) {
   const totalCategories = CATEGORIES.length - 1; // exclude 'all'
 
   return (
@@ -62,7 +63,11 @@ export function HeroSection({ searchQuery, onSearchChange, totalPrompts }: HeroS
         <div className="max-w-xl mx-auto">
           <div className="search-box p-1.5 flex gap-1.5">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              {isSearching ? (
+                <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary animate-spin" />
+              ) : (
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              )}
               <input
                 type="text"
                 value={searchQuery}

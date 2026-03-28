@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Header } from '@/components/Header';
 import { HeroSection } from '@/components/HeroSection';
 import { CategoryFilter } from '@/components/CategoryFilter';
@@ -56,6 +56,24 @@ export default function Index() {
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Debounce search input by 500ms
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setDebouncedSearch('');
+      setIsSearching(false);
+      return;
+    }
+    setIsSearching(true);
+    const timer = setTimeout(() => {
+      console.log('[Search] Debounced query:', searchQuery);
+      setDebouncedSearch(searchQuery);
+      setIsSearching(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   
   // Modal state
@@ -105,18 +123,21 @@ export default function Index() {
       filtered = filtered.filter(p => p.category === selectedCategory);
     }
 
-    if (searchQuery.trim() === '') return filtered;
+    if (debouncedSearch.trim() === '') return filtered;
 
-    const expandedTerms = expandSearchTerms(searchQuery);
+    const expandedTerms = expandSearchTerms(debouncedSearch);
+    console.log('[Search] Original:', debouncedSearch, '→ Expanded terms:', expandedTerms.slice(0, 15));
     const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-    return filtered.filter(p => {
+    const results = filtered.filter(p => {
       const searchableText = normalize(
         `${p.title} ${p.description} ${p.content} ${(p.tags || []).join(' ')}`
       );
       return expandedTerms.some(term => searchableText.includes(term));
     });
-  }, [prompts, selectedCategory, searchQuery, showFavoritesOnly, favoriteIds]);
+    console.log('[Search] Results found:', results.length);
+    return results;
+  }, [prompts, selectedCategory, debouncedSearch, showFavoritesOnly, favoriteIds]);
   
   // Handlers
   const handleLogin = async (email: string, password: string) => {
@@ -239,6 +260,7 @@ export default function Index() {
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               totalPrompts={filteredPrompts.length}
+              isSearching={isSearching}
             />
             
             <CategoryFilter 
