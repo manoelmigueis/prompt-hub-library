@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { expandSearchTerms } from '@/lib/searchTranslations';
 import { Header } from '@/components/Header';
 import { useAuth } from '@/hooks/useAuth';
 import { useReferences } from '@/hooks/useReferences';
@@ -47,14 +48,12 @@ export default function Referencias() {
       if (typeFilter !== 'all' && ref.type !== typeFilter) return false;
 
       if (search) {
-        const q = search.toLowerCase();
-        return (
-          ref.name.toLowerCase().includes(q) ||
-          ref.prompt_keyword.toLowerCase().includes(q) ||
-          ref.description?.toLowerCase().includes(q) ||
-          ref.prompt_example?.toLowerCase().includes(q) ||
-          ref.pt_explanation?.toLowerCase().includes(q)
+        const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const expandedTerms = expandSearchTerms(search);
+        const searchableText = normalize(
+          `${ref.name} ${ref.prompt_keyword} ${ref.description || ''} ${ref.prompt_example || ''} ${ref.pt_explanation || ''}`
         );
+        return expandedTerms.some(term => searchableText.includes(term));
       }
 
       return true;
