@@ -56,6 +56,24 @@ export default function Index() {
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Debounce search input by 500ms
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setDebouncedSearch('');
+      setIsSearching(false);
+      return;
+    }
+    setIsSearching(true);
+    const timer = setTimeout(() => {
+      console.log('[Search] Debounced query:', searchQuery);
+      setDebouncedSearch(searchQuery);
+      setIsSearching(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   
   // Modal state
