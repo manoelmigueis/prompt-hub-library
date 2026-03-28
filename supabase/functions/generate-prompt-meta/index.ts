@@ -27,7 +27,10 @@ serve(async (req) => {
             content: `You are an SEO expert for an AI image prompt gallery. Given a prompt text, generate:
 1. A concise, creative title (max 60 chars, in Portuguese)
 2. An SEO-optimized description (max 155 chars, in Portuguese)
-3. Relevant tags (5-8 tags, in Portuguese, lowercase)
+3. 5-8 highly contextual, visual tags in Portuguese that describe SPECIFIC objects, clothing, colors, settings, and expressions visible in the described scene. 
+   - GOOD tags: "blazer-bege", "ipad", "oculos-escuros", "fundo-terracota", "sorrindo", "cabelo-cacheado", "vestido-vermelho", "escritorio"
+   - FORBIDDEN generic tags: "retrato", "pessoa", "rosto", "realista", "foto", "imagem", "mulher", "homem", "cenario", "profissional"
+   - Tags MUST be in kebab-case (lowercase, hyphens instead of spaces, no accents). Example: "cabelo-cacheado" not "Cabelo Cacheado"
 4. The most appropriate category for this prompt based on its content
 
 Available categories (use EXACTLY one of these IDs):
@@ -76,7 +79,7 @@ Respond using the generate_meta tool.`,
                   tags: {
                     type: "array",
                     items: { type: "string" },
-                    description: "5-8 relevant tags in Portuguese, lowercase",
+                    description: "5-8 contextual visual tags in kebab-case Portuguese (e.g. blazer-bege, oculos-escuros). NO generic terms like retrato, pessoa, foto.",
                   },
                   category: { 
                     type: "string", 
