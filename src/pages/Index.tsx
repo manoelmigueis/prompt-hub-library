@@ -260,6 +260,7 @@ export default function Index() {
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               totalPrompts={filteredPrompts.length}
+              isSearching={isSearching}
             />
             
             <CategoryFilter 
