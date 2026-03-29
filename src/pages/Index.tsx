@@ -35,6 +35,7 @@ export default function Index() {
     prompts,
     loading: promptsLoading,
     createPrompt,
+    updatePrompt,
     updatePromptStatus,
     toggleFeatured,
     deletePrompt,
