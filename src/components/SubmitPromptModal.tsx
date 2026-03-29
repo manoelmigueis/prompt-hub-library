@@ -6,8 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CATEGORIES, Category } from '@/types/prompt';
-import { useState } from 'react';
-import { Send, Image, Link, Sparkles, Tag, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Send, Image, Link, Sparkles, Tag, Loader2, X } from 'lucide-react';
 import { ImageUpload } from './ImageUpload';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,6 +41,59 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
   const [imageInputMode, setImageInputMode] = useState<ImageInputMode>('upload');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isFetchingPreview, setIsFetchingPreview] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounced link preview extraction
+  useEffect(() => {
+    if (imageInputMode !== 'url') return;
+    
+    const url = formData.imageUrl.trim();
+    setPreviewError(false);
+    setPreviewImageUrl(null);
+
+    if (!url || !/^https?:\/\/.+/i.test(url)) return;
+
+    // Check if it's a direct image URL — skip edge function
+    const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg', '.avif'];
+    try {
+      const pathname = new URL(url).pathname.toLowerCase();
+      if (imageExts.some(ext => pathname.endsWith(ext))) {
+        setPreviewImageUrl(url);
+        return;
+      }
+    } catch { /* not a valid URL yet */ }
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(async () => {
+      setIsFetchingPreview(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('fetch-link-preview', {
+          body: { url },
+        });
+        if (error) throw error;
+        if (data?.success && data.imageUrl) {
+          setPreviewImageUrl(data.imageUrl);
+          // Also set the extracted image as the form value for saving
+          setFormData(prev => ({ ...prev, imageUrl: data.imageUrl }));
+        } else {
+          setPreviewError(true);
+        }
+      } catch (err) {
+        console.error('[LinkPreview] Error:', err);
+        setPreviewError(true);
+      } finally {
+        setIsFetchingPreview(false);
+      }
+    }, 800);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [formData.imageUrl, imageInputMode]);
 
   const handleGenerateWithAI = async () => {
     if (!formData.content.trim()) {
@@ -284,26 +337,44 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
                   type="url"
                   value={formData.imageUrl}
                   onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://exemplo.com/imagem.jpg"
+                  placeholder="https://exemplo.com/imagem.jpg ou link do Gemini/Midjourney"
                   className="border-2 border-primary"
                 />
-                {formData.imageUrl && (
-                  <div className="relative rounded-lg overflow-hidden border-2 border-primary">
+                {isFetchingPreview && (
+                  <div className="flex items-center gap-2 p-4 rounded-lg border-2 border-dashed border-muted-foreground/30">
+                    <Loader2 className="w-5 h-5 animate-spin text-primary flex-shrink-0" />
+                    <span className="text-sm text-muted-foreground">Buscando preview do link...</span>
+                  </div>
+                )}
+                {!isFetchingPreview && previewImageUrl && (
+                  <div className="relative rounded-lg overflow-hidden border-2 border-primary animate-in fade-in duration-300">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPreviewImageUrl(null);
+                        setFormData(prev => ({ ...prev, imageUrl: '' }));
+                      }}
+                      className="absolute top-2 right-2 z-10 bg-background/80 backdrop-blur-sm rounded-full p-1 hover:bg-background transition-colors"
+                    >
+                      <X className="w-4 h-4 text-foreground" />
+                    </button>
                     <img
-                      src={formData.imageUrl}
+                      src={previewImageUrl}
                       alt="Preview"
                       className="w-full h-48 object-cover pointer-events-none select-none"
                       draggable={false}
                       onContextMenu={(e) => e.preventDefault()}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        handleImageUploadError("Não foi possível carregar a imagem. Verifique a URL.");
-                      }}
-                      onLoad={(e) => {
-                        e.currentTarget.style.display = 'block';
+                      onError={() => {
+                        setPreviewImageUrl(null);
+                        setPreviewError(true);
                       }}
                     />
                   </div>
+                )}
+                {!isFetchingPreview && previewError && (
+                  <p className="text-xs text-muted-foreground italic">
+                    Não foi possível carregar o preview deste link, mas a URL será salva.
+                  </p>
                 )}
               </div>
             )}
