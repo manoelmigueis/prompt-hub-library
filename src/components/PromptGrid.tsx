@@ -74,6 +74,8 @@ export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, o
                 onCopy={onCopyPrompt}
                 isFavorite={isFavorite(prompt.id)}
                 onToggleFavorite={onToggleFavorite}
+                isAdmin={isAdmin}
+                onEdit={onEditPrompt}
                 layout={view}
               />
             </div>
