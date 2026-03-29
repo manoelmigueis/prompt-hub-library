@@ -197,6 +197,15 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
           >
             <Heart className={`w-3 h-3 ${isFavorite ? 'fill-current' : ''}`} />
           </button>
+          {isAdmin && (
+            <button
+              onClick={handleEdit}
+              className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] bg-background/70 backdrop-blur-sm text-foreground hover:bg-primary/80 hover:text-primary-foreground transition-all duration-200 opacity-0 group-hover:opacity-100 min-w-[44px] min-h-[44px] justify-center"
+              title="Editar"
+            >
+              <Pencil className="w-3 h-3" />
+            </button>
+          )}
         </div>
       </div>
       
