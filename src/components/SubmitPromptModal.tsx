@@ -41,6 +41,59 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
   const [imageInputMode, setImageInputMode] = useState<ImageInputMode>('upload');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isFetchingPreview, setIsFetchingPreview] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounced link preview extraction
+  useEffect(() => {
+    if (imageInputMode !== 'url') return;
+    
+    const url = formData.imageUrl.trim();
+    setPreviewError(false);
+    setPreviewImageUrl(null);
+
+    if (!url || !/^https?:\/\/.+/i.test(url)) return;
+
+    // Check if it's a direct image URL — skip edge function
+    const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg', '.avif'];
+    try {
+      const pathname = new URL(url).pathname.toLowerCase();
+      if (imageExts.some(ext => pathname.endsWith(ext))) {
+        setPreviewImageUrl(url);
+        return;
+      }
+    } catch { /* not a valid URL yet */ }
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(async () => {
+      setIsFetchingPreview(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('fetch-link-preview', {
+          body: { url },
+        });
+        if (error) throw error;
+        if (data?.success && data.imageUrl) {
+          setPreviewImageUrl(data.imageUrl);
+          // Also set the extracted image as the form value for saving
+          setFormData(prev => ({ ...prev, imageUrl: data.imageUrl }));
+        } else {
+          setPreviewError(true);
+        }
+      } catch (err) {
+        console.error('[LinkPreview] Error:', err);
+        setPreviewError(true);
+      } finally {
+        setIsFetchingPreview(false);
+      }
+    }, 800);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [formData.imageUrl, imageInputMode]);
 
   const handleGenerateWithAI = async () => {
     if (!formData.content.trim()) {
