@@ -313,16 +313,21 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
             <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
               Cancelar
             </Button>
-            <Button type="submit" variant="generate" className="flex-1 gap-2" disabled={isUploadingImage}>
+            <Button
+              type="submit"
+              variant="generate"
+              className={`flex-1 gap-2 min-h-[48px] whitespace-nowrap ${isUploadingImage ? 'opacity-50 pointer-events-none' : ''}`}
+              disabled={isUploadingImage}
+            >
               {isUploadingImage ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Processando Imagem...
+                  <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                  <span className="truncate">Enviando...</span>
                 </>
               ) : (
                 <>
-                  <Send className="w-4 h-4" />
-                  Enviar para Revisão
+                  <Send className="w-4 h-4 flex-shrink-0" />
+                  <span className="truncate">Enviar para Revisão</span>
                 </>
               )}
             </Button>
