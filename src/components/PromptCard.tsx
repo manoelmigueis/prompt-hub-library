@@ -58,6 +58,11 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
     return labels[prompt.category] || prompt.category;
   };
   
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(prompt);
+  };
+
   if (layout === 'list') {
     return (
       <article 
@@ -79,6 +84,15 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
             <div className="w-full h-full bg-primary/20 flex items-center justify-center">
               <span className="text-2xl opacity-50">📷</span>
             </div>
+          )}
+          {isAdmin && (
+            <button
+              onClick={handleEdit}
+              className="absolute top-1 right-1 bg-background/70 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-primary/80 hover:text-primary-foreground min-w-[44px] min-h-[44px] flex items-center justify-center"
+              title="Editar"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
           )}
         </div>
 
