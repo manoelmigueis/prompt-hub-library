@@ -326,6 +326,13 @@ export default function Index() {
             onGenerateCode={handleGenerateCode}
             onDeleteCode={handleDeleteCode}
           />
+
+          <EditPromptModal
+            isOpen={showEditModal}
+            onClose={() => { setShowEditModal(false); setEditingPrompt(null); }}
+            prompt={editingPrompt}
+            onSave={updatePrompt}
+          />
         </>
       )}
     </div>
