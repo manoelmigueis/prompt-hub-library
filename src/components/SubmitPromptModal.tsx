@@ -337,26 +337,44 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
                   type="url"
                   value={formData.imageUrl}
                   onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://exemplo.com/imagem.jpg"
+                  placeholder="https://exemplo.com/imagem.jpg ou link do Gemini/Midjourney"
                   className="border-2 border-primary"
                 />
-                {formData.imageUrl && (
-                  <div className="relative rounded-lg overflow-hidden border-2 border-primary">
+                {isFetchingPreview && (
+                  <div className="flex items-center gap-2 p-4 rounded-lg border-2 border-dashed border-muted-foreground/30">
+                    <Loader2 className="w-5 h-5 animate-spin text-primary flex-shrink-0" />
+                    <span className="text-sm text-muted-foreground">Buscando preview do link...</span>
+                  </div>
+                )}
+                {!isFetchingPreview && previewImageUrl && (
+                  <div className="relative rounded-lg overflow-hidden border-2 border-primary animate-in fade-in duration-300">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPreviewImageUrl(null);
+                        setFormData(prev => ({ ...prev, imageUrl: '' }));
+                      }}
+                      className="absolute top-2 right-2 z-10 bg-background/80 backdrop-blur-sm rounded-full p-1 hover:bg-background transition-colors"
+                    >
+                      <X className="w-4 h-4 text-foreground" />
+                    </button>
                     <img
-                      src={formData.imageUrl}
+                      src={previewImageUrl}
                       alt="Preview"
                       className="w-full h-48 object-cover pointer-events-none select-none"
                       draggable={false}
                       onContextMenu={(e) => e.preventDefault()}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        handleImageUploadError("Não foi possível carregar a imagem. Verifique a URL.");
-                      }}
-                      onLoad={(e) => {
-                        e.currentTarget.style.display = 'block';
+                      onError={() => {
+                        setPreviewImageUrl(null);
+                        setPreviewError(true);
                       }}
                     />
                   </div>
+                )}
+                {!isFetchingPreview && previewError && (
+                  <p className="text-xs text-muted-foreground italic">
+                    Não foi possível carregar o preview deste link, mas a URL será salva.
+                  </p>
                 )}
               </div>
             )}
