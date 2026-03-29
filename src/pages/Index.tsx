@@ -83,7 +83,8 @@ export default function Index() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  
+  const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
   // Admin settings
   const [autoApprove, setAutoApproveLocal] = useState(false);
 
