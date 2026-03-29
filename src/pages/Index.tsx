@@ -8,6 +8,7 @@ import { SubmitPromptModal, SubmitPromptData } from '@/components/SubmitPromptMo
 import { AdminPanel } from '@/components/AdminPanel';
 import { InviteModal } from '@/components/InviteModal';
 import { ProfileModal } from '@/components/ProfileModal';
+import { EditPromptModal } from '@/components/EditPromptModal';
 import { Category, Prompt, PromptStatus } from '@/types/prompt';
 import { toast } from 'sonner';
 import { useAuth, UserProfile } from '@/hooks/useAuth';
