@@ -40,6 +40,7 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
   });
   const [imageInputMode, setImageInputMode] = useState<ImageInputMode>('upload');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const handleGenerateWithAI = async () => {
     if (!formData.content.trim()) {
