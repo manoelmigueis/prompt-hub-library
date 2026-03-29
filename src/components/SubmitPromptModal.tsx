@@ -275,6 +275,7 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
                 value={formData.imageUrl}
                 onChange={(url) => setFormData({ ...formData, imageUrl: url })}
                 onError={handleImageUploadError}
+                onUploadingChange={setIsUploadingImage}
               />
             ) : (
               <div className="space-y-3">
