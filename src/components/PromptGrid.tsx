@@ -14,7 +14,7 @@ interface PromptGridProps {
   onEditPrompt?: (prompt: Prompt) => void;
 }
 
-export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, onToggleFavorite }: PromptGridProps) {
+export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, onToggleFavorite, isAdmin, onEditPrompt }: PromptGridProps) {
   const [view, setView] = useState<'grid' | 'list'>('grid');
 
   if (prompts.length === 0) {
