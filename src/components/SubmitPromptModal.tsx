@@ -88,6 +88,7 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isUploadingImage) return;
     onSubmit(formData);
     setFormData({
       title: '',
