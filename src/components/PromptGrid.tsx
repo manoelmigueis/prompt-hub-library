@@ -10,6 +10,8 @@ interface PromptGridProps {
   onCopyPrompt: (id: string) => void;
   isFavorite: (id: string) => boolean;
   onToggleFavorite: (id: string) => void;
+  isAdmin?: boolean;
+  onEditPrompt?: (prompt: Prompt) => void;
 }
 
 export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, onToggleFavorite }: PromptGridProps) {
