@@ -313,9 +313,18 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
             <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
               Cancelar
             </Button>
-            <Button type="submit" variant="generate" className="flex-1 gap-2">
-              <Send className="w-4 h-4" />
-              Enviar para Revisão
+            <Button type="submit" variant="generate" className="flex-1 gap-2" disabled={isUploadingImage}>
+              {isUploadingImage ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Processando Imagem...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Enviar para Revisão
+                </>
+              )}
             </Button>
           </div>
         </form>
