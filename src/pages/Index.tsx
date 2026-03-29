@@ -282,6 +282,11 @@ export default function Index() {
               onCopyPrompt={handleCopyPrompt}
               isFavorite={isFavorite}
               onToggleFavorite={toggleFavorite}
+              isAdmin={isAdmin}
+              onEditPrompt={(prompt) => {
+                setEditingPrompt(prompt);
+                setShowEditModal(true);
+              }}
             />
           </main>
           
