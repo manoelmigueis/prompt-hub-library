@@ -16,7 +16,7 @@ interface PromptCardProps {
   layout?: 'grid' | 'list';
 }
 
-export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavorite, layout = 'grid' }: PromptCardProps) {
+export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavorite, isAdmin, onEdit, layout = 'grid' }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
   
   const handleCopy = (e: React.MouseEvent) => {
