@@ -233,11 +233,47 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     return true;
   };
 
+  const updatePrompt = async (id: string, updates: { title?: string; description?: string; content?: string; category?: Category; imageUrl?: string }) => {
+    console.log('[updatePrompt] Updating prompt:', id, updates);
+    const dbUpdates: Record<string, any> = { updated_at: new Date().toISOString() };
+    if (updates.title !== undefined) dbUpdates.title = updates.title;
+    if (updates.description !== undefined) dbUpdates.description = updates.description;
+    if (updates.content !== undefined) dbUpdates.content = updates.content;
+    if (updates.category !== undefined) dbUpdates.category = updates.category;
+    if (updates.imageUrl !== undefined) dbUpdates.image_url = updates.imageUrl || null;
+
+    const { error } = await supabase
+      .from('prompts')
+      .update(dbUpdates)
+      .eq('id', id);
+
+    if (error) {
+      console.error('[updatePrompt] Error:', error);
+      toast.error('Erro ao atualizar: ' + error.message);
+      return false;
+    }
+
+    setPrompts(prev => prev.map(p =>
+      p.id === id ? {
+        ...p,
+        ...(updates.title !== undefined && { title: updates.title }),
+        ...(updates.description !== undefined && { description: updates.description }),
+        ...(updates.content !== undefined && { content: updates.content }),
+        ...(updates.category !== undefined && { category: updates.category }),
+        ...(updates.imageUrl !== undefined && { imageUrl: updates.imageUrl }),
+        updatedAt: new Date(),
+      } : p
+    ));
+    console.log('[updatePrompt] Success');
+    return true;
+  };
+
   return {
     prompts,
     loading,
     fetchPrompts,
     createPrompt,
+    updatePrompt,
     updatePromptStatus,
     toggleFeatured,
     deletePrompt,

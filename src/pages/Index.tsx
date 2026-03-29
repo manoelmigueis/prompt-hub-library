@@ -8,6 +8,7 @@ import { SubmitPromptModal, SubmitPromptData } from '@/components/SubmitPromptMo
 import { AdminPanel } from '@/components/AdminPanel';
 import { InviteModal } from '@/components/InviteModal';
 import { ProfileModal } from '@/components/ProfileModal';
+import { EditPromptModal } from '@/components/EditPromptModal';
 import { Category, Prompt, PromptStatus } from '@/types/prompt';
 import { toast } from 'sonner';
 import { useAuth, UserProfile } from '@/hooks/useAuth';
@@ -34,6 +35,7 @@ export default function Index() {
     prompts,
     loading: promptsLoading,
     createPrompt,
+    updatePrompt,
     updatePromptStatus,
     toggleFeatured,
     deletePrompt,
@@ -81,7 +83,8 @@ export default function Index() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  
+  const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
   // Admin settings
   const [autoApprove, setAutoApproveLocal] = useState(false);
 
@@ -279,6 +282,11 @@ export default function Index() {
               onCopyPrompt={handleCopyPrompt}
               isFavorite={isFavorite}
               onToggleFavorite={toggleFavorite}
+              isAdmin={isAdmin}
+              onEditPrompt={(prompt) => {
+                setEditingPrompt(prompt);
+                setShowEditModal(true);
+              }}
             />
           </main>
           
@@ -317,6 +325,13 @@ export default function Index() {
             inviteCodes={inviteCodes.map(c => c.code)}
             onGenerateCode={handleGenerateCode}
             onDeleteCode={handleDeleteCode}
+          />
+
+          <EditPromptModal
+            isOpen={showEditModal}
+            onClose={() => { setShowEditModal(false); setEditingPrompt(null); }}
+            prompt={editingPrompt}
+            onSave={updatePrompt}
           />
         </>
       )}

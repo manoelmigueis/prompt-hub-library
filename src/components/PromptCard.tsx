@@ -1,5 +1,5 @@
 import { Prompt } from '@/types/prompt';
-import { Check, Copy, Eye, Heart, User } from 'lucide-react';
+import { Check, Copy, Eye, Heart, Pencil, User } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,10 +11,12 @@ interface PromptCardProps {
   onCopy: (id: string) => void;
   isFavorite?: boolean;
   onToggleFavorite?: (id: string) => void;
+  isAdmin?: boolean;
+  onEdit?: (prompt: Prompt) => void;
   layout?: 'grid' | 'list';
 }
 
-export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavorite, layout = 'grid' }: PromptCardProps) {
+export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavorite, isAdmin, onEdit, layout = 'grid' }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
   
   const handleCopy = (e: React.MouseEvent) => {
@@ -56,6 +58,11 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
     return labels[prompt.category] || prompt.category;
   };
   
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(prompt);
+  };
+
   if (layout === 'list') {
     return (
       <article 
@@ -77,6 +84,15 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
             <div className="w-full h-full bg-primary/20 flex items-center justify-center">
               <span className="text-2xl opacity-50">📷</span>
             </div>
+          )}
+          {isAdmin && (
+            <button
+              onClick={handleEdit}
+              className="absolute top-1 right-1 bg-background/70 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-primary/80 hover:text-primary-foreground min-w-[44px] min-h-[44px] flex items-center justify-center"
+              title="Editar"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
           )}
         </div>
 
@@ -181,6 +197,15 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
           >
             <Heart className={`w-3 h-3 ${isFavorite ? 'fill-current' : ''}`} />
           </button>
+          {isAdmin && (
+            <button
+              onClick={handleEdit}
+              className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] bg-background/70 backdrop-blur-sm text-foreground hover:bg-primary/80 hover:text-primary-foreground transition-all duration-200 opacity-0 group-hover:opacity-100 min-w-[44px] min-h-[44px] justify-center"
+              title="Editar"
+            >
+              <Pencil className="w-3 h-3" />
+            </button>
+          )}
         </div>
       </div>
       

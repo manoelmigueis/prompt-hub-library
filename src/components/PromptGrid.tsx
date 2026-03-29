@@ -10,9 +10,11 @@ interface PromptGridProps {
   onCopyPrompt: (id: string) => void;
   isFavorite: (id: string) => boolean;
   onToggleFavorite: (id: string) => void;
+  isAdmin?: boolean;
+  onEditPrompt?: (prompt: Prompt) => void;
 }
 
-export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, onToggleFavorite }: PromptGridProps) {
+export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, onToggleFavorite, isAdmin, onEditPrompt }: PromptGridProps) {
   const [view, setView] = useState<'grid' | 'list'>('grid');
 
   if (prompts.length === 0) {
@@ -72,6 +74,8 @@ export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, o
                 onCopy={onCopyPrompt}
                 isFavorite={isFavorite(prompt.id)}
                 onToggleFavorite={onToggleFavorite}
+                isAdmin={isAdmin}
+                onEdit={onEditPrompt}
                 layout={view}
               />
             </div>
