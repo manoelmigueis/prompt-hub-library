@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { expandSearchTerms } from '@/lib/searchTranslations';
 import { Header } from '@/components/Header';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,6 +30,7 @@ const TYPE_FILTERS: { id: ReferenceType; label: string }[] = [
 ];
 
 export default function Referencias() {
+  const navigate = useNavigate();
   const { user, isAdmin, isModerator, profile, signOut } = useAuth();
   const { references, isLoading, error, deleteReference } = useReferences();
   const { favoriteIds, isFavorite, toggleFavorite } = useReferenceFavorites(user?.id);
@@ -105,7 +107,7 @@ export default function Referencias() {
         displayName={profile?.display_name || undefined}
         avatarUrl={profile?.avatar_url || undefined}
         onAdminClick={() => {}}
-        onSubmitClick={() => {}}
+        onSubmitClick={() => navigate('/?submit=true')}
         onProfileClick={() => {}}
         onLogout={signOut}
       />

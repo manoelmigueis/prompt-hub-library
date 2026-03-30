@@ -88,6 +88,15 @@ export default function Index() {
   // Admin settings
   const [autoApprove, setAutoApproveLocal] = useState(false);
 
+  // Auto-open submit modal from query param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('submit') === 'true' && isAuthenticated) {
+      setShowSubmitModal(true);
+      window.history.replaceState({}, '', '/');
+    }
+  }, [isAuthenticated]);
+
   useEffect(() => {
     if (isAdmin) {
       getAutoApprove().then(setAutoApproveLocal);
