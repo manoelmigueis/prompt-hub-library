@@ -185,7 +185,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto rounded-2xl">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto rounded-2xl overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl tracking-wider">MEU PERFIL</DialogTitle>
         </DialogHeader>
