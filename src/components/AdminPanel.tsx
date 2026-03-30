@@ -235,7 +235,7 @@ function AdminPromptCard({
         <img 
           src={prompt.imageUrl} 
           alt={prompt.title}
-          className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded-lg border-2 border-primary"
+          className="w-full sm:w-24 h-44 sm:h-24 object-cover object-top rounded-lg border-2 border-primary"
         />
       )}
       
