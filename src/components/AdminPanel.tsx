@@ -276,7 +276,7 @@ function AdminPromptCard({
             </div>
           </div>
           
-          <p className="text-sm mt-2 line-clamp-2">{prompt.description}</p>
+          <p className="text-sm mt-2 line-clamp-2 w-full overflow-hidden break-words">{prompt.description}</p>
         </div>
       </div>
     );
