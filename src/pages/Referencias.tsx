@@ -30,6 +30,7 @@ const TYPE_FILTERS: { id: ReferenceType; label: string }[] = [
 ];
 
 export default function Referencias() {
+  const navigate = useNavigate();
   const { user, isAdmin, isModerator, profile, signOut } = useAuth();
   const { references, isLoading, error, deleteReference } = useReferences();
   const { favoriteIds, isFavorite, toggleFavorite } = useReferenceFavorites(user?.id);
