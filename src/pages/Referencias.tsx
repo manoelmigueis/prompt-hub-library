@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { expandSearchTerms } from '@/lib/searchTranslations';
 import { Header } from '@/components/Header';
 import { useAuth } from '@/hooks/useAuth';
