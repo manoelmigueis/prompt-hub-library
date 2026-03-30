@@ -230,12 +230,12 @@ function AdminPromptCard({
   showReject = true,
 }: AdminPromptCardProps) {
   return (
-    <div className="bg-card border-2 border-primary rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
+    <div className="bg-card border-2 border-primary rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full overflow-hidden">
       {prompt.imageUrl && (
         <img 
           src={prompt.imageUrl} 
           alt={prompt.title}
-          className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded-lg border-2 border-primary"
+          className="w-full sm:w-24 h-44 sm:h-24 object-cover object-top rounded-lg border-2 border-primary"
         />
       )}
       
@@ -276,7 +276,7 @@ function AdminPromptCard({
             </div>
           </div>
           
-          <p className="text-sm mt-2 line-clamp-2">{prompt.description}</p>
+          <p className="text-sm mt-2 line-clamp-2 w-full overflow-hidden break-words">{prompt.description}</p>
         </div>
       </div>
     );
