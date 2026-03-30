@@ -176,7 +176,7 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
   
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl flex items-center gap-2">
             <span className="text-2xl">🍌</span>

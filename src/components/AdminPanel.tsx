@@ -56,7 +56,7 @@ export function AdminPanel({
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full p-3 sm:p-6">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden sm:w-full">
         <DialogHeader>
           <DialogTitle className="font-display text-lg sm:text-2xl flex items-center gap-2">
             🛡️ Painel Administrativo
