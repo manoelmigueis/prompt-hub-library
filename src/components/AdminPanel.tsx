@@ -229,55 +229,80 @@ function AdminPromptCard({
   showApprove = true,
   showReject = true,
 }: AdminPromptCardProps) {
-  return (
-    <div className="bg-card border-2 border-primary rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full overflow-hidden">
-      {prompt.imageUrl && (
-        <img 
-          src={prompt.imageUrl} 
-          alt={prompt.title}
-          className="w-full sm:w-24 h-44 sm:h-24 object-cover object-top rounded-lg border-2 border-primary"
-        />
+  const actionButtons = (
+    <>
+      <Button
+        variant={prompt.isFeatured ? 'secondary' : 'outline'}
+        size="sm"
+        onClick={onToggleFeatured}
+        className="gap-1 h-7 w-7 sm:h-8 sm:w-auto p-0 sm:px-3"
+      >
+        <Star className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${prompt.isFeatured ? 'fill-current' : ''}`} />
+      </Button>
+      
+      {showApprove && (
+        <Button variant="success" size="sm" onClick={onApprove} className="gap-1 h-7 w-7 sm:h-8 sm:w-auto p-0 sm:px-3">
+          <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="hidden sm:inline">Aprovar</span>
+        </Button>
       )}
       
-      <div className="flex-1 min-w-0">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+      {showReject && (
+        <Button variant="destructive" size="sm" onClick={onReject} className="gap-1 h-7 w-7 sm:h-8 sm:w-auto p-0 sm:px-3">
+          <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="hidden sm:inline">Rejeitar</span>
+        </Button>
+      )}
+
+      <Button variant="destructive" size="sm" onClick={onDelete} className="gap-1 h-7 w-7 sm:h-8 sm:w-auto p-0 sm:px-3">
+        <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+      </Button>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile: compact list layout */}
+      <div className="sm:hidden flex flex-row items-center gap-3 p-3 border border-primary rounded-lg w-full overflow-hidden bg-card">
+        {prompt.imageUrl && (
+          <img 
+            src={prompt.imageUrl} 
+            alt={prompt.title}
+            className="w-16 h-16 rounded object-cover object-top flex-shrink-0 border border-primary"
+          />
+        )}
+        <div className="flex flex-col flex-1 min-w-0">
+          <h4 className="font-display font-bold text-sm truncate">{prompt.title}</h4>
+          <p className="text-xs text-muted-foreground truncate">por {prompt.author}</p>
+          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5 break-words">{prompt.description}</p>
+          <div className="flex gap-1 mt-1.5">
+            {actionButtons}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop: original card layout */}
+      <div className="hidden sm:flex bg-card border-2 border-primary rounded-lg p-4 flex-row gap-4 w-full overflow-hidden">
+        {prompt.imageUrl && (
+          <img 
+            src={prompt.imageUrl} 
+            alt={prompt.title}
+            className="w-24 h-24 object-cover object-top rounded-lg border-2 border-primary"
+          />
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-row items-start justify-between gap-2">
             <div className="min-w-0">
-              <h4 className="font-display font-bold text-base sm:text-lg truncate">{prompt.title}</h4>
+              <h4 className="font-display font-bold text-lg truncate">{prompt.title}</h4>
               <p className="text-sm text-muted-foreground">por {prompt.author}</p>
             </div>
-            
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
-              <Button
-                variant={prompt.isFeatured ? 'secondary' : 'outline'}
-                size="sm"
-                onClick={onToggleFeatured}
-                className="gap-1 h-8"
-              >
-                <Star className={`w-4 h-4 ${prompt.isFeatured ? 'fill-current' : ''}`} />
-              </Button>
-              
-              {showApprove && (
-                <Button variant="success" size="sm" onClick={onApprove} className="gap-1 h-8">
-                  <Check className="w-4 h-4" />
-                  <span className="hidden sm:inline">Aprovar</span>
-                </Button>
-              )}
-              
-              {showReject && (
-                <Button variant="destructive" size="sm" onClick={onReject} className="gap-1 h-8">
-                  <X className="w-4 h-4" />
-                  <span className="hidden sm:inline">Rejeitar</span>
-                </Button>
-              )}
-
-              <Button variant="destructive" size="sm" onClick={onDelete} className="gap-1 h-8">
-                <Trash2 className="w-4 h-4" />
-              </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              {actionButtons}
             </div>
           </div>
-          
           <p className="text-sm mt-2 line-clamp-2 w-full overflow-hidden break-words">{prompt.description}</p>
         </div>
       </div>
-    );
-  }
+    </>
+  );
+}
