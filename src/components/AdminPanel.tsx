@@ -230,7 +230,7 @@ function AdminPromptCard({
   showReject = true,
 }: AdminPromptCardProps) {
   return (
-    <div className="bg-card border-2 border-primary rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
+    <div className="bg-card border-2 border-primary rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full overflow-hidden">
       {prompt.imageUrl && (
         <img 
           src={prompt.imageUrl} 
