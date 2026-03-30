@@ -105,7 +105,7 @@ export default function Referencias() {
         displayName={profile?.display_name || undefined}
         avatarUrl={profile?.avatar_url || undefined}
         onAdminClick={() => {}}
-        onSubmitClick={() => {}}
+        onSubmitClick={() => navigate('/?submit=true')}
         onProfileClick={() => {}}
         onLogout={signOut}
       />
