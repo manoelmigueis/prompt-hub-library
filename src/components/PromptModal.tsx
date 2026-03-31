@@ -1,10 +1,11 @@
 import { Prompt, CATEGORIES } from '@/types/prompt';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Copy, Check, Instagram, Eye, Heart, X } from 'lucide-react';
+import { Copy, Check, Instagram, Eye, Heart, X, Download, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toast } from 'sonner';
 
 interface PromptModalProps {
   prompt: Prompt | null;
