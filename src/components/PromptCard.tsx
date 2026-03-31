@@ -2,7 +2,6 @@ import { Prompt } from '@/types/prompt';
 import { Check, Copy, Download, Eye, Heart, Loader2, Pencil, User } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
