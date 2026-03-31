@@ -148,7 +148,29 @@ export function EditPromptModal({ isOpen, onClose, prompt, isAdmin, onSave }: Ed
             </Select>
           </div>
 
-          {/* Description */}
+          {/* AI Generate Button - Admin Only */}
+          {isAdmin && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-primary/30 hover:border-primary/60 transition-colors"
+              onClick={handleAIGenerate}
+              disabled={isGenerating || isSaving || !content.trim()}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2 flex-shrink-0" />
+                  <span>Gerando...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>Preencher título, descrição e categoria com IA</span>
+                </>
+              )}
+            </Button>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="edit-desc">Descrição</Label>
             <Textarea
