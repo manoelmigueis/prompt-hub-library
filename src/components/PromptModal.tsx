@@ -14,6 +14,7 @@ interface PromptModalProps {
   isFavorite?: boolean;
   onToggleFavorite?: (id: string) => void;
   onCopy?: (id: string) => void;
+  isAdmin?: boolean;
 }
 
 export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavorite, onCopy }: PromptModalProps) {
