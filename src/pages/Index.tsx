@@ -341,6 +341,7 @@ export default function Index() {
             isOpen={showEditModal}
             onClose={() => { setShowEditModal(false); setEditingPrompt(null); }}
             prompt={editingPrompt}
+            isAdmin={isAdmin}
             onSave={updatePrompt}
           />
         </>

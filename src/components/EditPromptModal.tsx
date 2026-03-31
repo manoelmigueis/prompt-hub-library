@@ -7,17 +7,19 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUpload } from '@/components/ImageUpload';
 import { Prompt, Category, CATEGORIES } from '@/types/prompt';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EditPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
   prompt: Prompt | null;
+  isAdmin?: boolean;
   onSave: (id: string, updates: { title?: string; description?: string; content?: string; category?: Category; imageUrl?: string }) => Promise<boolean>;
 }
 
-export function EditPromptModal({ isOpen, onClose, prompt, onSave }: EditPromptModalProps) {
+export function EditPromptModal({ isOpen, onClose, prompt, isAdmin, onSave }: EditPromptModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
@@ -25,6 +27,40 @@ export function EditPromptModal({ isOpen, onClose, prompt, onSave }: EditPromptM
   const [imageUrl, setImageUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleAIGenerate = async () => {
+    if (!content.trim()) {
+      toast.error('Escreva o prompt primeiro para gerar com IA.');
+      return;
+    }
+
+    setIsGenerating(true);
+    console.log('[EditPrompt - AI Generate] Starting generation...');
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-prompt-meta', {
+        body: { prompt: content },
+      });
+
+      if (error) throw error;
+
+      const validCategories = ['retrato-realista','foto-artistica','moda-estilo','cenarios','profile','social-media','video-effect','body-art','fotografia','arte-digital','infographic','youtube','comics','poster','app-design','logo-marca','outro'];
+
+      if (data.title) setTitle(data.title);
+      if (data.description) setDescription(data.description);
+      if (data.category && validCategories.includes(data.category)) {
+        setCategory(data.category as Category);
+      }
+
+      console.log('[EditPrompt - AI Generate] Success:', data);
+      toast.success('✨ Título, descrição e categoria atualizados com IA!');
+    } catch (err: any) {
+      console.error('[EditPrompt - AI Generate] Error:', err);
+      toast.error('Não foi possível gerar com IA. Tente novamente.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   useEffect(() => {
     if (prompt && isOpen) {
@@ -112,7 +148,29 @@ export function EditPromptModal({ isOpen, onClose, prompt, onSave }: EditPromptM
             </Select>
           </div>
 
-          {/* Description */}
+          {/* AI Generate Button - Admin Only */}
+          {isAdmin && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-primary/30 hover:border-primary/60 transition-colors"
+              onClick={handleAIGenerate}
+              disabled={isGenerating || isSaving || !content.trim()}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2 flex-shrink-0" />
+                  <span>Gerando...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>Preencher título, descrição e categoria com IA</span>
+                </>
+              )}
+            </Button>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="edit-desc">Descrição</Label>
             <Textarea
