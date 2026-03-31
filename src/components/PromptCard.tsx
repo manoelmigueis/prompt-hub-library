@@ -273,8 +273,8 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
           </div>
         )}
         
-        {/* Copy button */}
-        <div className="mt-3">
+        {/* Action buttons */}
+        <div className="mt-3 flex flex-col gap-2">
           <Button 
             size="sm" 
             className="w-full gap-1.5 h-8 text-xs btn-gradient rounded-lg"
@@ -283,6 +283,18 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
             {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
             {copied ? 'Copiado!' : 'Copiar Prompt'}
           </Button>
+          {isAdmin && prompt.imageUrl && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full gap-1.5 h-8 text-xs rounded-lg bg-zinc-800 border-zinc-700/50 text-zinc-200 hover:bg-zinc-700 transition-colors"
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
+              {isDownloading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
+              {isDownloading ? 'Baixando...' : 'Baixar Alta Qualidade'}
+            </Button>
+          )}
         </div>
       </div>
     </article>
