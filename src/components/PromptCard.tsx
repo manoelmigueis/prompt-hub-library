@@ -20,6 +20,7 @@ interface PromptCardProps {
 
 export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavorite, isAdmin, onEdit, layout = 'grid' }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
