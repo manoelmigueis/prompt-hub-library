@@ -1,6 +1,7 @@
 import { Prompt } from '@/types/prompt';
-import { Check, Copy, Eye, Heart, Pencil, User } from 'lucide-react';
+import { Check, Copy, Download, Eye, Heart, Loader2, Pencil, User } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,6 +19,7 @@ interface PromptCardProps {
 
 export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavorite, isAdmin, onEdit, layout = 'grid' }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -61,6 +63,32 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
     onEdit?.(prompt);
+  };
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!prompt.imageUrl || isDownloading) return;
+    setIsDownloading(true);
+    console.log('[ImageCard - Admin Download] Starting:', prompt.imageUrl);
+    try {
+      const response = await fetch(prompt.imageUrl);
+      if (!response.ok) throw new Error('Download failed');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${prompt.title?.replace(/[^a-zA-Z0-9]/g, '_') || 'image'}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('Download iniciado!');
+    } catch (err) {
+      console.error('[ImageCard - Admin Download] Error:', err);
+      toast.error('Erro ao baixar imagem.');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   if (layout === 'list') {
@@ -244,8 +272,8 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
           </div>
         )}
         
-        {/* Copy button */}
-        <div className="mt-3">
+        {/* Action buttons */}
+        <div className="mt-3 flex flex-col gap-2">
           <Button 
             size="sm" 
             className="w-full gap-1.5 h-8 text-xs btn-gradient rounded-lg"
@@ -254,6 +282,18 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
             {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
             {copied ? 'Copiado!' : 'Copiar Prompt'}
           </Button>
+          {isAdmin && prompt.imageUrl && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full gap-1.5 h-8 text-xs rounded-lg bg-zinc-800 border-zinc-700/50 text-zinc-200 hover:bg-zinc-700 transition-colors"
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
+              {isDownloading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
+              {isDownloading ? 'Baixando...' : 'Baixar Alta Qualidade'}
+            </Button>
+          )}
         </div>
       </div>
     </article>
