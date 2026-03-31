@@ -1,10 +1,11 @@
 import { Prompt, CATEGORIES } from '@/types/prompt';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Copy, Check, Instagram, Eye, Heart, X } from 'lucide-react';
+import { Copy, Check, Instagram, Eye, Heart, X, Download, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toast } from 'sonner';
 
 interface PromptModalProps {
   prompt: Prompt | null;
@@ -13,10 +14,12 @@ interface PromptModalProps {
   isFavorite?: boolean;
   onToggleFavorite?: (id: string) => void;
   onCopy?: (id: string) => void;
+  isAdmin?: boolean;
 }
 
-export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavorite, onCopy }: PromptModalProps) {
+export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavorite, onCopy, isAdmin }: PromptModalProps) {
   const [copied, setCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   if (!prompt) return null;
 
@@ -125,6 +128,42 @@ export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavor
                 <p className="text-xs leading-relaxed whitespace-pre-wrap font-mono">{prompt.content}</p>
               </div>
             </div>
+
+            {/* Download Button - Admin Only */}
+            {isAdmin && prompt.imageUrl && (
+              <Button
+                variant="outline"
+                className="w-full mt-4 gap-2 h-11 bg-muted/50 border-border hover:bg-muted transition-colors"
+                disabled={isDownloading}
+                onClick={async () => {
+                  try {
+                    setIsDownloading(true);
+                    console.log('[ImageDetails - Download] Starting download for:', prompt.imageUrl);
+                    const response = await fetch(prompt.imageUrl!);
+                    if (!response.ok) throw new Error('Falha ao baixar imagem');
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${prompt.title || 'image'}.${blob.type.split('/')[1] || 'png'}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    toast.success('Download iniciado!');
+                    console.log('[ImageDetails - Download] Success');
+                  } catch (err) {
+                    console.error('[ImageDetails - Download] Error:', err);
+                    toast.error('Erro ao baixar imagem');
+                  } finally {
+                    setIsDownloading(false);
+                  }
+                }}
+              >
+                {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                Baixar Imagem em Alta Qualidade
+              </Button>
+            )}
 
             {/* Copy Button */}
             <Button className="w-full mt-4 gap-2 btn-gradient h-11" onClick={handleCopy}>

@@ -307,6 +307,7 @@ export default function Index() {
             isFavorite={selectedPrompt ? isFavorite(selectedPrompt.id) : false}
             onToggleFavorite={toggleFavorite}
             onCopy={handleCopyPrompt}
+            isAdmin={isAdmin}
           />
           
           <SubmitPromptModal 
