@@ -17,8 +17,9 @@ interface PromptModalProps {
   isAdmin?: boolean;
 }
 
-export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavorite, onCopy }: PromptModalProps) {
+export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavorite, onCopy, isAdmin }: PromptModalProps) {
   const [copied, setCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   if (!prompt) return null;
 
