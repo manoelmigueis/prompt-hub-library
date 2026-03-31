@@ -66,6 +66,32 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
     onEdit?.(prompt);
   };
 
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!prompt.imageUrl || isDownloading) return;
+    setIsDownloading(true);
+    console.log('[ImageCard - Admin Download] Starting:', prompt.imageUrl);
+    try {
+      const response = await fetch(prompt.imageUrl);
+      if (!response.ok) throw new Error('Download failed');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${prompt.title?.replace(/[^a-zA-Z0-9]/g, '_') || 'image'}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('Download iniciado!');
+    } catch (err) {
+      console.error('[ImageCard - Admin Download] Error:', err);
+      toast.error('Erro ao baixar imagem.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   if (layout === 'list') {
     return (
       <article 
