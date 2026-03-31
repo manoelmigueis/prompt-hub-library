@@ -46,13 +46,13 @@ export function Header({
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl border-b border-border">
       <div className="container mx-auto px-4 h-14 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2 shrink-0 cursor-pointer" onClick={() => navigate('/')}>
+        <div className="group flex items-center gap-2 shrink-0 cursor-pointer transition-opacity hover:opacity-80" onClick={() => navigate('/')}>
           <img 
             src={logo} 
-            alt="Ensaios Impossíveis" 
+            alt="Acervo" 
             className="h-8 w-auto"
           />
-          <span className="font-display text-lg tracking-wider text-primary hidden sm:inline">ENSAIOS</span>
+          <span className="font-display text-lg tracking-wider text-primary hidden sm:inline">ACERVO</span>
         </div>
         
         {/* Actions */}
