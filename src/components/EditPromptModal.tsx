@@ -15,6 +15,7 @@ interface EditPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
   prompt: Prompt | null;
+  isAdmin?: boolean;
   onSave: (id: string, updates: { title?: string; description?: string; content?: string; category?: Category; imageUrl?: string }) => Promise<boolean>;
 }
 
