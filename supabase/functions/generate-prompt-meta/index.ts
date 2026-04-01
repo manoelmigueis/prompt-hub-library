@@ -88,11 +88,11 @@ Respond using the generate_meta tool.`,
                 properties: {
                   title: { type: "string", description: "Creative title in Portuguese, max 60 chars" },
                   description: { type: "string", description: "SEO description in Portuguese, max 155 chars" },
-                  tags: {
-                    type: "array",
-                    items: { type: "string" },
-                    description: "5-8 contextual visual tags in kebab-case Portuguese (e.g. blazer-bege, oculos-escuros). NO generic terms like retrato, pessoa, foto.",
-                  },
+                    tags: {
+                     type: "array",
+                     items: { type: "string" },
+                     description: "6-10 content/context tags in kebab-case Portuguese focused on subject, action, location, objects, and pop culture references. NEVER photography, lighting, rendering or generic terms.",
+                   },
                   category: { 
                     type: "string", 
                     description: "The category ID that best fits this prompt. Must be one of: retrato-realista, foto-artistica, moda-estilo, cenarios, profile, social-media, video-effect, body-art, fotografia, arte-digital, infographic, youtube, comics, poster, app-design, logo-marca, outro",
