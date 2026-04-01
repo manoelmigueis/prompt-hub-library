@@ -143,7 +143,10 @@ Respond using the generate_meta tool.`,
           .replace(/-+/g, "-")
           .replace(/^-|-$/g, "")
       );
-      console.log("[TagGenerator] Tags recebidas da IA:", result.tags);
+      // Filter out any forbidden technical/photography tags that slipped through
+      const forbiddenPatterns = /^(fotografia|foto|camera|lente|bokeh|iluminacao|luz|sombra|contraluz|golden-hour|luz-natural|8k|4k|ultra-realista|realista|hiper-realista|fine-art|alta-resolucao|hd|retrato|pessoa|rosto|imagem|cenario|profissional|profundidade-de-campo)$/;
+      result.tags = result.tags.filter((tag: string) => !forbiddenPatterns.test(tag));
+      console.log("[TagGenerator] Tags conceituais geradas:", result.tags);
     }
     
     return new Response(JSON.stringify(result), {
