@@ -24,13 +24,25 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are an SEO expert for an AI image prompt gallery. Given a prompt text, generate:
+            content: `You are an SEO and content analysis expert for an AI image prompt gallery. Given a prompt text, generate:
 1. A concise, creative title (max 60 chars, in Portuguese)
 2. An SEO-optimized description (max 155 chars, in Portuguese)
-3. 5-8 highly contextual, visual tags in Portuguese that describe SPECIFIC objects, clothing, colors, settings, and expressions visible in the described scene. 
-   - GOOD tags: "blazer-bege", "ipad", "oculos-escuros", "fundo-terracota", "sorrindo", "cabelo-cacheado", "vestido-vermelho", "escritorio"
-   - FORBIDDEN generic tags: "retrato", "pessoa", "rosto", "realista", "foto", "imagem", "mulher", "homem", "cenario", "profissional"
-   - Tags MUST be in kebab-case (lowercase, hyphens instead of spaces, no accents). Example: "cabelo-cacheado" not "Cabelo Cacheado"
+3. 6-10 tags in Portuguese focused EXCLUSIVELY on the CONTENT, CONTEXT and CULTURAL REFERENCES of the scene. 
+   Focus on:
+   - SUBJECT: profession, character type, identity (ex: "policial", "medico", "astronauta", "samurai")
+   - ACTION: what is happening (ex: "operacao-tatica", "correndo", "meditando", "cozinhando")
+   - LOCATION/SETTING: where it takes place (ex: "favela", "hospital", "espaco-sideral", "cozinha-gourmet")
+   - OBJECTS & CLOTHING: specific items visible (ex: "colete-tatico", "bisturi", "capacete", "blazer-bege", "ipad")
+   - POP CULTURE / FILM REFERENCES: related movies, series, characters (ex: "tropa-de-elite", "capitao-nascimento", "matrix", "john-wick")
+   - MOOD/EMOTION of the scene (ex: "tensao", "alegria", "misterio", "romance")
+   
+   STRICTLY FORBIDDEN tags (NEVER generate these):
+   - Photography/camera terms: "fotografia", "foto", "camera", "lente", "bokeh", "profundidade-de-campo"
+   - Lighting terms: "iluminacao", "luz", "sombra", "contraluz", "golden-hour", "luz-natural"
+   - Rendering/quality terms: "8k", "4k", "ultra-realista", "realista", "hiper-realista", "fine-art", "alta-resolucao", "hd"
+   - Generic terms: "retrato", "pessoa", "rosto", "imagem", "mulher", "homem", "cenario", "profissional"
+   
+   Tags MUST be in kebab-case (lowercase, hyphens instead of spaces, no accents). Example: "capitao-nascimento" not "Capitão Nascimento"
 4. The most appropriate category for this prompt based on its content
 
 Available categories (use EXACTLY one of these IDs):
