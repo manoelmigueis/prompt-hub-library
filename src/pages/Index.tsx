@@ -138,16 +138,22 @@ export default function Index() {
     if (debouncedSearch.trim() === '') return filtered;
 
     const expandedTerms = expandSearchTerms(debouncedSearch);
-    console.log('[Search] Original:', debouncedSearch, '→ Expanded terms:', expandedTerms.slice(0, 15));
+    console.log('[SearchSystem] searching across multiple fields for:', debouncedSearch, '→ Expanded terms:', expandedTerms.slice(0, 15));
     const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
     const results = filtered.filter(p => {
-      const searchableText = normalize(
-        `${p.title} ${p.description} ${p.content} ${(p.tags || []).join(' ')}`
-      );
+      const searchableFields = [
+        p.title || '',
+        p.description || '',
+        p.content || '',
+        (p.tags || []).join(' '),
+        p.author || '',
+        p.category || '',
+      ];
+      const searchableText = normalize(searchableFields.join(' '));
       return expandedTerms.some(term => searchableText.includes(term));
     });
-    console.log('[Search] Results found:', results.length);
+    console.log('[SearchSystem] Results found:', results.length, 'from', filtered.length, 'prompts');
     return results;
   }, [prompts, selectedCategory, debouncedSearch, showFavoritesOnly, favoriteIds]);
   
