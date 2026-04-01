@@ -5,11 +5,12 @@ import { CATEGORIES } from '@/types/prompt';
 interface HeroSectionProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  onSearchSubmit: () => void;
   totalPrompts: number;
   isSearching?: boolean;
 }
 
-export function HeroSection({ searchQuery, onSearchChange, totalPrompts, isSearching }: HeroSectionProps) {
+export function HeroSection({ searchQuery, onSearchChange, onSearchSubmit, totalPrompts, isSearching }: HeroSectionProps) {
   const totalCategories = CATEGORIES.length - 1; // exclude 'all'
 
   return (
@@ -61,7 +62,13 @@ export function HeroSection({ searchQuery, onSearchChange, totalPrompts, isSearc
         
         {/* Search Box */}
         <div className="max-w-xl mx-auto">
-          <div className="search-box p-1.5 flex gap-1.5">
+          <form
+            className="search-box p-1.5 flex gap-1.5"
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSearchSubmit();
+            }}
+          >
             <div className="flex-1 relative">
               {isSearching ? (
                 <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary animate-spin" />
@@ -77,6 +84,7 @@ export function HeroSection({ searchQuery, onSearchChange, totalPrompts, isSearc
               />
               {searchQuery.length > 0 && (
                 <button
+                  type="button"
                   onClick={() => onSearchChange('')}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:text-foreground transition-opacity duration-200 opacity-70 hover:opacity-100"
                   aria-label="Limpar busca"
@@ -85,11 +93,11 @@ export function HeroSection({ searchQuery, onSearchChange, totalPrompts, isSearc
                 </button>
               )}
             </div>
-            <button className="btn-gradient px-5 h-10 rounded-xl flex items-center gap-1.5 font-semibold text-sm">
+            <button type="submit" className="btn-gradient px-5 h-10 rounded-xl flex items-center gap-1.5 font-semibold text-sm">
               <Sparkles className="w-3.5 h-3.5" />
               Buscar
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </section>

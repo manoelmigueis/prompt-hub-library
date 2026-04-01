@@ -61,6 +61,12 @@ export default function Index() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
+  const handleSearchSubmit = useCallback(() => {
+    const trimmedQuery = searchQuery.trim();
+    setDebouncedSearch(trimmedQuery);
+    setIsSearching(false);
+  }, [searchQuery]);
+
   // Debounce search input by 500ms
   useEffect(() => {
     if (searchQuery.trim() === '') {
@@ -71,7 +77,7 @@ export default function Index() {
     setIsSearching(true);
     const timer = setTimeout(() => {
       console.log('[Search] Debounced query:', searchQuery);
-      setDebouncedSearch(searchQuery);
+      setDebouncedSearch(searchQuery.trim());
       setIsSearching(false);
     }, 500);
     return () => clearTimeout(timer);
@@ -135,10 +141,15 @@ export default function Index() {
       filtered = filtered.filter(p => p.category === selectedCategory);
     }
 
-    if (debouncedSearch.trim() === '') return filtered;
+    const trimmedSearch = debouncedSearch.trim();
 
-    const expandedTerms = expandSearchTerms(debouncedSearch);
-    console.log('[SearchSystem] searching across multiple fields for:', debouncedSearch, '→ Expanded terms:', expandedTerms.slice(0, 15));
+    if (trimmedSearch === '') {
+      console.log('[SearchDebug]', 'Termo recebido:', trimmedSearch, 'Resultados filtrados:', filtered.length);
+      return filtered;
+    }
+
+    const expandedTerms = expandSearchTerms(trimmedSearch);
+    console.log('[SearchSystem] searching across multiple fields for:', trimmedSearch, '→ Expanded terms:', expandedTerms.slice(0, 15));
     const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
     const results = filtered.filter(p => {
@@ -153,6 +164,7 @@ export default function Index() {
       const searchableText = normalize(searchableFields.join(' '));
       return expandedTerms.some(term => searchableText.includes(term));
     });
+    console.log('[SearchDebug]', 'Termo recebido:', trimmedSearch, 'Resultados filtrados:', results.length);
     console.log('[SearchSystem] Results found:', results.length, 'from', filtered.length, 'prompts');
     return results;
   }, [prompts, selectedCategory, debouncedSearch, showFavoritesOnly, favoriteIds]);
@@ -277,6 +289,7 @@ export default function Index() {
             <HeroSection 
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
+              onSearchSubmit={handleSearchSubmit}
               totalPrompts={filteredPrompts.length}
               isSearching={isSearching}
             />
@@ -298,6 +311,8 @@ export default function Index() {
               isFavorite={isFavorite}
               onToggleFavorite={toggleFavorite}
               isAdmin={isAdmin}
+              isSearching={isSearching}
+              hasSearchQuery={searchQuery.trim().length > 0 || debouncedSearch.trim().length > 0}
               onEditPrompt={(prompt) => {
                 setEditingPrompt(prompt);
                 setShowEditModal(true);
