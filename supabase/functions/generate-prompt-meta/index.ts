@@ -24,13 +24,25 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are an SEO expert for an AI image prompt gallery. Given a prompt text, generate:
+            content: `You are an SEO and content analysis expert for an AI image prompt gallery. Given a prompt text, generate:
 1. A concise, creative title (max 60 chars, in Portuguese)
 2. An SEO-optimized description (max 155 chars, in Portuguese)
-3. 5-8 highly contextual, visual tags in Portuguese that describe SPECIFIC objects, clothing, colors, settings, and expressions visible in the described scene. 
-   - GOOD tags: "blazer-bege", "ipad", "oculos-escuros", "fundo-terracota", "sorrindo", "cabelo-cacheado", "vestido-vermelho", "escritorio"
-   - FORBIDDEN generic tags: "retrato", "pessoa", "rosto", "realista", "foto", "imagem", "mulher", "homem", "cenario", "profissional"
-   - Tags MUST be in kebab-case (lowercase, hyphens instead of spaces, no accents). Example: "cabelo-cacheado" not "Cabelo Cacheado"
+3. 6-10 tags in Portuguese focused EXCLUSIVELY on the CONTENT, CONTEXT and CULTURAL REFERENCES of the scene. 
+   Focus on:
+   - SUBJECT: profession, character type, identity (ex: "policial", "medico", "astronauta", "samurai")
+   - ACTION: what is happening (ex: "operacao-tatica", "correndo", "meditando", "cozinhando")
+   - LOCATION/SETTING: where it takes place (ex: "favela", "hospital", "espaco-sideral", "cozinha-gourmet")
+   - OBJECTS & CLOTHING: specific items visible (ex: "colete-tatico", "bisturi", "capacete", "blazer-bege", "ipad")
+   - POP CULTURE / FILM REFERENCES: related movies, series, characters (ex: "tropa-de-elite", "capitao-nascimento", "matrix", "john-wick")
+   - MOOD/EMOTION of the scene (ex: "tensao", "alegria", "misterio", "romance")
+   
+   STRICTLY FORBIDDEN tags (NEVER generate these):
+   - Photography/camera terms: "fotografia", "foto", "camera", "lente", "bokeh", "profundidade-de-campo"
+   - Lighting terms: "iluminacao", "luz", "sombra", "contraluz", "golden-hour", "luz-natural"
+   - Rendering/quality terms: "8k", "4k", "ultra-realista", "realista", "hiper-realista", "fine-art", "alta-resolucao", "hd"
+   - Generic terms: "retrato", "pessoa", "rosto", "imagem", "mulher", "homem", "cenario", "profissional"
+   
+   Tags MUST be in kebab-case (lowercase, hyphens instead of spaces, no accents). Example: "capitao-nascimento" not "Capitão Nascimento"
 4. The most appropriate category for this prompt based on its content
 
 Available categories (use EXACTLY one of these IDs):
@@ -76,11 +88,11 @@ Respond using the generate_meta tool.`,
                 properties: {
                   title: { type: "string", description: "Creative title in Portuguese, max 60 chars" },
                   description: { type: "string", description: "SEO description in Portuguese, max 155 chars" },
-                  tags: {
-                    type: "array",
-                    items: { type: "string" },
-                    description: "5-8 contextual visual tags in kebab-case Portuguese (e.g. blazer-bege, oculos-escuros). NO generic terms like retrato, pessoa, foto.",
-                  },
+                    tags: {
+                     type: "array",
+                     items: { type: "string" },
+                     description: "6-10 content/context tags in kebab-case Portuguese focused on subject, action, location, objects, and pop culture references. NEVER photography, lighting, rendering or generic terms.",
+                   },
                   category: { 
                     type: "string", 
                     description: "The category ID that best fits this prompt. Must be one of: retrato-realista, foto-artistica, moda-estilo, cenarios, profile, social-media, video-effect, body-art, fotografia, arte-digital, infographic, youtube, comics, poster, app-design, logo-marca, outro",
@@ -131,7 +143,10 @@ Respond using the generate_meta tool.`,
           .replace(/-+/g, "-")
           .replace(/^-|-$/g, "")
       );
-      console.log("[TagGenerator] Tags recebidas da IA:", result.tags);
+      // Filter out any forbidden technical/photography tags that slipped through
+      const forbiddenPatterns = /^(fotografia|foto|camera|lente|bokeh|iluminacao|luz|sombra|contraluz|golden-hour|luz-natural|8k|4k|ultra-realista|realista|hiper-realista|fine-art|alta-resolucao|hd|retrato|pessoa|rosto|imagem|cenario|profissional|profundidade-de-campo)$/;
+      result.tags = result.tags.filter((tag: string) => !forbiddenPatterns.test(tag));
+      console.log("[TagGenerator] Tags conceituais geradas:", result.tags);
     }
     
     return new Response(JSON.stringify(result), {
