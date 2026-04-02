@@ -63,7 +63,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
           category: p.category as Category,
           status: p.status as PromptStatus,
           isFeatured: p.is_featured,
-          tags: generateTags(p.category as Category),
+          tags: (p as any).tags && (p as any).tags.length > 0 ? (p as any).tags : generateTags(p.category as Category),
           viewCount: (p as any).view_count || 0,
           copyCount: (p as any).copy_count || 0,
           createdAt: new Date(p.created_at),
