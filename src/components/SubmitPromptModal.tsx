@@ -1,13 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { CATEGORIES, Category } from '@/types/prompt';
-import { CATEGORIES, Category } from '@/types/prompt';
-import { useState, useEffect, useRef } from 'react';
-import { Send, Image, Link, Sparkles, Tag, Loader2, X } from 'lucide-react';
+import { useState } from 'react';
+import { Send, Image, Sparkles, Tag, Loader2 } from 'lucide-react';
 import { ImageUpload } from './ImageUpload';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
