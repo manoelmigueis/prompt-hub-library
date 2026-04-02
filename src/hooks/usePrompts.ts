@@ -10,6 +10,7 @@ interface CreatePromptData {
   content: string;
   imageUrl: string;
   category: Category;
+  tags?: string[];
 }
 
 export function usePrompts(userId?: string, isAdmin?: boolean) {
@@ -62,7 +63,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
           category: p.category as Category,
           status: p.status as PromptStatus,
           isFeatured: p.is_featured,
-          tags: generateTags(p.category as Category),
+          tags: (p as any).tags && (p as any).tags.length > 0 ? (p as any).tags : generateTags(p.category as Category),
           viewCount: (p as any).view_count || 0,
           copyCount: (p as any).copy_count || 0,
           createdAt: new Date(p.created_at),
@@ -118,6 +119,8 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     // Check global auto_approve setting
     const autoApprove = await getAutoApprove();
 
+    console.log('[SubmitPayload]', { tags: data.tags, title: data.title, category: data.category });
+
     const { data: newPrompt, error } = await supabase
       .from('prompts')
       .insert({
@@ -126,6 +129,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         content: data.content,
         category: data.category,
         image_url: data.imageUrl || null,
+        tags: data.tags && data.tags.length > 0 ? data.tags : [],
         user_id: userId,
         author_name: profile?.display_name || 'Anônimo',
         author_instagram: profile?.instagram || null,
@@ -152,6 +156,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
       category: newPrompt.category as Category,
       status: newPrompt.status as PromptStatus,
       isFeatured: newPrompt.is_featured,
+      tags: (newPrompt as any).tags || data.tags || [],
       viewCount: 0,
       copyCount: 0,
       createdAt: new Date(newPrompt.created_at),
@@ -233,7 +238,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     return true;
   };
 
-  const updatePrompt = async (id: string, updates: { title?: string; description?: string; content?: string; category?: Category; imageUrl?: string }) => {
+  const updatePrompt = async (id: string, updates: { title?: string; description?: string; content?: string; category?: Category; imageUrl?: string; tags?: string[] }) => {
     console.log('[updatePrompt] Updating prompt:', id, updates);
     const dbUpdates: Record<string, any> = { updated_at: new Date().toISOString() };
     if (updates.title !== undefined) dbUpdates.title = updates.title;
@@ -241,6 +246,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     if (updates.content !== undefined) dbUpdates.content = updates.content;
     if (updates.category !== undefined) dbUpdates.category = updates.category;
     if (updates.imageUrl !== undefined) dbUpdates.image_url = updates.imageUrl || null;
+    if (updates.tags !== undefined) dbUpdates.tags = updates.tags;
 
     const { error } = await supabase
       .from('prompts')
@@ -261,6 +267,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         ...(updates.content !== undefined && { content: updates.content }),
         ...(updates.category !== undefined && { category: updates.category }),
         ...(updates.imageUrl !== undefined && { imageUrl: updates.imageUrl }),
+        ...(updates.tags !== undefined && { tags: updates.tags }),
         updatedAt: new Date(),
       } : p
     ));
