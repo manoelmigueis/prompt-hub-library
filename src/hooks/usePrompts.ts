@@ -119,6 +119,8 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     // Check global auto_approve setting
     const autoApprove = await getAutoApprove();
 
+    console.log('[SubmitPayload]', { tags: data.tags, title: data.title, category: data.category });
+
     const { data: newPrompt, error } = await supabase
       .from('prompts')
       .insert({
@@ -127,6 +129,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         content: data.content,
         category: data.category,
         image_url: data.imageUrl || null,
+        tags: data.tags && data.tags.length > 0 ? data.tags : [],
         user_id: userId,
         author_name: profile?.display_name || 'Anônimo',
         author_instagram: profile?.instagram || null,
