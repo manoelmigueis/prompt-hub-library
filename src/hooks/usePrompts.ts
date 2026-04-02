@@ -156,6 +156,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
       category: newPrompt.category as Category,
       status: newPrompt.status as PromptStatus,
       isFeatured: newPrompt.is_featured,
+      tags: (newPrompt as any).tags || data.tags || [],
       viewCount: 0,
       copyCount: 0,
       createdAt: new Date(newPrompt.created_at),
