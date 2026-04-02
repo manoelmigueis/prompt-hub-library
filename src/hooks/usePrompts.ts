@@ -238,7 +238,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     return true;
   };
 
-  const updatePrompt = async (id: string, updates: { title?: string; description?: string; content?: string; category?: Category; imageUrl?: string }) => {
+  const updatePrompt = async (id: string, updates: { title?: string; description?: string; content?: string; category?: Category; imageUrl?: string; tags?: string[] }) => {
     console.log('[updatePrompt] Updating prompt:', id, updates);
     const dbUpdates: Record<string, any> = { updated_at: new Date().toISOString() };
     if (updates.title !== undefined) dbUpdates.title = updates.title;
@@ -246,6 +246,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     if (updates.content !== undefined) dbUpdates.content = updates.content;
     if (updates.category !== undefined) dbUpdates.category = updates.category;
     if (updates.imageUrl !== undefined) dbUpdates.image_url = updates.imageUrl || null;
+    if (updates.tags !== undefined) dbUpdates.tags = updates.tags;
 
     const { error } = await supabase
       .from('prompts')
@@ -266,6 +267,7 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         ...(updates.content !== undefined && { content: updates.content }),
         ...(updates.category !== undefined && { category: updates.category }),
         ...(updates.imageUrl !== undefined && { imageUrl: updates.imageUrl }),
+        ...(updates.tags !== undefined && { tags: updates.tags }),
         updatedAt: new Date(),
       } : p
     ));
