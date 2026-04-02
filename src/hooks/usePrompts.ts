@@ -10,6 +10,7 @@ interface CreatePromptData {
   content: string;
   imageUrl: string;
   category: Category;
+  tags?: string[];
 }
 
 export function usePrompts(userId?: string, isAdmin?: boolean) {
