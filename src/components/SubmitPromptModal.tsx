@@ -26,8 +26,6 @@ export interface SubmitPromptData {
   tags?: string[];
 }
 
-type ImageInputMode = 'upload' | 'url';
-
 export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptModalProps) {
   const [formData, setFormData] = useState<SubmitPromptData>({
     title: '',
@@ -37,13 +35,8 @@ export function SubmitPromptModal({ isOpen, onClose, onSubmit }: SubmitPromptMod
     category: 'profile',
     tags: [],
   });
-  const [imageInputMode, setImageInputMode] = useState<ImageInputMode>('upload');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [isFetchingPreview, setIsFetchingPreview] = useState(false);
-  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
-  const [previewError, setPreviewError] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Debounced link preview extraction
   useEffect(() => {
