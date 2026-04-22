@@ -40,12 +40,16 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
       
       if (userIds.length > 0 && userId) {
         const { data: profiles } = await supabase
-          .from('profiles')
-          .select('id, avatar_url, display_name, instagram')
-          .in('id', userIds);
-        
+          .rpc('get_public_profiles', { _ids: userIds });
+
         if (profiles) {
-          profiles.forEach(p => { profilesMap[p.id] = p; });
+          (profiles as any[]).forEach((p) => {
+            profilesMap[p.id] = {
+              avatar_url: p.avatar_url,
+              display_name: p.display_name,
+              instagram: p.instagram,
+            };
+          });
         }
       }
 
