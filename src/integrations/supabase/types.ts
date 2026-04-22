@@ -350,6 +350,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_profiles: {
+        Args: { _ids: string[] }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          id: string
+          instagram: string
+        }[]
+      }
       get_user_status: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["user_status"]
@@ -364,10 +373,7 @@ export type Database = {
       increment_copy_count: { Args: { prompt_id: string }; Returns: undefined }
       increment_view_count: { Args: { prompt_id: string }; Returns: undefined }
       is_admin_or_moderator: { Args: { _user_id: string }; Returns: boolean }
-      use_invite_code: {
-        Args: { _code: string; _user_id: string }
-        Returns: boolean
-      }
+      use_invite_code: { Args: { _code: string }; Returns: boolean }
       validate_invite_code: { Args: { _code: string }; Returns: boolean }
     }
     Enums: {
