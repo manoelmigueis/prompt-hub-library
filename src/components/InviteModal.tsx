@@ -17,6 +17,7 @@ interface InviteModalProps {
 }
 
 export function InviteModal({ isOpen, onLogin, onSignUp, loading }: InviteModalProps) {
+  // Auth modal: invite code required for all signups; admin role assigned server-side by trigger.
   const [tab, setTab] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
