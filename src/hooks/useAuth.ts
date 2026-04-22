@@ -92,23 +92,20 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, [fetchUserData]);
 
-  // Admin email that doesn't require invite code
-  const ADMIN_EMAIL = 'juniorthemaster88@gmail.com';
-
   const signUp = async (email: string, password: string, displayName: string, inviteCode: string) => {
-    const isAdminEmail = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-    
-    // Skip invite code validation for admin email
-    if (!isAdminEmail) {
+    // If an invite code was provided, validate it. Admin role assignment is
+    // handled server-side via a database trigger based on the user's email.
+    const hasInviteCode = !!inviteCode && inviteCode.trim().length > 0;
+
+    if (hasInviteCode) {
       const { data: isValid } = await supabase.rpc('validate_invite_code', { _code: inviteCode });
-      
       if (!isValid) {
         return { error: { message: 'Código de convite inválido ou expirado' } };
       }
     }
 
     const redirectUrl = `${window.location.origin}/`;
-    
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -120,14 +117,9 @@ export function useAuth() {
       }
     });
 
-    if (!error && data.user) {
-      if (isAdminEmail) {
-        // Admin email gets admin role directly - handled via database
-        // We'll create a special system invite code usage for tracking
-      } else {
-        // Use the invite code - admin role assignment is handled server-side via database trigger
-        await supabase.rpc('use_invite_code', { _code: inviteCode, _user_id: data.user.id });
-      }
+    if (!error && data.user && hasInviteCode) {
+      // Server-side function uses auth.uid() — no need to pass user id.
+      await supabase.rpc('use_invite_code', { _code: inviteCode });
     }
 
     return { data, error };
