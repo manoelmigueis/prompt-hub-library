@@ -155,13 +155,13 @@ export default function Index() {
     const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     const results = filtered.filter(p => {
+      // Only search in user-meaningful content fields. Excluding category/author
+      // prevents whole categories from matching when the user types a term.
       const searchableFields = [
         p.title || '',
         p.description || '',
         p.content || '',
         (p.tags || []).join(' '),
-        p.author || '',
-        p.category || '',
       ];
       const searchableText = normalize(searchableFields.join(' '));
       // Word-boundary match prevents "carro" matching inside unrelated words.
