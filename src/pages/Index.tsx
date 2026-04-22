@@ -152,6 +152,8 @@ export default function Index() {
     console.log('[SearchSystem] searching across multiple fields for:', trimmedSearch, '→ Expanded terms:', expandedTerms.slice(0, 15));
     const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
+    const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     const results = filtered.filter(p => {
       const searchableFields = [
         p.title || '',
@@ -162,7 +164,12 @@ export default function Index() {
         p.category || '',
       ];
       const searchableText = normalize(searchableFields.join(' '));
-      return expandedTerms.some(term => searchableText.includes(term));
+      // Word-boundary match prevents "carro" matching inside unrelated words.
+      return expandedTerms.some(term => {
+        if (!term) return false;
+        const re = new RegExp(`\\b${escapeRegex(term)}\\b`, 'i');
+        return re.test(searchableText);
+      });
     });
     console.log('[SearchDebug]', 'Termo recebido:', trimmedSearch, 'Resultados filtrados:', results.length);
     console.log('[SearchSystem] Results found:', results.length, 'from', filtered.length, 'prompts');
