@@ -168,15 +168,19 @@ export function expandSearchTerms(query: string): string[] {
 
   for (const word of words) {
     allTerms.add(word);
-    // Check exact match
+    // Exact-match synonym lookup only (fuzzy expansion removed: it caused
+    // false positives like "carro" matching "cao"/"casa"/"caro").
     const synonyms = synonymMap.get(word);
     if (synonyms) {
       for (const syn of synonyms) allTerms.add(syn);
     }
-    // Check fuzzy: if the word is similar to a key (Levenshtein distance <= 2)
-    for (const [key, syns] of synonymMap) {
-      if (levenshtein(word, key) <= 2 && word.length >= 3) {
-        for (const syn of syns) allTerms.add(syn);
+    // Conservative fuzzy: only for longer words (>=6 chars) and keys (>=6),
+    // and only when distance is 1 (typo tolerance, not semantic drift).
+    if (word.length >= 6) {
+      for (const [key, syns] of synonymMap) {
+        if (key.length >= 6 && levenshtein(word, key) <= 1) {
+          for (const syn of syns) allTerms.add(syn);
+        }
       }
     }
   }
