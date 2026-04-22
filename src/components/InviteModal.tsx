@@ -219,30 +219,19 @@ export function InviteModal({ isOpen, onLogin, onSignUp, loading }: InviteModalP
                 />
               </div>
               
-              {/* Only show invite code field for non-admin emails */}
-              {!isAdminEmail && (
-                <div className="space-y-2">
-                  <Label htmlFor="invite-code" className="flex items-center gap-2">
-                    <Key className="w-4 h-4" />
-                    Código de Convite
-                  </Label>
-                  <Input
-                    id="invite-code"
-                    value={inviteCode}
-                    onChange={(e) => setInviteCode(e.target.value)}
-                    placeholder="Digite seu código"
-                    className="h-12 rounded-xl font-mono tracking-wider"
-                  />
-                </div>
-              )}
-
-              {isAdminEmail && (
-                <div className="bg-primary/10 border border-primary/30 rounded-xl p-3 text-center">
-                  <p className="text-sm text-primary font-medium">
-                    ✨ Acesso administrativo detectado
-                  </p>
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="invite-code" className="flex items-center gap-2">
+                  <Key className="w-4 h-4" />
+                  Código de Convite
+                </Label>
+                <Input
+                  id="invite-code"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value)}
+                  placeholder="Digite seu código"
+                  className="h-12 rounded-xl font-mono tracking-wider"
+                />
+              </div>
               
               {error && (
                 <p className="text-destructive text-sm text-center bg-destructive/10 p-2 rounded-lg">{error}</p>
@@ -257,11 +246,9 @@ export function InviteModal({ isOpen, onLogin, onSignUp, loading }: InviteModalP
                 <ArrowRight className="w-4 h-4" />
               </Button>
               
-              {!isAdminEmail && (
-                <p className="text-center text-sm text-muted-foreground">
-                  Não tem um código? Solicite ao administrador.
-                </p>
-              )}
+              <p className="text-center text-sm text-muted-foreground">
+                Não tem um código? Solicite ao administrador.
+              </p>
             </form>
           </TabsContent>
         </Tabs>
