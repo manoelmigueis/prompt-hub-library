@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Anyone can view reference images" ON storage.objects;
