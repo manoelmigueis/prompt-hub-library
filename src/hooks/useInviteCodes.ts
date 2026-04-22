@@ -43,10 +43,11 @@ export function useInviteCodes() {
 
   const generateCode = async (userId: string) => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < 8; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
+    const bytes = new Uint8Array(8);
+    crypto.getRandomValues(bytes);
+    const code = Array.from(bytes)
+      .map((byte) => chars[byte % chars.length])
+      .join('');
 
     const { data, error } = await supabase
       .from('invite_codes')

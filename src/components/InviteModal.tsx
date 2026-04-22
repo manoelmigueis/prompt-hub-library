@@ -16,9 +16,6 @@ interface InviteModalProps {
   loading?: boolean;
 }
 
-// Admin email that doesn't require invite code
-const ADMIN_EMAIL = 'juniorthemaster88@gmail.com';
-
 export function InviteModal({ isOpen, onLogin, onSignUp, loading }: InviteModalProps) {
   const [tab, setTab] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
@@ -45,9 +42,6 @@ export function InviteModal({ isOpen, onLogin, onSignUp, loading }: InviteModalP
     setIsGoogleLoading(false);
   };
 
-  // Check if current email is admin
-  const isAdminEmail = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
