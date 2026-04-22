@@ -60,8 +60,7 @@ export function InviteModal({ isOpen, onLogin, onSignUp, loading }: InviteModalP
   
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Admin doesn't need invite code
-    if (!email || !password || !displayName || (!isAdminEmail && !inviteCode)) {
+    if (!email || !password || !displayName || !inviteCode) {
       setError('Preencha todos os campos');
       return;
     }
