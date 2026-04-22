@@ -174,15 +174,10 @@ export function expandSearchTerms(query: string): string[] {
     if (synonyms) {
       for (const syn of synonyms) allTerms.add(syn);
     }
-    // Conservative fuzzy: only for longer words (>=6 chars) and keys (>=6),
-    // and only when distance is 1 (typo tolerance, not semantic drift).
-    if (word.length >= 6) {
-      for (const [key, syns] of synonymMap) {
-        if (key.length >= 6 && levenshtein(word, key) <= 1) {
-          for (const syn of syns) allTerms.add(syn);
-        }
-      }
-    }
+    // Fuzzy/Levenshtein expansion removed entirely: it consistently introduced
+    // unrelated matches (e.g. typing "carro" pulling synonyms of similar-length
+    // unrelated words). Only exact synonyms are expanded now.
+
   }
 
   return Array.from(allTerms);
