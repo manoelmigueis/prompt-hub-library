@@ -312,23 +312,6 @@ export default function Portfolio() {
           </main>
 
           <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} profile={profile} onSave={updateProfile} />
-          {(isAdmin || isModerator) && (
-            <AdminPanel
-              isOpen={showAdminPanel}
-              onClose={() => setShowAdminPanel(false)}
-              prompts={[]}
-              inviteCodes={inviteCodes}
-              onApprove={() => {}}
-              onReject={() => {}}
-              onToggleFeatured={() => {}}
-              onDelete={() => {}}
-              onGenerateCode={generateCode}
-              onDeleteCode={deleteCode}
-              isAdmin={isAdmin}
-              getAutoApprove={getAutoApprove}
-              setAutoApprove={setAutoApprove}
-            />
-          )}
           <SubmitPromptModal isOpen={showSubmitModal} onClose={() => setShowSubmitModal(false)} onSubmit={handleSubmitPrompt} />
         </>
       )}
