@@ -1,9 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Instagram, Twitter, Youtube, Globe, Save, Camera, Loader2, Check } from 'lucide-react';
+import { Instagram, Twitter, Youtube, Globe, Save, Camera, Loader2, Check, MessageCircle } from 'lucide-react';
 import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { UserProfile } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +22,8 @@ const CROP_OUTPUT_SIZE = 512;
 
 export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalProps) {
   const [displayName, setDisplayName] = useState('');
+  const [bio, setBio] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
   const [instagram, setInstagram] = useState('');
   const [twitter, setTwitter] = useState('');
   const [youtube, setYoutube] = useState('');
@@ -38,6 +41,8 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.display_name || '');
+      setBio(profile.bio || '');
+      setWhatsapp(profile.whatsapp || '');
       setInstagram(profile.instagram || '');
       setTwitter(profile.twitter || '');
       setYoutube(profile.youtube || '');
