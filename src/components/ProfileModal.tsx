@@ -310,9 +310,33 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
             />
           </div>
 
+          {/* Bio */}
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio (aparece no seu portfólio)</Label>
+            <Textarea
+              id="bio"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Conte um pouco sobre você…"
+              maxLength={300}
+              rows={3}
+              className="rounded-xl"
+            />
+          </div>
+
           {/* Social Links */}
           <div className="space-y-4">
-            <Label className="text-muted-foreground">Redes Sociais</Label>
+            <Label className="text-muted-foreground">Redes Sociais & Contato</Label>
+
+            <div className="relative">
+              <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+              <Input
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="WhatsApp (ex: 5511999999999)"
+                className="h-12 pl-12 rounded-xl"
+              />
+            </div>
 
             <div className="relative">
               <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-pink-500" />
