@@ -49,7 +49,7 @@ export default function Portfolio() {
   const [savingUsername, setSavingUsername] = useState(false);
 
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   // Hydrate state from loaded portfolio
@@ -175,7 +175,7 @@ export default function Portfolio() {
             isAuthenticated={isAuthenticated}
             displayName={profile?.display_name || undefined}
             avatarUrl={profile?.avatar_url || undefined}
-            onAdminClick={() => setShowAdminPanel(true)}
+            onAdminClick={() => navigate('/?admin=1')}
             onSubmitClick={() => setShowSubmitModal(true)}
             onProfileClick={() => setShowProfileModal(true)}
             onLogout={signOut}
