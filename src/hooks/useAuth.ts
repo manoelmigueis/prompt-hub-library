@@ -9,6 +9,9 @@ export type UserStatus = 'active' | 'banned' | 'suspended';
 export interface UserProfile {
   id: string;
   display_name: string | null;
+  username: string | null;
+  bio: string | null;
+  whatsapp: string | null;
   instagram: string | null;
   twitter: string | null;
   tiktok: string | null;

@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Ferramentas from "./pages/Ferramentas";
 import Referencias from "./pages/Referencias";
+import Portfolio from "./pages/Portfolio";
+import PortfolioPublic from "./pages/PortfolioPublic";
 import NotFound from "./pages/NotFound";
 import OfflineIndicator from "./components/OfflineIndicator";
 
@@ -22,6 +24,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/ferramentas" element={<Ferramentas />} />
           <Route path="/referencias" element={<Referencias />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/portfolio/:username" element={<PortfolioPublic />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

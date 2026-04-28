@@ -1,9 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Instagram, Twitter, Youtube, Globe, Save, Camera, Loader2, Check } from 'lucide-react';
+import { Instagram, Twitter, Youtube, Globe, Save, Camera, Loader2, Check, MessageCircle } from 'lucide-react';
 import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { UserProfile } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +22,8 @@ const CROP_OUTPUT_SIZE = 512;
 
 export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalProps) {
   const [displayName, setDisplayName] = useState('');
+  const [bio, setBio] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
   const [instagram, setInstagram] = useState('');
   const [twitter, setTwitter] = useState('');
   const [youtube, setYoutube] = useState('');
@@ -38,6 +41,8 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.display_name || '');
+      setBio(profile.bio || '');
+      setWhatsapp(profile.whatsapp || '');
       setInstagram(profile.instagram || '');
       setTwitter(profile.twitter || '');
       setYoutube(profile.youtube || '');
@@ -167,6 +172,8 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
     setSaving(true);
     const result = await onSave({
       display_name: displayName,
+      bio: bio || null,
+      whatsapp: whatsapp || null,
       instagram: instagram || null,
       twitter: twitter || null,
       youtube: youtube || null,
@@ -303,9 +310,33 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
             />
           </div>
 
+          {/* Bio */}
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio (aparece no seu portfólio)</Label>
+            <Textarea
+              id="bio"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Conte um pouco sobre você…"
+              maxLength={300}
+              rows={3}
+              className="rounded-xl"
+            />
+          </div>
+
           {/* Social Links */}
           <div className="space-y-4">
-            <Label className="text-muted-foreground">Redes Sociais</Label>
+            <Label className="text-muted-foreground">Redes Sociais & Contato</Label>
+
+            <div className="relative">
+              <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+              <Input
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="WhatsApp (ex: 5511999999999)"
+                className="h-12 pl-12 rounded-xl"
+              />
+            </div>
 
             <div className="relative">
               <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-pink-500" />

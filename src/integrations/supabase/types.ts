@@ -151,9 +151,75 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_items: {
+        Row: {
+          created_at: string
+          id: string
+          portfolio_id: string
+          position: number
+          prompt_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          portfolio_id: string
+          position?: number
+          prompt_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          portfolio_id?: string
+          position?: number
+          prompt_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_items_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolios: {
+        Row: {
+          about: string | null
+          cover_prompt_id: string | null
+          created_at: string
+          id: string
+          is_published: boolean
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          about?: string | null
+          cover_prompt_id?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          about?: string | null
+          cover_prompt_id?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           display_name: string | null
           has_access: boolean
@@ -164,11 +230,14 @@ export type Database = {
           tiktok: string | null
           twitter: string | null
           updated_at: string
+          username: string | null
           website: string | null
+          whatsapp: string | null
           youtube: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           display_name?: string | null
           has_access?: boolean
@@ -179,11 +248,14 @@ export type Database = {
           tiktok?: string | null
           twitter?: string | null
           updated_at?: string
+          username?: string | null
           website?: string | null
+          whatsapp?: string | null
           youtube?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           display_name?: string | null
           has_access?: boolean
@@ -194,7 +266,9 @@ export type Database = {
           tiktok?: string | null
           twitter?: string | null
           updated_at?: string
+          username?: string | null
           website?: string | null
+          whatsapp?: string | null
           youtube?: string | null
         }
         Relationships: []
@@ -350,6 +424,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_portfolio_by_username: {
+        Args: { _username: string }
+        Returns: {
+          about: string
+          avatar_url: string
+          bio: string
+          cover_prompt_id: string
+          display_name: string
+          instagram: string
+          is_published: boolean
+          portfolio_id: string
+          tiktok: string
+          title: string
+          twitter: string
+          user_id: string
+          username: string
+          website: string
+          whatsapp: string
+          youtube: string
+        }[]
+      }
       get_public_profiles: {
         Args: { _ids: string[] }
         Returns: {
@@ -373,6 +468,7 @@ export type Database = {
       increment_copy_count: { Args: { prompt_id: string }; Returns: undefined }
       increment_view_count: { Args: { prompt_id: string }; Returns: undefined }
       is_admin_or_moderator: { Args: { _user_id: string }; Returns: boolean }
+      is_username_available: { Args: { _username: string }; Returns: boolean }
       use_invite_code: { Args: { _code: string }; Returns: boolean }
       validate_invite_code: { Args: { _code: string }; Returns: boolean }
     }
