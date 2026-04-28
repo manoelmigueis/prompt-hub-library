@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { InviteModal } from '@/components/InviteModal';
 import { ProfileModal } from '@/components/ProfileModal';
-import { AdminPanel } from '@/components/AdminPanel';
 import { SubmitPromptModal, SubmitPromptData } from '@/components/SubmitPromptModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,8 +36,7 @@ export default function Portfolio() {
   } = useAuth();
 
   const { portfolio, items, userPrompts, loading, saving, savePortfolio } = usePortfolio(user?.id);
-  const { createPrompt, getAutoApprove, setAutoApprove } = usePrompts(user?.id, isAdmin);
-  const { inviteCodes, generateCode, deleteCode } = useInviteCodes();
+  const { createPrompt } = usePrompts(user?.id, isAdmin);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [title, setTitle] = useState('');
