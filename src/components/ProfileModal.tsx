@@ -172,6 +172,8 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
     setSaving(true);
     const result = await onSave({
       display_name: displayName,
+      bio: bio || null,
+      whatsapp: whatsapp || null,
       instagram: instagram || null,
       twitter: twitter || null,
       youtube: youtube || null,
