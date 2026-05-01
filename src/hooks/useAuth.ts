@@ -20,6 +20,7 @@ export interface UserProfile {
   avatar_url: string | null;
   status: UserStatus;
   invite_code_used: string | null;
+  show_social_links: boolean;
   created_at: string;
   updated_at: string;
 }
