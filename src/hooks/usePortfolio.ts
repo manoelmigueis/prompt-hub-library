@@ -8,6 +8,7 @@ export interface PortfolioRow {
   title: string | null;
   about: string | null;
   cover_prompt_id: string | null;
+  cover_image_url: string | null;
   is_published: boolean;
 }
 
@@ -25,7 +26,7 @@ export interface UserPromptOption {
   tags: string[];
 }
 
-export function usePortfolio(userId?: string) {
+export function usePortfolio(userId?: string, isAdmin: boolean = false) {
   const [portfolio, setPortfolio] = useState<PortfolioRow | null>(null);
   const [items, setItems] = useState<PortfolioItem[]>([]);
   const [userPrompts, setUserPrompts] = useState<UserPromptOption[]>([]);
@@ -39,13 +40,20 @@ export function usePortfolio(userId?: string) {
     }
     setLoading(true);
     try {
-      // Load own approved prompts
-      const { data: promptData, error: promptErr } = await supabase
+      // Admins can pick any approved prompt; regular users only their own.
+      let promptQuery = supabase
         .from('prompts')
         .select('id, title, image_url, category, tags')
-        .eq('user_id', userId)
         .eq('status', 'approved')
         .order('created_at', { ascending: false });
+
+      if (!isAdmin) {
+        promptQuery = promptQuery.eq('user_id', userId);
+      } else {
+        promptQuery = promptQuery.limit(500);
+      }
+
+      const { data: promptData, error: promptErr } = await promptQuery;
       if (promptErr) throw promptErr;
       setUserPrompts(
         (promptData || []).map((p: any) => ({
@@ -82,7 +90,7 @@ export function usePortfolio(userId?: string) {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, isAdmin]);
 
   useEffect(() => {
     load();
@@ -108,7 +116,13 @@ export function usePortfolio(userId?: string) {
   const savePortfolio = useCallback(
     async (
       selectedPromptIds: string[],
-      meta: { title?: string | null; about?: string | null; cover_prompt_id?: string | null; is_published?: boolean }
+      meta: {
+        title?: string | null;
+        about?: string | null;
+        cover_prompt_id?: string | null;
+        cover_image_url?: string | null;
+        is_published?: boolean;
+      }
     ) => {
       if (!userId) return false;
       setSaving(true);
@@ -122,6 +136,7 @@ export function usePortfolio(userId?: string) {
             title: meta.title ?? null,
             about: meta.about ?? null,
             cover_prompt_id: meta.cover_prompt_id ?? null,
+            cover_image_url: meta.cover_image_url ?? null,
             is_published: meta.is_published ?? true,
             updated_at: new Date().toISOString(),
           })
@@ -184,10 +199,12 @@ export interface PublicPortfolioData {
   youtube: string | null;
   tiktok: string | null;
   twitter: string | null;
+  show_social_links: boolean | null;
   portfolio_id: string | null;
   title: string | null;
   about: string | null;
   cover_prompt_id: string | null;
+  cover_image_url: string | null;
   is_published: boolean | null;
 }
 

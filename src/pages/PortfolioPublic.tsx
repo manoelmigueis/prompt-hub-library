@@ -54,19 +54,21 @@ export default function PortfolioPublic() {
 
   const { profile, prompts } = data;
   const initials = (profile.display_name || profile.username || '?').slice(0, 2).toUpperCase();
-  const cover = prompts.find((p) => p.id === profile.cover_prompt_id) || prompts[0];
+  const coverFromPrompt = prompts.find((p) => p.id === profile.cover_prompt_id) || prompts[0];
+  const coverUrl = profile.cover_image_url || coverFromPrompt?.image_url || null;
+  const showSocials = profile.show_social_links !== false;
 
   return (
     <div className="min-h-screen bg-background">
       {/* Cover */}
-      {cover?.image_url && (
+      {coverUrl && (
         <div className="relative h-48 sm:h-72 md:h-96 w-full overflow-hidden">
-          <img src={cover.image_url} alt="" className="w-full h-full object-cover" />
+          <img src={coverUrl} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/60 to-background" />
         </div>
       )}
 
-      <div className={`container mx-auto px-4 max-w-5xl ${cover?.image_url ? '-mt-20' : 'pt-12'}`}>
+      <div className={`container mx-auto px-4 max-w-5xl ${coverUrl ? '-mt-20' : 'pt-12'}`}>
         {/* Header */}
         <header className="flex flex-col items-center text-center mb-10 relative z-10">
           <Avatar className="h-28 w-28 border-4 border-background shadow-xl">
@@ -83,17 +85,19 @@ export default function PortfolioPublic() {
           {profile.about && <p className="max-w-2xl mt-4 text-sm leading-relaxed">{profile.about}</p>}
 
           {/* Socials */}
-          <div className="flex flex-wrap gap-2 mt-5">
-            <SocialLink href={profile.instagram ? `https://instagram.com/${profile.instagram}` : null} icon={<Instagram className="w-4 h-4" />} label="Instagram" />
-            <SocialLink
-              href={profile.whatsapp ? `https://wa.me/${profile.whatsapp.replace(/\D/g, '')}` : null}
-              icon={<MessageCircle className="w-4 h-4" />}
-              label="WhatsApp"
-            />
-            <SocialLink href={profile.twitter ? `https://twitter.com/${profile.twitter}` : null} icon={<Twitter className="w-4 h-4" />} label="Twitter" />
-            <SocialLink href={profile.youtube ? `https://youtube.com/${profile.youtube}` : null} icon={<Youtube className="w-4 h-4" />} label="YouTube" />
-            <SocialLink href={profile.website ? (profile.website.startsWith('http') ? profile.website : `https://${profile.website}`) : null} icon={<Globe className="w-4 h-4" />} label="Site" />
-          </div>
+          {showSocials && (
+            <div className="flex flex-wrap gap-2 mt-5 justify-center">
+              <SocialLink href={profile.instagram ? `https://instagram.com/${profile.instagram}` : null} icon={<Instagram className="w-4 h-4" />} label="Instagram" />
+              <SocialLink
+                href={profile.whatsapp ? `https://wa.me/${profile.whatsapp.replace(/\D/g, '')}` : null}
+                icon={<MessageCircle className="w-4 h-4" />}
+                label="WhatsApp"
+              />
+              <SocialLink href={profile.twitter ? `https://twitter.com/${profile.twitter}` : null} icon={<Twitter className="w-4 h-4" />} label="Twitter" />
+              <SocialLink href={profile.youtube ? `https://youtube.com/${profile.youtube}` : null} icon={<Youtube className="w-4 h-4" />} label="YouTube" />
+              <SocialLink href={profile.website ? (profile.website.startsWith('http') ? profile.website : `https://${profile.website}`) : null} icon={<Globe className="w-4 h-4" />} label="Site" />
+            </div>
+          )}
         </header>
 
         {/* Grid */}
@@ -138,9 +142,19 @@ export default function PortfolioPublic() {
           </div>
         )}
 
-        <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-          <img src={logo} alt="Acervo" className="h-5 w-auto" />
-          <span>Portfólio criado no Acervo</span>
+        <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-2">
+            <img src={logo} alt="Acervo" className="h-5 w-auto" />
+            <span>Portfólio criado no Acervo</span>
+          </div>
+          <a
+            href="https://ensaioimpossivel.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary transition-colors"
+          >
+            Ensaio Impossível →
+          </a>
         </footer>
       </div>
 

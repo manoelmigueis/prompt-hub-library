@@ -186,6 +186,7 @@ export type Database = {
       portfolios: {
         Row: {
           about: string | null
+          cover_image_url: string | null
           cover_prompt_id: string | null
           created_at: string
           id: string
@@ -196,6 +197,7 @@ export type Database = {
         }
         Insert: {
           about?: string | null
+          cover_image_url?: string | null
           cover_prompt_id?: string | null
           created_at?: string
           id?: string
@@ -206,6 +208,7 @@ export type Database = {
         }
         Update: {
           about?: string | null
+          cover_image_url?: string | null
           cover_prompt_id?: string | null
           created_at?: string
           id?: string
@@ -226,6 +229,7 @@ export type Database = {
           id: string
           instagram: string | null
           invite_code_used: string | null
+          show_social_links: boolean
           status: Database["public"]["Enums"]["user_status"]
           tiktok: string | null
           twitter: string | null
@@ -244,6 +248,7 @@ export type Database = {
           id: string
           instagram?: string | null
           invite_code_used?: string | null
+          show_social_links?: boolean
           status?: Database["public"]["Enums"]["user_status"]
           tiktok?: string | null
           twitter?: string | null
@@ -262,6 +267,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           invite_code_used?: string | null
+          show_social_links?: boolean
           status?: Database["public"]["Enums"]["user_status"]
           tiktok?: string | null
           twitter?: string | null
@@ -430,11 +436,13 @@ export type Database = {
           about: string
           avatar_url: string
           bio: string
+          cover_image_url: string
           cover_prompt_id: string
           display_name: string
           instagram: string
           is_published: boolean
           portfolio_id: string
+          show_social_links: boolean
           tiktok: string
           title: string
           twitter: string

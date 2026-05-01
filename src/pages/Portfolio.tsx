@@ -35,13 +35,15 @@ export default function Portfolio() {
     loading: authLoading, signIn, signUp, signOut, updateProfile, fetchUserData,
   } = useAuth();
 
-  const { portfolio, items, userPrompts, loading, saving, savePortfolio } = usePortfolio(user?.id);
+  const { portfolio, items, userPrompts, loading, saving, savePortfolio } = usePortfolio(user?.id, isAdmin);
   const { createPrompt } = usePrompts(user?.id, isAdmin);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [title, setTitle] = useState('');
   const [about, setAbout] = useState('');
   const [coverId, setCoverId] = useState<string | null>(null);
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [isPublished, setIsPublished] = useState(true);
 
   // Username editing
@@ -58,6 +60,7 @@ export default function Portfolio() {
       setTitle(portfolio.title || '');
       setAbout(portfolio.about || '');
       setCoverId(portfolio.cover_prompt_id);
+      setCoverImageUrl(portfolio.cover_image_url || null);
       setIsPublished(portfolio.is_published);
     }
     setSelectedIds(items.map((i) => i.prompt_id));
@@ -122,9 +125,42 @@ export default function Portfolio() {
     await savePortfolio(selectedIds, {
       title: title || null,
       about: about || null,
-      cover_prompt_id: coverId,
+      cover_prompt_id: coverImageUrl ? null : coverId,
+      cover_image_url: coverImageUrl,
       is_published: isPublished,
     });
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast.error('Use JPG, PNG ou WebP.');
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error('Imagem deve ter até 8MB.');
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const path = `${user.id}/cover-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { cacheControl: '3600', upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+      setCoverImageUrl(publicUrl);
+      console.log('[Portfolio] cover uploaded', publicUrl);
+      toast.success('Capa atualizada! Clique em "Salvar portfólio" para confirmar.');
+    } catch (err: any) {
+      console.error('[Portfolio] cover upload error', err);
+      toast.error('Erro ao enviar capa: ' + (err?.message || ''));
+    } finally {
+      setUploadingCover(false);
+      e.target.value = '';
+    }
   };
 
   const handleCopyLink = async () => {
@@ -253,6 +289,50 @@ export default function Portfolio() {
                 {/* Step 3: Meta */}
                 <section className="mb-10 space-y-4">
                   <h2 className="font-display text-2xl tracking-wider mb-1">3. APRESENTAÇÃO</h2>
+
+                  {/* Cover image upload */}
+                  <div className="rounded-lg border border-border p-3 space-y-2">
+                    <Label className="text-sm">Capa do portfólio</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Envie uma imagem própria ou use a estrela acima para escolher uma das imagens da galeria.
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted border border-border flex-shrink-0">
+                        {coverImageUrl ? (
+                          <img src={coverImageUrl} alt="Capa" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground text-center px-1">
+                            Sem capa customizada
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 flex flex-col gap-2">
+                        <label className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg border border-input bg-background hover:bg-accent cursor-pointer text-sm">
+                          {uploadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                          {uploadingCover ? 'Enviando...' : coverImageUrl ? 'Trocar capa' : 'Enviar capa'}
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={handleCoverUpload}
+                            disabled={uploadingCover}
+                            className="hidden"
+                          />
+                        </label>
+                        {coverImageUrl && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setCoverImageUrl(null)}
+                            className="h-8 text-xs text-muted-foreground"
+                          >
+                            Remover capa customizada
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   <div>
                     <Label htmlFor="pf-title">Título do portfólio</Label>
                     <Input

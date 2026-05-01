@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,6 +30,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
   const [youtube, setYoutube] = useState('');
   const [tiktok, setTiktok] = useState('');
   const [website, setWebsite] = useState('');
+  const [showSocialLinks, setShowSocialLinks] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -48,6 +50,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
       setYoutube(profile.youtube || '');
       setTiktok(profile.tiktok || '');
       setWebsite(profile.website || '');
+      setShowSocialLinks(profile.show_social_links ?? true);
       setAvatarUrl(profile.avatar_url);
     }
   }, [profile]);
@@ -179,6 +182,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
       youtube: youtube || null,
       tiktok: tiktok || null,
       website: website || null,
+      show_social_links: showSocialLinks,
       avatar_url: avatarUrl,
     });
     setSaving(false);
@@ -327,6 +331,17 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
           {/* Social Links */}
           <div className="space-y-4">
             <Label className="text-muted-foreground">Redes Sociais & Contato</Label>
+
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/20">
+              <Switch
+                id="show-social"
+                checked={showSocialLinks}
+                onCheckedChange={setShowSocialLinks}
+              />
+              <Label htmlFor="show-social" className="cursor-pointer text-sm flex-1">
+                Mostrar redes sociais no meu portfólio público
+              </Label>
+            </div>
 
             <div className="relative">
               <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
