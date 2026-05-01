@@ -60,6 +60,7 @@ export default function Portfolio() {
       setTitle(portfolio.title || '');
       setAbout(portfolio.about || '');
       setCoverId(portfolio.cover_prompt_id);
+      setCoverImageUrl(portfolio.cover_image_url || null);
       setIsPublished(portfolio.is_published);
     }
     setSelectedIds(items.map((i) => i.prompt_id));
