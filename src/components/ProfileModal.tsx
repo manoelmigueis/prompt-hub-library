@@ -332,6 +332,17 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
           <div className="space-y-4">
             <Label className="text-muted-foreground">Redes Sociais & Contato</Label>
 
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/20">
+              <Switch
+                id="show-social"
+                checked={showSocialLinks}
+                onCheckedChange={setShowSocialLinks}
+              />
+              <Label htmlFor="show-social" className="cursor-pointer text-sm flex-1">
+                Mostrar redes sociais no meu portfólio público
+              </Label>
+            </div>
+
             <div className="relative">
               <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
               <Input
