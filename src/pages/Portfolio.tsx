@@ -125,9 +125,42 @@ export default function Portfolio() {
     await savePortfolio(selectedIds, {
       title: title || null,
       about: about || null,
-      cover_prompt_id: coverId,
+      cover_prompt_id: coverImageUrl ? null : coverId,
+      cover_image_url: coverImageUrl,
       is_published: isPublished,
     });
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast.error('Use JPG, PNG ou WebP.');
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error('Imagem deve ter até 8MB.');
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const path = `${user.id}/cover-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { cacheControl: '3600', upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+      setCoverImageUrl(publicUrl);
+      console.log('[Portfolio] cover uploaded', publicUrl);
+      toast.success('Capa atualizada! Clique em "Salvar portfólio" para confirmar.');
+    } catch (err: any) {
+      console.error('[Portfolio] cover upload error', err);
+      toast.error('Erro ao enviar capa: ' + (err?.message || ''));
+    } finally {
+      setUploadingCover(false);
+      e.target.value = '';
+    }
   };
 
   const handleCopyLink = async () => {
