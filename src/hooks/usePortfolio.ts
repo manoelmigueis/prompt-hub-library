@@ -26,7 +26,7 @@ export interface UserPromptOption {
   tags: string[];
 }
 
-export function usePortfolio(userId?: string) {
+export function usePortfolio(userId?: string, isAdmin: boolean = false) {
   const [portfolio, setPortfolio] = useState<PortfolioRow | null>(null);
   const [items, setItems] = useState<PortfolioItem[]>([]);
   const [userPrompts, setUserPrompts] = useState<UserPromptOption[]>([]);
@@ -40,13 +40,20 @@ export function usePortfolio(userId?: string) {
     }
     setLoading(true);
     try {
-      // Load own approved prompts
-      const { data: promptData, error: promptErr } = await supabase
+      // Admins can pick any approved prompt; regular users only their own.
+      let promptQuery = supabase
         .from('prompts')
         .select('id, title, image_url, category, tags')
-        .eq('user_id', userId)
         .eq('status', 'approved')
         .order('created_at', { ascending: false });
+
+      if (!isAdmin) {
+        promptQuery = promptQuery.eq('user_id', userId);
+      } else {
+        promptQuery = promptQuery.limit(500);
+      }
+
+      const { data: promptData, error: promptErr } = await promptQuery;
       if (promptErr) throw promptErr;
       setUserPrompts(
         (promptData || []).map((p: any) => ({
