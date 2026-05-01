@@ -29,6 +29,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
   const [youtube, setYoutube] = useState('');
   const [tiktok, setTiktok] = useState('');
   const [website, setWebsite] = useState('');
+  const [showSocialLinks, setShowSocialLinks] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -48,6 +49,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
       setYoutube(profile.youtube || '');
       setTiktok(profile.tiktok || '');
       setWebsite(profile.website || '');
+      setShowSocialLinks(profile.show_social_links ?? true);
       setAvatarUrl(profile.avatar_url);
     }
   }, [profile]);
