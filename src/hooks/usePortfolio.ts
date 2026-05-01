@@ -116,7 +116,13 @@ export function usePortfolio(userId?: string, isAdmin: boolean = false) {
   const savePortfolio = useCallback(
     async (
       selectedPromptIds: string[],
-      meta: { title?: string | null; about?: string | null; cover_prompt_id?: string | null; is_published?: boolean }
+      meta: {
+        title?: string | null;
+        about?: string | null;
+        cover_prompt_id?: string | null;
+        cover_image_url?: string | null;
+        is_published?: boolean;
+      }
     ) => {
       if (!userId) return false;
       setSaving(true);
@@ -130,6 +136,7 @@ export function usePortfolio(userId?: string, isAdmin: boolean = false) {
             title: meta.title ?? null,
             about: meta.about ?? null,
             cover_prompt_id: meta.cover_prompt_id ?? null,
+            cover_image_url: meta.cover_image_url ?? null,
             is_published: meta.is_published ?? true,
             updated_at: new Date().toISOString(),
           })
