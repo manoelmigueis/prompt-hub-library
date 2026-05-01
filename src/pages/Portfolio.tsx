@@ -289,6 +289,50 @@ export default function Portfolio() {
                 {/* Step 3: Meta */}
                 <section className="mb-10 space-y-4">
                   <h2 className="font-display text-2xl tracking-wider mb-1">3. APRESENTAÇÃO</h2>
+
+                  {/* Cover image upload */}
+                  <div className="rounded-lg border border-border p-3 space-y-2">
+                    <Label className="text-sm">Capa do portfólio</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Envie uma imagem própria ou use a estrela acima para escolher uma das imagens da galeria.
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted border border-border flex-shrink-0">
+                        {coverImageUrl ? (
+                          <img src={coverImageUrl} alt="Capa" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground text-center px-1">
+                            Sem capa customizada
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 flex flex-col gap-2">
+                        <label className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg border border-input bg-background hover:bg-accent cursor-pointer text-sm">
+                          {uploadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                          {uploadingCover ? 'Enviando...' : coverImageUrl ? 'Trocar capa' : 'Enviar capa'}
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={handleCoverUpload}
+                            disabled={uploadingCover}
+                            className="hidden"
+                          />
+                        </label>
+                        {coverImageUrl && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setCoverImageUrl(null)}
+                            className="h-8 text-xs text-muted-foreground"
+                          >
+                            Remover capa customizada
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   <div>
                     <Label htmlFor="pf-title">Título do portfólio</Label>
                     <Input
