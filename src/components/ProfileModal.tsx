@@ -181,6 +181,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
       youtube: youtube || null,
       tiktok: tiktok || null,
       website: website || null,
+      show_social_links: showSocialLinks,
       avatar_url: avatarUrl,
     });
     setSaving(false);
