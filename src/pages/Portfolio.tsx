@@ -35,13 +35,15 @@ export default function Portfolio() {
     loading: authLoading, signIn, signUp, signOut, updateProfile, fetchUserData,
   } = useAuth();
 
-  const { portfolio, items, userPrompts, loading, saving, savePortfolio } = usePortfolio(user?.id);
+  const { portfolio, items, userPrompts, loading, saving, savePortfolio } = usePortfolio(user?.id, isAdmin);
   const { createPrompt } = usePrompts(user?.id, isAdmin);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [title, setTitle] = useState('');
   const [about, setAbout] = useState('');
   const [coverId, setCoverId] = useState<string | null>(null);
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [isPublished, setIsPublished] = useState(true);
 
   // Username editing
