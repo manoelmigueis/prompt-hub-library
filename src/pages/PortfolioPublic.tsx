@@ -142,9 +142,19 @@ export default function PortfolioPublic() {
           </div>
         )}
 
-        <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-          <img src={logo} alt="Acervo" className="h-5 w-auto" />
-          <span>Portfólio criado no Acervo</span>
+        <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-2">
+            <img src={logo} alt="Acervo" className="h-5 w-auto" />
+            <span>Portfólio criado no Acervo</span>
+          </div>
+          <a
+            href="https://ensaioimpossivel.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary transition-colors"
+          >
+            Ensaio Impossível →
+          </a>
         </footer>
       </div>
 
