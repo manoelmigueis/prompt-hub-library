@@ -8,6 +8,7 @@ export interface PortfolioRow {
   title: string | null;
   about: string | null;
   cover_prompt_id: string | null;
+  cover_image_url: string | null;
   is_published: boolean;
 }
 
