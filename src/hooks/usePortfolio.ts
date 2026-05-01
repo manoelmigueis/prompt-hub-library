@@ -90,7 +90,7 @@ export function usePortfolio(userId?: string, isAdmin: boolean = false) {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, isAdmin]);
 
   useEffect(() => {
     load();
