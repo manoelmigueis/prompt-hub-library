@@ -199,10 +199,12 @@ export interface PublicPortfolioData {
   youtube: string | null;
   tiktok: string | null;
   twitter: string | null;
+  show_social_links: boolean | null;
   portfolio_id: string | null;
   title: string | null;
   about: string | null;
   cover_prompt_id: string | null;
+  cover_image_url: string | null;
   is_published: boolean | null;
 }
 
