@@ -83,9 +83,10 @@ export function Header({
 
               {/* Portfólio */}
               <Button
+                data-portfolio-nav="true"
                 variant={location.pathname.startsWith('/portfolio') ? 'default' : 'ghost'}
                 size="sm"
-                className={`gap-1.5 rounded-full text-xs ${location.pathname.startsWith('/portfolio') ? 'bg-primary/20 text-primary' : ''}`}
+                className={`gap-1.5 rounded-full text-xs shrink-0 ${location.pathname.startsWith('/portfolio') ? 'bg-primary/20 text-primary' : ''}`}
                 onClick={() => navigate('/portfolio')}
               >
                 <Briefcase className="w-3.5 h-3.5" />
