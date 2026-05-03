@@ -4,23 +4,36 @@ import { Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
-const STORAGE_KEY = 'portfolio-access-fallback-dismissed';
-
 export function PortfolioAccessGuard() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, loading } = useAuth();
-  const [isDismissed, setIsDismissed] = useState(() => sessionStorage.getItem(STORAGE_KEY) === 'true');
+  const [showFallback, setShowFallback] = useState(false);
 
   useEffect(() => {
-    if (location.pathname.startsWith('/portfolio')) {
+    if (loading || !isAuthenticated || location.pathname.startsWith('/portfolio')) {
+      setShowFallback(false);
       return;
     }
 
-    setIsDismissed(sessionStorage.getItem(STORAGE_KEY) === 'true');
-  }, [location.pathname]);
+    const checkPortfolioAccess = () => {
+      const navButton = document.querySelector('[data-portfolio-nav="true"]') as HTMLElement | null;
+      const rect = navButton?.getBoundingClientRect();
+      const isVisible = Boolean(navButton && rect && rect.width > 0 && rect.height > 0);
+      setShowFallback(!isVisible);
+    };
 
-  if (loading || !isAuthenticated || isDismissed || location.pathname.startsWith('/portfolio')) {
+    checkPortfolioAccess();
+    const timeout = window.setTimeout(checkPortfolioAccess, 300);
+    window.addEventListener('resize', checkPortfolioAccess);
+
+    return () => {
+      window.clearTimeout(timeout);
+      window.removeEventListener('resize', checkPortfolioAccess);
+    };
+  }, [isAuthenticated, loading, location.pathname]);
+
+  if (!showFallback) {
     return null;
   }
 
@@ -31,10 +44,6 @@ export function PortfolioAccessGuard() {
       data-portfolio-fallback="true"
       className="fixed bottom-4 right-4 z-[60] rounded-full shadow-lg gap-2"
       onClick={() => navigate('/portfolio')}
-      onDoubleClick={() => {
-        sessionStorage.setItem(STORAGE_KEY, 'true');
-        setIsDismissed(true);
-      }}
     >
       <Briefcase className="w-4 h-4" />
       Portfólio
