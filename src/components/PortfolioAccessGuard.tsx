@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
-export function PortfolioAccessGuard() {
+export const PortfolioAccessGuard = forwardRef<HTMLDivElement>(function PortfolioAccessGuard(_, ref) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, loading } = useAuth();
@@ -38,15 +38,17 @@ export function PortfolioAccessGuard() {
   }
 
   return (
-    <Button
-      type="button"
-      size="sm"
-      data-portfolio-fallback="true"
-      className="fixed bottom-4 right-4 z-[60] rounded-full shadow-lg gap-2"
-      onClick={() => navigate('/portfolio')}
-    >
-      <Briefcase className="w-4 h-4" />
-      Portfólio
-    </Button>
+    <div ref={ref}>
+      <Button
+        type="button"
+        size="sm"
+        data-portfolio-fallback="true"
+        className="fixed bottom-4 right-4 z-[60] rounded-full shadow-lg gap-2"
+        onClick={() => navigate('/portfolio')}
+      >
+        <Briefcase className="w-4 h-4" />
+        Portfólio
+      </Button>
+    </div>
   );
-}
+});
