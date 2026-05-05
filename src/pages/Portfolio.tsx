@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Save, Copy, Eye, AlertCircle } from 'lucide-react';
+import { Loader2, Save, Copy, Eye, AlertCircle, Instagram, Twitter, Youtube, Globe, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { usePortfolio } from '@/hooks/usePortfolio';
@@ -18,6 +18,7 @@ import { useInviteCodes } from '@/hooks/useInviteCodes';
 import { supabase } from '@/integrations/supabase/client';
 import { PortfolioImageGrid } from '@/components/portfolio/PortfolioImageGrid';
 import { PortfolioSortableList } from '@/components/portfolio/PortfolioSortableList';
+import { PortfolioShopModal } from '@/components/portfolio/PortfolioShopModal';
 
 const slugify = (s: string) =>
   s
@@ -51,6 +52,7 @@ export default function Portfolio() {
   const [savingUsername, setSavingUsername] = useState(false);
 
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showShopModal, setShowShopModal] = useState(false);
   
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
@@ -131,6 +133,11 @@ export default function Portfolio() {
     });
   };
 
+  const handleSocialVisibility = async (checked: boolean) => {
+    const result = await updateProfile({ show_social_links: checked });
+    if (!result.error && user?.id) await fetchUserData(user.id);
+  };
+
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
@@ -138,8 +145,8 @@ export default function Portfolio() {
       toast.error('Use JPG, PNG ou WebP.');
       return;
     }
-    if (file.size > 8 * 1024 * 1024) {
-      toast.error('Imagem deve ter até 8MB.');
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('Imagem deve ter até 20MB.');
       return;
     }
     setUploadingCover(true);
@@ -152,8 +159,16 @@ export default function Portfolio() {
       if (upErr) throw upErr;
       const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
       setCoverImageUrl(publicUrl);
+      setCoverId(null);
       console.log('[Portfolio] cover uploaded', publicUrl);
-      toast.success('Capa atualizada! Clique em "Salvar portfólio" para confirmar.');
+      await savePortfolio(selectedIds, {
+        title: title || null,
+        about: about || null,
+        cover_prompt_id: null,
+        cover_image_url: publicUrl,
+        is_published: isPublished,
+      });
+      toast.success('Capa atualizada e salva!');
     } catch (err: any) {
       console.error('[Portfolio] cover upload error', err);
       toast.error('Erro ao enviar capa: ' + (err?.message || ''));
@@ -214,6 +229,7 @@ export default function Portfolio() {
             onAdminClick={() => navigate('/?admin=1')}
             onSubmitClick={() => setShowSubmitModal(true)}
             onProfileClick={() => setShowProfileModal(true)}
+            onShopClick={() => setShowShopModal(true)}
             onLogout={signOut}
           />
 
@@ -259,7 +275,7 @@ export default function Portfolio() {
                 <section className="mb-10">
                   <h2 className="font-display text-2xl tracking-wider mb-1">1. ESCOLHA AS IMAGENS</h2>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Selecione até 20 imagens dos seus prompts aprovados. {selectedIds.length}/20 selecionadas.
+                    Selecione até 20 imagens aprovadas do acervo. {selectedIds.length}/20 selecionadas.
                   </p>
                   <PortfolioImageGrid
                     prompts={userPrompts}
@@ -273,7 +289,7 @@ export default function Portfolio() {
                   <section className="mb-10">
                     <h2 className="font-display text-2xl tracking-wider mb-1">2. ORGANIZE</h2>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Arraste para reordenar. Clique na estrela para definir a capa.
+                      Arraste para reordenar. Clique na estrela para definir a capa com uma imagem do acervo.
                     </p>
                     <PortfolioSortableList
                       prompts={userPrompts}
@@ -281,7 +297,10 @@ export default function Portfolio() {
                       coverPromptId={coverId}
                       onReorder={setSelectedIds}
                       onRemove={handleRemove}
-                      onSetCover={setCoverId}
+                      onSetCover={(id) => {
+                        setCoverId(id);
+                        setCoverImageUrl(null);
+                      }}
                     />
                   </section>
                 )}
@@ -323,7 +342,16 @@ export default function Portfolio() {
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => setCoverImageUrl(null)}
+                            onClick={async () => {
+                              setCoverImageUrl(null);
+                              await savePortfolio(selectedIds, {
+                                title: title || null,
+                                about: about || null,
+                                cover_prompt_id: coverId,
+                                cover_image_url: null,
+                                is_published: isPublished,
+                              });
+                            }}
                             className="h-8 text-xs text-muted-foreground"
                           >
                             Remover capa customizada
@@ -362,6 +390,31 @@ export default function Portfolio() {
                       Portfólio público (acessível pelo link)
                     </Label>
                   </div>
+
+                  <div className="rounded-lg border border-border p-3 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={profile?.show_social_links !== false}
+                        onCheckedChange={handleSocialVisibility}
+                        id="portfolio-socials"
+                      />
+                      <Label htmlFor="portfolio-socials" className="cursor-pointer flex-1">
+                        Mostrar redes sociais do meu perfil no portfólio
+                      </Label>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                      {profile?.instagram && <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1"><Instagram className="w-3 h-3" />{profile.instagram}</span>}
+                      {profile?.whatsapp && <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1"><MessageCircle className="w-3 h-3" />{profile.whatsapp}</span>}
+                      {profile?.twitter && <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1"><Twitter className="w-3 h-3" />{profile.twitter}</span>}
+                      {profile?.youtube && <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1"><Youtube className="w-3 h-3" />{profile.youtube}</span>}
+                      {profile?.website && <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1"><Globe className="w-3 h-3" />{profile.website}</span>}
+                      {!profile?.instagram && !profile?.whatsapp && !profile?.twitter && !profile?.youtube && !profile?.website && (
+                        <button type="button" onClick={() => setShowProfileModal(true)} className="text-primary hover:underline">
+                          Adicionar redes sociais no perfil
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </section>
 
                 {/* Actions */}
@@ -392,6 +445,7 @@ export default function Portfolio() {
           </main>
 
           <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} profile={profile} onSave={updateProfile} />
+          <PortfolioShopModal isOpen={showShopModal} onClose={() => setShowShopModal(false)} userId={user?.id} />
           <SubmitPromptModal isOpen={showSubmitModal} onClose={() => setShowSubmitModal(false)} onSubmit={handleSubmitPrompt} />
         </>
       )}

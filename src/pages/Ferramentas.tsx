@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/Header';
 import { AdminPanel } from '@/components/AdminPanel';
 import { ProfileModal } from '@/components/ProfileModal';
+import { PortfolioShopModal } from '@/components/portfolio/PortfolioShopModal';
 import { SubmitPromptModal, SubmitPromptData } from '@/components/SubmitPromptModal';
 import { InviteModal } from '@/components/InviteModal';
 import { usePrompts } from '@/hooks/usePrompts';
@@ -26,6 +27,7 @@ export default function Ferramentas() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showShopModal, setShowShopModal] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   const filteredTools = useMemo(() => {
@@ -73,6 +75,7 @@ export default function Ferramentas() {
             onAdminClick={() => setShowAdminPanel(true)}
             onSubmitClick={() => setShowSubmitModal(true)}
             onProfileClick={() => setShowProfileModal(true)}
+            onShopClick={() => setShowShopModal(true)}
             onLogout={signOut}
           />
 
@@ -204,6 +207,7 @@ export default function Ferramentas() {
 
           <AddToolModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} onSubmit={createTool} />
           <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} profile={profile} onSave={updateProfile} />
+          <PortfolioShopModal isOpen={showShopModal} onClose={() => setShowShopModal(false)} userId={user?.id} />
           <SubmitPromptModal isOpen={showSubmitModal} onClose={() => setShowSubmitModal(false)} onSubmit={async (data: SubmitPromptData) => { await createPrompt(data, profile); setShowSubmitModal(false); }} />
           <AdminPanel
             isOpen={showAdminPanel}

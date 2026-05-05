@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import type { Tables } from '@/integrations/supabase/types';
 
 export interface PortfolioRow {
   id: string;
@@ -26,6 +27,8 @@ export interface UserPromptOption {
   tags: string[];
 }
 
+export type PortfolioOrder = Tables<'portfolio_orders'>;
+
 export function usePortfolio(userId?: string, isAdmin: boolean = false) {
   const [portfolio, setPortfolio] = useState<PortfolioRow | null>(null);
   const [items, setItems] = useState<PortfolioItem[]>([]);
@@ -40,18 +43,14 @@ export function usePortfolio(userId?: string, isAdmin: boolean = false) {
     }
     setLoading(true);
     try {
-      // Admins can pick any approved prompt; regular users only their own.
+      // Every portfolio can include approved images from the full public acervo.
       let promptQuery = supabase
         .from('prompts')
         .select('id, title, image_url, category, tags')
         .eq('status', 'approved')
+        .not('image_url', 'is', null)
+        .limit(500)
         .order('created_at', { ascending: false });
-
-      if (!isAdmin) {
-        promptQuery = promptQuery.eq('user_id', userId);
-      } else {
-        promptQuery = promptQuery.limit(500);
-      }
 
       const { data: promptData, error: promptErr } = await promptQuery;
       if (promptErr) throw promptErr;
@@ -264,4 +263,39 @@ export async function fetchPublicPortfolio(
     console.error('[Portfolio] fetchPublic error', err);
     return null;
   }
+}
+
+export async function createPortfolioOrder(input: {
+  portfolioId: string;
+  ownerUserId: string;
+  selectedPromptIds: string[];
+  selectedImageUrls: string[];
+  customerName?: string | null;
+  customerEmail?: string | null;
+  customerWhatsapp?: string | null;
+  customerNote?: string | null;
+}) {
+  const { error } = await supabase.from('portfolio_orders').insert({
+    portfolio_id: input.portfolioId,
+    owner_user_id: input.ownerUserId,
+    selected_prompt_ids: input.selectedPromptIds,
+    selected_image_urls: input.selectedImageUrls,
+    customer_name: input.customerName || null,
+    customer_email: input.customerEmail || null,
+    customer_whatsapp: input.customerWhatsapp || null,
+    customer_note: input.customerNote || null,
+  });
+
+  if (error) throw error;
+}
+
+export async function fetchPortfolioOrders(ownerUserId: string): Promise<PortfolioOrder[]> {
+  const { data, error } = await supabase
+    .from('portfolio_orders')
+    .select('*')
+    .eq('owner_user_id', ownerUserId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return (data || []) as PortfolioOrder[];
 }

@@ -3,8 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Instagram, Twitter, Youtube, Globe, MessageCircle } from 'lucide-react';
+import { Loader2, Instagram, Twitter, Youtube, Globe, MessageCircle, Check, ShoppingBag, Send } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 import {
+  createPortfolioOrder,
   fetchPublicPortfolio,
   type PublicPortfolioData,
   type PublicPortfolioPrompt,
@@ -16,6 +22,13 @@ export default function PortfolioPublic() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<{ profile: PublicPortfolioData; prompts: PublicPortfolioPrompt[] } | null>(null);
   const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [orderOpen, setOrderOpen] = useState(false);
+  const [sendingOrder, setSendingOrder] = useState(false);
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerWhatsapp, setCustomerWhatsapp] = useState('');
+  const [customerNote, setCustomerNote] = useState('');
 
   useEffect(() => {
     if (!username) return;
@@ -57,9 +70,48 @@ export default function PortfolioPublic() {
   const coverFromPrompt = prompts.find((p) => p.id === profile.cover_prompt_id) || prompts[0];
   const coverUrl = profile.cover_image_url || coverFromPrompt?.image_url || null;
   const showSocials = profile.show_social_links !== false;
+  const selectedPrompts = prompts.filter((p) => selectedIds.includes(p.id));
+
+  const toggleOrderImage = (id: string) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
+  };
+
+  const handleSendOrder = async () => {
+    if (!profile.portfolio_id || selectedPrompts.length === 0) return;
+    if (!customerName.trim() && !customerEmail.trim() && !customerWhatsapp.trim()) {
+      toast.error('Informe pelo menos nome, e-mail ou WhatsApp.');
+      return;
+    }
+
+    setSendingOrder(true);
+    try {
+      await createPortfolioOrder({
+        portfolioId: profile.portfolio_id,
+        ownerUserId: profile.user_id,
+        selectedPromptIds: selectedPrompts.map((p) => p.id),
+        selectedImageUrls: selectedPrompts.map((p) => p.image_url).filter(Boolean) as string[],
+        customerName: customerName.trim(),
+        customerEmail: customerEmail.trim(),
+        customerWhatsapp: customerWhatsapp.trim(),
+        customerNote: customerNote.trim(),
+      });
+      toast.success('Pedido enviado!');
+      setOrderOpen(false);
+      setSelectedIds([]);
+      setCustomerName('');
+      setCustomerEmail('');
+      setCustomerWhatsapp('');
+      setCustomerNote('');
+    } catch (error) {
+      console.error('[PortfolioPublic] order error', error);
+      toast.error('Não foi possível enviar o pedido. Tente novamente.');
+    } finally {
+      setSendingOrder(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background select-none" onContextMenu={(e) => e.preventDefault()}>
       {/* Cover */}
       {coverUrl && (
         <div className="relative h-48 sm:h-72 md:h-96 w-full overflow-hidden">
@@ -95,10 +147,25 @@ export default function PortfolioPublic() {
               />
               <SocialLink href={profile.twitter ? `https://twitter.com/${profile.twitter}` : null} icon={<Twitter className="w-4 h-4" />} label="Twitter" />
               <SocialLink href={profile.youtube ? `https://youtube.com/${profile.youtube}` : null} icon={<Youtube className="w-4 h-4" />} label="YouTube" />
+              <SocialLink href={profile.tiktok ? `https://www.tiktok.com/@${profile.tiktok.replace('@', '')}` : null} icon={<TikTokIcon />} label="TikTok" />
               <SocialLink href={profile.website ? (profile.website.startsWith('http') ? profile.website : `https://${profile.website}`) : null} icon={<Globe className="w-4 h-4" />} label="Site" />
             </div>
           )}
         </header>
+
+        {prompts.length > 0 && (
+          <div className="sticky top-3 z-40 mb-5 flex justify-center">
+            <Button
+              type="button"
+              onClick={() => setOrderOpen(true)}
+              disabled={selectedIds.length === 0}
+              className="gap-2 shadow-lg"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              Fazer pedido {selectedIds.length > 0 ? `(${selectedIds.length})` : ''}
+            </Button>
+          </div>
+        )}
 
         {/* Grid */}
         {prompts.length === 0 ? (
@@ -106,25 +173,25 @@ export default function PortfolioPublic() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-16">
             {prompts.map((p) => (
-              <button
+              <article
                 key={p.id}
-                type="button"
-                onClick={() => p.image_url && setActiveImage(p.image_url)}
                 className="group relative overflow-hidden rounded-xl bg-muted border border-border hover:border-primary/50 transition-all"
               >
                 {p.image_url ? (
-                  <img
-                    src={p.image_url}
-                    alt={p.title}
-                    loading="lazy"
-                    className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.03] animate-in fade-in"
-                    onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
-                  />
+                  <ProtectedPortfolioImage src={p.image_url} alt={p.title} onOpen={() => setActiveImage(p.image_url)} />
                 ) : (
                   <div className="aspect-square flex items-center justify-center text-sm text-muted-foreground p-4">
                     {p.title}
                   </div>
                 )}
+                <button
+                  type="button"
+                  onClick={() => toggleOrderImage(p.id)}
+                  className="absolute top-3 right-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background/80 backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground"
+                  aria-label={selectedIds.includes(p.id) ? 'Remover do pedido' : 'Selecionar para pedido'}
+                >
+                  {selectedIds.includes(p.id) ? <Check className="w-5 h-5" /> : <ShoppingBag className="w-4 h-4" />}
+                </button>
                 <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent text-left">
                   <p className="text-sm text-white font-medium line-clamp-1">{p.title}</p>
                   {p.tags && p.tags.length > 0 && (
@@ -137,7 +204,7 @@ export default function PortfolioPublic() {
                     </div>
                   )}
                 </div>
-              </button>
+              </article>
             ))}
           </div>
         )}
@@ -164,10 +231,67 @@ export default function PortfolioPublic() {
           onClick={() => setActiveImage(null)}
           className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 cursor-zoom-out"
         >
-          <img src={activeImage} alt="" className="max-w-full max-h-full object-contain" />
+          <img src={activeImage} alt="" className="max-w-full max-h-full object-contain protected-image pointer-events-none" draggable={false} />
         </div>
       )}
+
+      <Dialog open={orderOpen} onOpenChange={setOrderOpen}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto pb-24">
+          <DialogHeader>
+            <DialogTitle className="font-display text-3xl tracking-wider">FAZER PEDIDO</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-4 gap-2">
+              {selectedPrompts.slice(0, 8).map((p) => p.image_url && (
+                <div key={p.id} className="aspect-square rounded-md overflow-hidden bg-muted border border-border">
+                  <img src={p.image_url} alt={p.title} className="w-full h-full object-cover protected-image" draggable={false} />
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="order-name">Nome</Label>
+              <Input id="order-name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Seu nome" />
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="order-email">E-mail</Label>
+                <Input id="order-email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="voce@email.com" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="order-whatsapp">WhatsApp</Label>
+                <Input id="order-whatsapp" value={customerWhatsapp} onChange={(e) => setCustomerWhatsapp(e.target.value)} placeholder="(00) 00000-0000" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="order-note">Observação</Label>
+              <Textarea id="order-note" value={customerNote} onChange={(e) => setCustomerNote(e.target.value)} rows={3} placeholder="Detalhes do pedido" />
+            </div>
+            <Button onClick={handleSendOrder} disabled={sendingOrder || selectedPrompts.length === 0} className="w-full h-11 gap-2">
+              {sendingOrder ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              Enviar pedido
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function ProtectedPortfolioImage({ src, alt, onOpen }: { src: string; alt: string; onOpen: () => void }) {
+  return (
+    <button type="button" onClick={onOpen} className="block w-full text-left" aria-label={`Ampliar ${alt}`}>
+      <div className="relative">
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          draggable={false}
+          className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.03] animate-in fade-in protected-image pointer-events-none"
+          onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
+        />
+        <div className="absolute inset-0" aria-hidden="true" />
+      </div>
+    </button>
   );
 }
 
@@ -183,5 +307,13 @@ function SocialLink({ href, icon, label }: { href: string | null; icon: React.Re
       {icon}
       {label}
     </a>
+  );
+}
+
+function TikTokIcon() {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z" />
+    </svg>
   );
 }

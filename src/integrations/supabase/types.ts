@@ -183,6 +183,51 @@ export type Database = {
           },
         ]
       }
+      portfolio_orders: {
+        Row: {
+          created_at: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_note: string | null
+          customer_whatsapp: string | null
+          id: string
+          owner_user_id: string
+          portfolio_id: string
+          selected_image_urls: string[]
+          selected_prompt_ids: string[]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_note?: string | null
+          customer_whatsapp?: string | null
+          id?: string
+          owner_user_id: string
+          portfolio_id: string
+          selected_image_urls?: string[]
+          selected_prompt_ids?: string[]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_note?: string | null
+          customer_whatsapp?: string | null
+          id?: string
+          owner_user_id?: string
+          portfolio_id?: string
+          selected_image_urls?: string[]
+          selected_prompt_ids?: string[]
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portfolios: {
         Row: {
           about: string | null

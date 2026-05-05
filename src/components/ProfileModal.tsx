@@ -72,8 +72,8 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('A imagem deve ter no máximo 5MB.');
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('A imagem deve ter no máximo 20MB.');
       return;
     }
 
@@ -230,7 +230,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
 
             {!cropImageSrc && (
               <p className="text-xs text-muted-foreground text-center">
-                Clique na câmera para selecionar, ajustar e recortar sua foto.
+                Clique na câmera para selecionar, ajustar e recortar sua foto. Limite: 20MB.
               </p>
             )}
           </div>

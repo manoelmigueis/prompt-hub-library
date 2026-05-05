@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { expandSearchTerms } from '@/lib/searchTranslations';
 import { Header } from '@/components/Header';
+import { PortfolioShopModal } from '@/components/portfolio/PortfolioShopModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useReferences } from '@/hooks/useReferences';
 import { useReferenceFavorites } from '@/hooks/useReferenceFavorites';
@@ -35,6 +36,7 @@ export default function Referencias() {
   const { references, isLoading, error, deleteReference } = useReferences();
   const { favoriteIds, isFavorite, toggleFavorite } = useReferenceFavorites(user?.id);
   const [showModal, setShowModal] = useState(false);
+  const [showShopModal, setShowShopModal] = useState(false);
   const [editingRef, setEditingRef] = useState<CameraReference | null>(null);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<ReferenceCategory>('all');
@@ -109,6 +111,7 @@ export default function Referencias() {
         onAdminClick={() => {}}
         onSubmitClick={() => navigate('/?submit=true')}
         onProfileClick={() => {}}
+        onShopClick={() => setShowShopModal(true)}
         onLogout={signOut}
       />
 
@@ -249,6 +252,7 @@ export default function Referencias() {
       </main>
 
       <AddReferenceModal open={showModal} onOpenChange={handleCloseModal} editingReference={editingRef} />
+      <PortfolioShopModal isOpen={showShopModal} onClose={() => setShowShopModal(false)} userId={user?.id} />
     </div>
   );
 }

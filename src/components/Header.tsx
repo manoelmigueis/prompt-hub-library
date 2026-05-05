@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Shield, Plus, LogOut, User, Settings, Menu, Wrench, Heart, Library, Briefcase } from 'lucide-react';
+import { Shield, Plus, LogOut, User, Settings, Wrench, Heart, Library, Briefcase, Store } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -22,6 +22,7 @@ interface HeaderProps {
   onSubmitClick: () => void;
   onProfileClick?: () => void;
   onFavoritesClick?: () => void;
+  onShopClick?: () => void;
   onLogout: () => void;
 }
 
@@ -36,6 +37,7 @@ export function Header({
   onSubmitClick,
   onProfileClick,
   onFavoritesClick,
+  onShopClick,
   onLogout 
 }: HeaderProps) {
   const initials = displayName?.slice(0, 2).toUpperCase() || 'U';
@@ -153,6 +155,12 @@ export function Header({
                     <Briefcase className="w-4 h-4" />
                     Meu Portfólio
                   </DropdownMenuItem>
+                  {onShopClick && (
+                    <DropdownMenuItem onClick={onShopClick} className="gap-2 cursor-pointer">
+                      <Store className="w-4 h-4" />
+                      Loja
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={onProfileClick} className="gap-2 cursor-pointer">
                     <Settings className="w-4 h-4" />
                     Configurações

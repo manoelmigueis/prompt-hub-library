@@ -9,6 +9,7 @@ import { AdminPanel } from '@/components/AdminPanel';
 import { InviteModal } from '@/components/InviteModal';
 import { ProfileModal } from '@/components/ProfileModal';
 import { EditPromptModal } from '@/components/EditPromptModal';
+import { PortfolioShopModal } from '@/components/portfolio/PortfolioShopModal';
 import { Category, Prompt, PromptStatus } from '@/types/prompt';
 import { toast } from 'sonner';
 import { useAuth, UserProfile } from '@/hooks/useAuth';
@@ -89,6 +90,7 @@ export default function Index() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showShopModal, setShowShopModal] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   // Admin settings
@@ -288,6 +290,7 @@ export default function Index() {
             onAdminClick={() => setShowAdminPanel(true)}
             onSubmitClick={() => setShowSubmitModal(true)}
             onProfileClick={() => setShowProfileModal(true)}
+            onShopClick={() => setShowShopModal(true)}
             onFavoritesClick={handleFavoritesFilter}
             onLogout={handleLogout}
           />
@@ -350,6 +353,7 @@ export default function Index() {
             profile={profile}
             onSave={handleSaveProfile}
           />
+          <PortfolioShopModal isOpen={showShopModal} onClose={() => setShowShopModal(false)} userId={user?.id} />
           
           <AdminPanel 
             isOpen={showAdminPanel}
