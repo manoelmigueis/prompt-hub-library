@@ -18,6 +18,7 @@ import { useInviteCodes } from '@/hooks/useInviteCodes';
 import { supabase } from '@/integrations/supabase/client';
 import { PortfolioImageGrid } from '@/components/portfolio/PortfolioImageGrid';
 import { PortfolioSortableList } from '@/components/portfolio/PortfolioSortableList';
+import { PortfolioShopModal } from '@/components/portfolio/PortfolioShopModal';
 
 const slugify = (s: string) =>
   s
@@ -51,6 +52,7 @@ export default function Portfolio() {
   const [savingUsername, setSavingUsername] = useState(false);
 
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showShopModal, setShowShopModal] = useState(false);
   
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
@@ -227,6 +229,7 @@ export default function Portfolio() {
             onAdminClick={() => navigate('/?admin=1')}
             onSubmitClick={() => setShowSubmitModal(true)}
             onProfileClick={() => setShowProfileModal(true)}
+            onShopClick={() => setShowShopModal(true)}
             onLogout={signOut}
           />
 
@@ -442,6 +445,7 @@ export default function Portfolio() {
           </main>
 
           <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} profile={profile} onSave={updateProfile} />
+          <PortfolioShopModal isOpen={showShopModal} onClose={() => setShowShopModal(false)} userId={user?.id} />
           <SubmitPromptModal isOpen={showSubmitModal} onClose={() => setShowSubmitModal(false)} onSubmit={handleSubmitPrompt} />
         </>
       )}
