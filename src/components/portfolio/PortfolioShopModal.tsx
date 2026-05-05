@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Loader2, Package, Mail, Phone, User, Image as ImageIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -101,7 +101,7 @@ export function PortfolioShopModal({ isOpen, onClose, userId }: PortfolioShopMod
   );
 }
 
-function Info({ icon, text }: { icon: React.ReactNode; text: string }) {
+function Info({ icon, text }: { icon: ReactNode; text: string }) {
   return (
     <div className="flex items-center gap-2 rounded-md border border-border px-3 py-2 text-muted-foreground min-w-0">
       {icon}
