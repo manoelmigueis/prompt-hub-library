@@ -308,8 +308,6 @@ export default function Index() {
               selectedCategory={selectedCategory}
               onCategoryChange={handleCategoryChange}
               totalPrompts={filteredPrompts.length}
-              onSearchClick={() => {}}
-              onAddClick={() => setShowSubmitModal(true)}
               showFavoritesOnly={showFavoritesOnly}
               onToggleFavorites={handleFavoritesFilter}
             />
@@ -341,11 +339,13 @@ export default function Index() {
             isAdmin={isAdmin}
           />
           
-          <SubmitPromptModal 
-            isOpen={showSubmitModal}
-            onClose={() => setShowSubmitModal(false)}
-            onSubmit={handleSubmitPrompt}
-          />
+          {(isAdmin || isModerator) && (
+            <SubmitPromptModal 
+              isOpen={showSubmitModal}
+              onClose={() => setShowSubmitModal(false)}
+              onSubmit={handleSubmitPrompt}
+            />
+          )}
 
           <ProfileModal
             isOpen={showProfileModal}
