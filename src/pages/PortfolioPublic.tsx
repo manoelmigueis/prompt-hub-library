@@ -45,6 +45,24 @@ export default function PortfolioPublic() {
     }
   }, [data]);
 
+  // Close lightbox on ESC key
+  useEffect(() => {
+    if (!activeImage) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        console.log('[PortfolioModal] closing via ESC');
+        setActiveImage(null);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [activeImage]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
