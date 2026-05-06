@@ -5,8 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Check, X, Star, Copy, Clock, CheckCircle, XCircle, Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Check, X, Star, Copy, Clock, CheckCircle, XCircle, Plus, Trash2, Users, Shield, UserX, RefreshCw, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -20,6 +22,19 @@ interface AdminPanelProps {
   inviteCodes: string[];
   onGenerateCode: () => void;
   onDeleteCode: (code: string) => void;
+}
+
+interface AdminUserRow {
+  id: string;
+  email: string;
+  display_name: string | null;
+  username: string | null;
+  avatar_url: string | null;
+  status: 'active' | 'suspended' | 'banned';
+  has_access: boolean;
+  invite_code_used: string | null;
+  created_at: string;
+  roles: string[];
 }
 
 export function AdminPanel({
@@ -36,6 +51,9 @@ export function AdminPanel({
   onDeleteCode,
 }: AdminPanelProps) {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [users, setUsers] = useState<AdminUserRow[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
   
   const pendingPrompts = prompts.filter(p => p.status === 'pending');
   const approvedPrompts = prompts.filter(p => p.status === 'approved');
@@ -53,6 +71,42 @@ export function AdminPanel({
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
   };
+
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-users', { body: { action: 'list' } });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setUsers(data?.users || []);
+    } catch (error: any) {
+      console.error('[AdminUsers] load error', error);
+      toast.error('Erro ao carregar contas: ' + (error?.message || 'desconhecido'));
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const runUserAction = async (body: Record<string, unknown>, successMessage: string) => {
+    const target = String(body.userId || '');
+    setUpdatingUserId(target);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-users', { body });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setUsers(data?.users || []);
+      toast.success(successMessage);
+    } catch (error: any) {
+      console.error('[AdminUsers] action error', error);
+      toast.error('Erro ao atualizar conta: ' + (error?.message || 'desconhecido'));
+    } finally {
+      setUpdatingUserId(null);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) loadUsers();
+  }, [isOpen]);
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -64,7 +118,7 @@ export function AdminPanel({
         </DialogHeader>
         
         <Tabs defaultValue="pending" className="mt-4">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto gap-1">
             <TabsTrigger value="pending" className="gap-1 text-xs sm:text-sm px-2 py-1.5">
               <Clock className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">Pendentes ({pendingPrompts.length})</span>
@@ -79,6 +133,10 @@ export function AdminPanel({
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-1 text-xs sm:text-sm px-2 py-1.5">
               ⚙️ <span className="truncate">Config</span>
+            </TabsTrigger>
+            <TabsTrigger value="users" className="gap-1 text-xs sm:text-sm px-2 py-1.5">
+              <Users className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Contas</span>
             </TabsTrigger>
           </TabsList>
           
@@ -203,6 +261,30 @@ export function AdminPanel({
                 )}
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="users" className="space-y-4 mt-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <Label className="text-lg font-display font-bold">Contas cadastradas</Label>
+                <p className="text-sm text-muted-foreground">Gerencie privilégios, bloqueios e remoções.</p>
+              </div>
+              <Button type="button" variant="outline" size="sm" onClick={loadUsers} disabled={loadingUsers} className="gap-2">
+                {loadingUsers ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                Atualizar
+              </Button>
+            </div>
+            {loadingUsers ? (
+              <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+            ) : users.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-lg">Nenhuma conta encontrada.</div>
+            ) : (
+              <div className="space-y-3">
+                {users.map(user => (
+                  <AdminUserCard key={user.id} user={user} busy={updatingUserId === user.id} onAction={runUserAction} />
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </DialogContent>
