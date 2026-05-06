@@ -95,6 +95,18 @@ export function Header({
                 <span className="hidden sm:inline">Portfólio</span>
               </Button>
 
+              {onShopClick && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 rounded-full text-xs shrink-0"
+                  onClick={onShopClick}
+                >
+                  <Store className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Loja</span>
+                </Button>
+              )}
+
               {/* Enviar Prompt - apenas admins/moderadores */}
               {(isAdmin || isModerator) && (
                 <Button 
