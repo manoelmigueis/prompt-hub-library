@@ -5,8 +5,8 @@ interface CategoryFilterProps {
   selectedCategory: Category;
   onCategoryChange: (category: Category) => void;
   totalPrompts: number;
-  onSearchClick: () => void;
-  onAddClick: () => void;
+  onSearchClick?: () => void;
+  onAddClick?: () => void;
   showFavoritesOnly?: boolean;
   onToggleFavorites?: () => void;
 }
