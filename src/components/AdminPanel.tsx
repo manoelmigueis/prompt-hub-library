@@ -302,6 +302,57 @@ interface AdminPromptCardProps {
   showReject?: boolean;
 }
 
+function AdminUserCard({
+  user,
+  busy,
+  onAction,
+}: {
+  user: AdminUserRow;
+  busy: boolean;
+  onAction: (body: Record<string, unknown>, successMessage: string) => Promise<void>;
+}) {
+  const isAdmin = user.roles.includes('admin');
+  const isModerator = user.roles.includes('moderator');
+  const isBlocked = user.status === 'banned' || user.status === 'suspended';
+
+  return (
+    <article className="rounded-lg border border-border bg-card p-3 sm:p-4 space-y-3">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="font-semibold truncate">{user.display_name || user.email || 'Usuário'}</p>
+            <span className="text-[10px] rounded-full border border-border px-2 py-0.5 text-muted-foreground uppercase">{user.status}</span>
+            {isAdmin && <span className="text-[10px] rounded-full bg-primary text-primary-foreground px-2 py-0.5 uppercase">admin</span>}
+            {isModerator && <span className="text-[10px] rounded-full border border-primary text-primary px-2 py-0.5 uppercase">moderador</span>}
+          </div>
+          <p className="text-xs text-muted-foreground truncate">{user.email || user.id}</p>
+          {user.username && <p className="text-xs text-muted-foreground truncate">/portfolio/{user.username}</p>}
+        </div>
+        {busy && <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />}
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <Button type="button" variant={isAdmin ? 'default' : 'outline'} size="sm" disabled={busy} className="gap-1 text-xs" onClick={() => onAction({ action: 'set_role', userId: user.id, role: 'admin', enabled: !isAdmin }, isAdmin ? 'Admin removido.' : 'Admin concedido.') }>
+          <Shield className="w-3.5 h-3.5" /> Admin
+        </Button>
+        <Button type="button" variant={isModerator ? 'default' : 'outline'} size="sm" disabled={busy} className="gap-1 text-xs" onClick={() => onAction({ action: 'set_role', userId: user.id, role: 'moderator', enabled: !isModerator }, isModerator ? 'Moderação removida.' : 'Moderação concedida.') }>
+          <Check className="w-3.5 h-3.5" /> Mod
+        </Button>
+        <Button type="button" variant={isBlocked ? 'outline' : 'destructive'} size="sm" disabled={busy} className="gap-1 text-xs" onClick={() => onAction({ action: 'set_status', userId: user.id, status: isBlocked ? 'active' : 'banned' }, isBlocked ? 'Conta reativada.' : 'Conta bloqueada.') }>
+          <UserX className="w-3.5 h-3.5" /> {isBlocked ? 'Reativar' : 'Bloquear'}
+        </Button>
+        <Button type="button" variant="destructive" size="sm" disabled={busy} className="gap-1 text-xs" onClick={() => {
+          if (window.confirm('Remover esta conta definitivamente?')) {
+            onAction({ action: 'delete_user', userId: user.id }, 'Conta removida.');
+          }
+        }}>
+          <Trash2 className="w-3.5 h-3.5" /> Remover
+        </Button>
+      </div>
+    </article>
+  );
+}
+
 function AdminPromptCard({ 
   prompt, 
   onApprove, 
