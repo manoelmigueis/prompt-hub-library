@@ -20,7 +20,6 @@ const App = () => (
       <Sonner />
       <OfflineIndicator />
       <BrowserRouter>
-        <PortfolioAccessGuard />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/ferramentas" element={<Ferramentas />} />
