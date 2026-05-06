@@ -95,15 +95,17 @@ export function Header({
                 <span className="hidden sm:inline">Portfólio</span>
               </Button>
 
-              {/* Enviar Prompt */}
-              <Button 
-                onClick={onSubmitClick}
-                size="sm"
-                className="btn-gradient gap-1.5 rounded-full text-xs"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Enviar Prompt</span>
-              </Button>
+              {/* Enviar Prompt - apenas admins/moderadores */}
+              {(isAdmin || isModerator) && (
+                <Button 
+                  onClick={onSubmitClick}
+                  size="sm"
+                  className="btn-gradient gap-1.5 rounded-full text-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Enviar Prompt</span>
+                </Button>
+              )}
 
               {/* Favoritos */}
               <Button
