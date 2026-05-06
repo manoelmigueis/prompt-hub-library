@@ -208,7 +208,9 @@ export default function Ferramentas() {
           <AddToolModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} onSubmit={createTool} />
           <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} profile={profile} onSave={updateProfile} />
           <PortfolioShopModal isOpen={showShopModal} onClose={() => setShowShopModal(false)} userId={user?.id} />
-          <SubmitPromptModal isOpen={showSubmitModal} onClose={() => setShowSubmitModal(false)} onSubmit={async (data: SubmitPromptData) => { await createPrompt(data, profile); setShowSubmitModal(false); }} />
+          {(isAdmin || isModerator) && (
+            <SubmitPromptModal isOpen={showSubmitModal} onClose={() => setShowSubmitModal(false)} onSubmit={async (data: SubmitPromptData) => { await createPrompt(data, profile); setShowSubmitModal(false); }} />
+          )}
           <AdminPanel
             isOpen={showAdminPanel}
             onClose={() => setShowAdminPanel(false)}
