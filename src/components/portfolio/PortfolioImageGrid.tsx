@@ -1,4 +1,5 @@
-import { Check } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Check, Maximize2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { UserPromptOption } from '@/hooks/usePortfolio';
 
@@ -11,6 +12,16 @@ interface Props {
 
 export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 20 }: Props) {
   const selectedSet = new Set(selectedIds);
+  const [expandedImage, setExpandedImage] = useState<UserPromptOption | null>(null);
+
+  useEffect(() => {
+    if (!expandedImage) return;
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setExpandedImage(null);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [expandedImage]);
 
   if (prompts.length === 0) {
     return (
@@ -57,12 +68,67 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
                 <Check className="w-4 h-4" />
               </div>
             )}
+            {p.image_url && (
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  console.log('[PortfolioModal] opening builder image', p.id);
+                  setExpandedImage(p);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setExpandedImage(p);
+                  }
+                }}
+                className="absolute top-2 left-2 bg-background/80 backdrop-blur rounded-full w-7 h-7 flex items-center justify-center shadow-lg hover:bg-primary hover:text-primary-foreground"
+                aria-label={`Ampliar ${p.title}`}
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+              </span>
+            )}
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
               <p className="text-xs text-white truncate">{p.title}</p>
             </div>
           </button>
         );
       })}
+      {expandedImage?.image_url && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[80] bg-background/95 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => {
+            console.log('[PortfolioModal] closing builder image via overlay');
+            setExpandedImage(null);
+          }}
+        >
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              console.log('[PortfolioModal] closing builder image via X');
+              setExpandedImage(null);
+            }}
+            className="fixed top-4 right-4 z-[90] inline-flex h-11 w-11 items-center justify-center rounded-full bg-card text-card-foreground border border-border shadow-lg hover:bg-primary hover:text-primary-foreground"
+            aria-label="Fechar imagem"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <img
+            src={expandedImage.image_url}
+            alt={expandedImage.title}
+            className="max-h-full max-w-full object-contain rounded-lg protected-image"
+            draggable={false}
+            onClick={(event) => event.stopPropagation()}
+            onContextMenu={(event) => event.preventDefault()}
+          />
+        </div>
+      )}
     </div>
   );
 }
