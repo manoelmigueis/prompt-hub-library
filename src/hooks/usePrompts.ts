@@ -120,6 +120,11 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
       return null;
     }
 
+    if (!isAdmin) {
+      toast.error('Apenas admins podem postar no acervo.');
+      return null;
+    }
+
     // Check global auto_approve setting
     const autoApprove = await getAutoApprove();
 
