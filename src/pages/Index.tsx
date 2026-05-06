@@ -100,10 +100,10 @@ export default function Index() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('submit') === 'true' && isAuthenticated) {
-      setShowSubmitModal(true);
+      if (isAdmin || isModerator) setShowSubmitModal(true);
       window.history.replaceState({}, '', '/');
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isAdmin, isModerator]);
 
   useEffect(() => {
     if (isAdmin) {
