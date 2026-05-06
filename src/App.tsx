@@ -10,7 +10,6 @@ import Portfolio from "./pages/Portfolio";
 import PortfolioPublic from "./pages/PortfolioPublic";
 import NotFound from "./pages/NotFound";
 import OfflineIndicator from "./components/OfflineIndicator";
-import { PortfolioAccessGuard } from "./components/PortfolioAccessGuard";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +20,6 @@ const App = () => (
       <Sonner />
       <OfflineIndicator />
       <BrowserRouter>
-        <PortfolioAccessGuard />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/ferramentas" element={<Ferramentas />} />

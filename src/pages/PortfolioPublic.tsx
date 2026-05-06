@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Instagram, Twitter, Youtube, Globe, MessageCircle, Check, ShoppingBag, Send } from 'lucide-react';
+import { Loader2, Instagram, Twitter, Youtube, Globe, MessageCircle, Check, ShoppingBag, Send, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -44,6 +44,24 @@ export default function PortfolioPublic() {
       document.title = `${data.profile.title || data.profile.display_name} — Portfólio`;
     }
   }, [data]);
+
+  // Close lightbox on ESC key
+  useEffect(() => {
+    if (!activeImage) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        console.log('[PortfolioModal] closing via ESC');
+        setActiveImage(null);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [activeImage]);
 
   if (loading) {
     return (
@@ -228,10 +246,34 @@ export default function PortfolioPublic() {
       {/* Lightbox */}
       {activeImage && (
         <div
-          onClick={() => setActiveImage(null)}
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 cursor-zoom-out"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => {
+            console.log('[PortfolioModal] closing via overlay click');
+            setActiveImage(null);
+          }}
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 cursor-zoom-out animate-in fade-in duration-200"
         >
-          <img src={activeImage} alt="" className="max-w-full max-h-full object-contain protected-image pointer-events-none" draggable={false} />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log('[PortfolioModal] closing via X button');
+              setActiveImage(null);
+            }}
+            aria-label="Fechar imagem"
+            className="fixed top-4 right-4 z-[60] inline-flex h-12 w-12 items-center justify-center rounded-full bg-background/90 text-foreground border border-border shadow-lg hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            onClick={(e) => e.stopPropagation()}
+            src={activeImage}
+            alt=""
+            className="max-w-full max-h-full object-contain protected-image select-none"
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
+          />
         </div>
       )}
 
