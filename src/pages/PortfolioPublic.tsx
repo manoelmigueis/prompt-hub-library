@@ -246,10 +246,34 @@ export default function PortfolioPublic() {
       {/* Lightbox */}
       {activeImage && (
         <div
-          onClick={() => setActiveImage(null)}
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 cursor-zoom-out"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => {
+            console.log('[PortfolioModal] closing via overlay click');
+            setActiveImage(null);
+          }}
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 cursor-zoom-out animate-in fade-in duration-200"
         >
-          <img src={activeImage} alt="" className="max-w-full max-h-full object-contain protected-image pointer-events-none" draggable={false} />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log('[PortfolioModal] closing via X button');
+              setActiveImage(null);
+            }}
+            aria-label="Fechar imagem"
+            className="fixed top-4 right-4 z-[60] inline-flex h-12 w-12 items-center justify-center rounded-full bg-background/90 text-foreground border border-border shadow-lg hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            onClick={(e) => e.stopPropagation()}
+            src={activeImage}
+            alt=""
+            className="max-w-full max-h-full object-contain protected-image select-none"
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
+          />
         </div>
       )}
 
