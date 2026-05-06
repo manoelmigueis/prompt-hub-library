@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Instagram, Twitter, Youtube, Globe, MessageCircle, Check, ShoppingBag, Send } from 'lucide-react';
+import { Loader2, Instagram, Twitter, Youtube, Globe, MessageCircle, Check, ShoppingBag, Send, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
