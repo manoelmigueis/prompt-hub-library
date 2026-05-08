@@ -141,31 +141,53 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
     if (!cropImageSrc || !profile) return;
 
     setUploadingAvatar(true);
+    console.log('[ProfileUpload] starting crop+upload');
 
     try {
       const croppedBlob = await createCroppedAvatarBlob(cropImageSrc);
-      const fileName = `${profile.id}/${Date.now()}.jpg`;
+      console.log('[ProfileUpload] blob ready', { size: croppedBlob.size, type: croppedBlob.type });
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) throw new Error('Sessão expirada. Faça login novamente.');
+
+      const file = new File([croppedBlob], `avatar-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const fileName = `${profile.id}/avatar-${Date.now()}.jpg`;
+      console.log('[ProfileUpload] uploading', { fileName, uid: sessionData.session.user.id });
 
       const { data, error } = await supabase.storage
         .from('avatars')
-        .upload(fileName, croppedBlob, {
+        .upload(fileName, file, {
           cacheControl: '3600',
           upsert: true,
           contentType: 'image/jpeg',
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[ProfileUpload] storage error', error);
+        throw error;
+      }
+      console.log('[ProfileUpload] uploaded', data);
 
       const {
         data: { publicUrl },
       } = supabase.storage.from('avatars').getPublicUrl(data.path);
+      const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`;
 
-      setAvatarUrl(publicUrl);
+      // Persist immediately so the avatar updates everywhere even if the user closes the modal
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: cacheBustedUrl })
+        .eq('id', profile.id);
+      if (updateError) {
+        console.warn('[ProfileUpload] profile update warning', updateError);
+      }
+
+      setAvatarUrl(cacheBustedUrl);
       resetCropState();
-      toast.success('Foto ajustada! Agora clique em “Salvar Alterações”.');
-    } catch (error) {
-      console.error('Avatar upload error:', error);
-      toast.error('Erro ao recortar/enviar a foto. Tente novamente.');
+      toast.success('Foto atualizada!');
+    } catch (error: any) {
+      console.error('[ProfileUpload] failed', error);
+      toast.error(`Erro ao enviar a foto: ${error?.message || 'tente novamente'}`);
     } finally {
       setUploadingAvatar(false);
     }
