@@ -212,15 +212,6 @@ export default function PortfolioPublic() {
                 </button>
                 <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent text-left">
                   <p className="text-sm text-white font-medium line-clamp-1">{p.title}</p>
-                  {p.tags && p.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {p.tags.slice(0, 3).map((t) => (
-                        <Badge key={t} variant="secondary" className="text-[10px] py-0 h-4">
-                          {t}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </article>
             ))}
