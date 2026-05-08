@@ -165,16 +165,6 @@ export function Header({
                     <User className="w-4 h-4" />
                     Meu Perfil
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/portfolio')} className="gap-2 cursor-pointer">
-                    <Briefcase className="w-4 h-4" />
-                    Meu Portfólio
-                  </DropdownMenuItem>
-                  {onShopClick && (
-                    <DropdownMenuItem onClick={onShopClick} className="gap-2 cursor-pointer">
-                      <Store className="w-4 h-4" />
-                      Loja
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuItem onClick={onProfileClick} className="gap-2 cursor-pointer">
                     <Settings className="w-4 h-4" />
                     Configurações

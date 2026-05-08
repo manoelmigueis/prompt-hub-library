@@ -275,7 +275,7 @@ export default function Portfolio() {
                 <section className="mb-10">
                   <h2 className="font-display text-2xl tracking-wider mb-1">1. ESCOLHA AS IMAGENS</h2>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Selecione até 20 imagens aprovadas do acervo. {selectedIds.length}/20 selecionadas.
+                    Selecione até 40 imagens aprovadas do acervo. {selectedIds.length}/40 selecionadas.
                   </p>
                   <PortfolioImageGrid
                     prompts={userPrompts}
