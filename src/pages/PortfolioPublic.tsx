@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+// Badge intentionally not imported — tags hidden on public portfolio
 import { Loader2, Instagram, Twitter, Youtube, Globe, MessageCircle, Check, ShoppingBag, Send, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
