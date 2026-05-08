@@ -10,7 +10,7 @@ interface Props {
   maxItems?: number;
 }
 
-export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 20 }: Props) {
+export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 40 }: Props) {
   const selectedSet = new Set(selectedIds);
   const [expandedImage, setExpandedImage] = useState<UserPromptOption | null>(null);
 
