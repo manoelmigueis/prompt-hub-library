@@ -137,57 +137,84 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
       image.src = imageSrc;
     });
 
-  const handleApplyAvatarCrop = async () => {
-    if (!cropImageSrc || !profile) return;
-
-    setUploadingAvatar(true);
-    console.log('[ProfileUpload] starting crop+upload');
-
-    try {
-      const croppedBlob = await createCroppedAvatarBlob(cropImageSrc);
-      console.log('[ProfileUpload] blob ready', { size: croppedBlob.size, type: croppedBlob.type });
-
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) throw new Error('Sessão expirada. Faça login novamente.');
-
-      const file = new File([croppedBlob], `avatar-${Date.now()}.jpg`, { type: 'image/jpeg' });
-      const fileName = `${profile.id}/avatar-${Date.now()}.jpg`;
-      console.log('[ProfileUpload] uploading', { fileName, uid: sessionData.session.user.id });
-
+  const uploadWithRetry = async (path: string, file: File, attempts = 2): Promise<{ path: string }> => {
+    let lastErr: any = null;
+    for (let i = 0; i < attempts; i++) {
       const { data, error } = await supabase.storage
         .from('avatars')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: 'image/jpeg',
-        });
+        .upload(path, file, { cacheControl: '3600', upsert: true, contentType: 'image/jpeg' });
+      if (!error && data) return data;
+      lastErr = error;
+      console.warn('[AvatarUpload] retry', { attempt: i + 1, error });
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    throw lastErr || new Error('Falha no upload');
+  };
 
-      if (error) {
-        console.error('[ProfileUpload] storage error', error);
-        throw error;
-      }
-      console.log('[ProfileUpload] uploaded', data);
+  const handleApplyAvatarCrop = async () => {
+    if (!cropImageSrc || !profile) {
+      console.warn('[AvatarUpload] missing prerequisites', { cropImageSrc: !!cropImageSrc, profile: !!profile });
+      toast.error('Selecione uma imagem antes de aplicar o recorte.');
+      return;
+    }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('avatars').getPublicUrl(data.path);
+    setUploadingAvatar(true);
+    let blob: Blob | null = null;
+    let file: File | null = null;
+    let uploadPath = '';
+    let publicUrl = '';
+
+    try {
+      // 1) Validate session FIRST so RLS path matches auth.uid
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      const authUid = sessionData?.session?.user?.id;
+      if (!authUid) throw new Error('Sessão expirada. Faça login novamente.');
+
+      // 2) Generate cropped blob
+      blob = await createCroppedAvatarBlob(cropImageSrc);
+      if (!blob || blob.size === 0) throw new Error('Falha ao gerar a imagem recortada.');
+
+      // 3) Build File and storage path tied to the authenticated UID (matches RLS)
+      file = new File([blob], `avatar-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      uploadPath = `${authUid}/avatar-${Date.now()}.jpg`;
+
+      console.log('[AvatarUpload]', {
+        selectedFile: file.name,
+        croppedImage: !!cropImageSrc,
+        blob: { size: blob.size, type: blob.type },
+        fileSize: file.size,
+        uploadPath,
+        authUid,
+        profileId: profile.id,
+      });
+
+      // 4) Upload (with retry)
+      const uploaded = await uploadWithRetry(uploadPath, file);
+      const { data: pub } = supabase.storage.from('avatars').getPublicUrl(uploaded.path);
+      publicUrl = pub.publicUrl;
       const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`;
 
-      // Persist immediately so the avatar updates everywhere even if the user closes the modal
+      console.log('[AvatarUpload] uploaded', { uploadResponse: uploaded, publicUrl: cacheBustedUrl });
+
+      // 5) Persist avatar_url on the authenticated user's own profile
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: cacheBustedUrl })
-        .eq('id', profile.id);
+        .eq('id', authUid);
       if (updateError) {
-        console.warn('[ProfileUpload] profile update warning', updateError);
+        console.error('[AvatarUpload] profile update failed', updateError);
+        throw updateError;
       }
 
+      // 6) Update UI immediately
       setAvatarUrl(cacheBustedUrl);
       resetCropState();
       toast.success('Foto atualizada!');
     } catch (error: any) {
-      console.error('[ProfileUpload] failed', error);
-      toast.error(`Erro ao enviar a foto: ${error?.message || 'tente novamente'}`);
+      console.error('[AvatarUpload] failed', { error, uploadPath, blobSize: blob?.size });
+      const msg = error?.message || error?.error_description || 'tente novamente';
+      toast.error(`Erro ao enviar a foto: ${msg}`);
     } finally {
       setUploadingAvatar(false);
     }
