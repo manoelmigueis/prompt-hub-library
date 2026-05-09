@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Check, Maximize2, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Check, Maximize2, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
 import type { UserPromptOption } from '@/hooks/usePortfolio';
 
 interface Props {
@@ -13,6 +14,13 @@ interface Props {
 export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 40 }: Props) {
   const selectedSet = new Set(selectedIds);
   const [expandedImage, setExpandedImage] = useState<UserPromptOption | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedTerm, setDebouncedTerm] = useState('');
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedTerm(searchTerm.trim().toLowerCase()), 200);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (!expandedImage) return;
@@ -23,6 +31,26 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
     return () => window.removeEventListener('keydown', handleKey);
   }, [expandedImage]);
 
+  const filteredImages = useMemo(() => {
+    if (!prompts) return [];
+    if (!debouncedTerm) return prompts;
+    return prompts.filter((image) => {
+      const haystack = [image.title, image.category, ...(image.tags || [])]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return haystack.includes(debouncedTerm);
+    });
+  }, [prompts, debouncedTerm]);
+
+  useEffect(() => {
+    console.log('[PortfolioSearch]', {
+      totalImages: prompts?.length,
+      filteredImages: filteredImages?.length,
+      searchTerm: debouncedTerm,
+    });
+  }, [prompts, filteredImages, debouncedTerm]);
+
   if (prompts.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground border border-dashed border-border rounded-xl">
@@ -32,8 +60,42 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-      {prompts.map((p) => {
+    <div className="space-y-4">
+      <div className="relative w-full max-w-[500px]">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        <Input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Buscar imagens por nome, tag ou categoria..."
+          className="pl-9 pr-9 focus-visible:ring-primary"
+          aria-label="Buscar imagens"
+        />
+        {searchTerm && (
+          <button
+            type="button"
+            onClick={() => setSearchTerm('')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted"
+            aria-label="Limpar busca"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      <div className="text-xs text-muted-foreground">
+        {filteredImages.length} de {prompts.length} {prompts.length === 1 ? 'imagem' : 'imagens'}
+        {debouncedTerm && ` • busca: "${debouncedTerm}"`}
+      </div>
+
+      {filteredImages.length === 0 ? (
+        <div className="text-center py-12 border border-dashed border-border rounded-xl">
+          <p className="font-display text-lg text-foreground">Nenhuma imagem encontrada</p>
+          <p className="text-sm text-muted-foreground mt-1">Tente outro termo de busca</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 transition-opacity">
+          {filteredImages.map((p) => {
         const isSelected = selectedSet.has(p.id);
         const disabled = !isSelected && selectedIds.length >= maxItems;
         return (
@@ -97,6 +159,8 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
           </button>
         );
       })}
+        </div>
+      )}
       {expandedImage?.image_url && (
         <div
           role="dialog"
