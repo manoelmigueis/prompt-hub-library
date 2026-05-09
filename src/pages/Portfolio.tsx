@@ -19,6 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { PortfolioImageGrid } from '@/components/portfolio/PortfolioImageGrid';
 import { PortfolioSortableList } from '@/components/portfolio/PortfolioSortableList';
 import { PortfolioShopModal } from '@/components/portfolio/PortfolioShopModal';
+import { CollectionsPanel } from '@/components/portfolio/CollectionsPanel';
 
 const slugify = (s: string) =>
   s
