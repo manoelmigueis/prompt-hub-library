@@ -272,6 +272,9 @@ export default function Portfolio() {
               </div>
             ) : (
               <>
+                {/* Ensaios prontos (templates reutilizáveis) */}
+                <CollectionsPanel userId={user?.id} username={username} prompts={userPrompts} />
+
                 {/* Step 1: Select images */}
                 <section className="mb-10">
                   <h2 className="font-display text-2xl tracking-wider mb-1">1. ESCOLHA AS IMAGENS</h2>
