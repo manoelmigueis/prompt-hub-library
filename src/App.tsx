@@ -27,6 +27,7 @@ const App = () => (
           <Route path="/referencias" element={<Referencias />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/portfolio/:username" element={<PortfolioPublic />} />
+          <Route path="/c/:username/:slug" element={<CollectionPublic />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
