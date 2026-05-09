@@ -151,6 +151,77 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_collection_images: {
+        Row: {
+          collection_id: string
+          created_at: string
+          id: string
+          prompt_id: string
+          sort_order: number
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string
+          id?: string
+          prompt_id: string
+          sort_order?: number
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string
+          id?: string
+          prompt_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_collection_images_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_collections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolio_collections: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean
+          is_template: boolean
+          slug: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          is_template?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          is_template?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       portfolio_items: {
         Row: {
           created_at: string
@@ -475,6 +546,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_collection: {
+        Args: { _slug: string; _username: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          collection_id: string
+          cover_image_url: string
+          description: string
+          display_name: string
+          instagram: string
+          is_public: boolean
+          show_social_links: boolean
+          slug: string
+          tiktok: string
+          title: string
+          twitter: string
+          user_id: string
+          username: string
+          website: string
+          whatsapp: string
+          youtube: string
+        }[]
+      }
       get_public_portfolio_by_username: {
         Args: { _username: string }
         Returns: {
