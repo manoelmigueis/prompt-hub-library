@@ -8,6 +8,7 @@ import Ferramentas from "./pages/Ferramentas";
 import Referencias from "./pages/Referencias";
 import Portfolio from "./pages/Portfolio";
 import PortfolioPublic from "./pages/PortfolioPublic";
+import CollectionPublic from "./pages/CollectionPublic";
 import NotFound from "./pages/NotFound";
 import OfflineIndicator from "./components/OfflineIndicator";
 
