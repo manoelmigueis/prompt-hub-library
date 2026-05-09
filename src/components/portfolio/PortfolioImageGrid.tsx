@@ -159,6 +159,8 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
           </button>
         );
       })}
+        </div>
+      )}
       {expandedImage?.image_url && (
         <div
           role="dialog"
