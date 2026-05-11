@@ -193,22 +193,19 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
       const uploaded = await uploadWithRetry(uploadPath, file);
       const { data: pub } = supabase.storage.from('avatars').getPublicUrl(uploaded.path);
       publicUrl = pub.publicUrl;
-      const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`;
 
-      console.log('[AvatarUpload] uploaded', { uploadResponse: uploaded, publicUrl: cacheBustedUrl });
+      console.log('[AvatarUpload] uploaded', { uploadResponse: uploaded, publicUrl });
 
-      // 5) Persist avatar_url on the authenticated user's own profile
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: cacheBustedUrl })
-        .eq('id', authUid);
+      // 5) Persist via parent onSave so useAuth global profile state updates
+      //    and the Header / other consumers re-render immediately.
+      const { error: updateError } = await onSave({ avatar_url: publicUrl });
       if (updateError) {
         console.error('[AvatarUpload] profile update failed', updateError);
         throw updateError;
       }
 
-      // 6) Update UI immediately
-      setAvatarUrl(cacheBustedUrl);
+      // 6) Update local UI with cache-buster (display only — NOT persisted)
+      setAvatarUrl(`${publicUrl}?t=${Date.now()}`);
       resetCropState();
       toast.success('Foto atualizada!');
     } catch (error: any) {
