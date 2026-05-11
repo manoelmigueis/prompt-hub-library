@@ -378,7 +378,20 @@ export async function fetchPublicCollection(
         }))
         .sort((a, b) => a.position - b.position);
     }
-    return { data: row as PublicCollectionData, prompts };
+
+    // Fetch the owner's published portfolio id so the renderer can enable orders
+    const { data: pf } = await supabase
+      .from('portfolios')
+      .select('id')
+      .eq('user_id', row.user_id)
+      .eq('is_published', true)
+      .maybeSingle();
+
+    const enriched: PublicCollectionData = {
+      ...(row as PublicCollectionData),
+      portfolio_id: pf?.id ?? null,
+    };
+    return { data: enriched, prompts };
   } catch (err) {
     console.error('[PortfolioCollections] fetchPublic', err);
     return null;
