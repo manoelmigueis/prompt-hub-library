@@ -197,6 +197,40 @@ function CollectionEditorModal({
   const [search, setSearch] = useState('');
   const [saving, setSaving] = useState(false);
   const [hydrating, setHydrating] = useState(!!editing);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUploadCover = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Selecione um arquivo de imagem.');
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error('Imagem muito grande (máx 8MB).');
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const uid = sess?.session?.user?.id;
+      if (!uid) throw new Error('Sessão expirada.');
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `${uid}/collection-cover-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, {
+        upsert: true,
+        contentType: file.type,
+      });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from('avatars').getPublicUrl(path);
+      setCoverUrl(pub.publicUrl);
+      toast.success('Capa enviada!');
+    } catch (err: any) {
+      console.error('[CollectionEditor] upload cover', err);
+      toast.error('Erro ao enviar capa: ' + (err?.message || ''));
+    } finally {
+      setUploadingCover(false);
+    }
+  };
 
   useEffect(() => {
     if (!editing) {
