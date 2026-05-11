@@ -449,16 +449,6 @@ function CollectionEditorModal({
             )}
           </div>
 
-          {coverUrl && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <img src={coverUrl} alt="Capa" className="w-12 h-12 rounded object-cover border border-border" />
-              <span>Capa atual</span>
-              <Button variant="ghost" size="sm" className="h-7 gap-1" onClick={() => setCoverUrl(null)}>
-                <X className="w-3 h-3" /> Remover
-              </Button>
-            </div>
-          )}
-
           <div className="flex flex-col sm:flex-row gap-2 pt-2">
             <Button variant="outline" className="flex-1" onClick={onClose} disabled={saving}>
               Cancelar
