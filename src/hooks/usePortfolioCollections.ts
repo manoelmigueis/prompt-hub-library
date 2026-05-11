@@ -324,6 +324,8 @@ export interface PublicCollectionData {
   tiktok: string | null;
   twitter: string | null;
   show_social_links: boolean | null;
+  /** Owner's portfolio id, used to attach customer orders. */
+  portfolio_id: string | null;
 }
 
 export interface PublicCollectionPrompt {
