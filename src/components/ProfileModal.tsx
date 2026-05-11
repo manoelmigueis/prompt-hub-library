@@ -219,6 +219,8 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
 
   const handleSave = async () => {
     setSaving(true);
+    // Strip cache-buster query before persisting
+    const cleanAvatarUrl = avatarUrl ? avatarUrl.split('?')[0] : null;
     const result = await onSave({
       display_name: displayName,
       bio: bio || null,
@@ -229,7 +231,7 @@ export function ProfileModal({ isOpen, onClose, profile, onSave }: ProfileModalP
       tiktok: tiktok || null,
       website: website || null,
       show_social_links: showSocialLinks,
-      avatar_url: avatarUrl,
+      avatar_url: cleanAvatarUrl,
     });
     setSaving(false);
 
