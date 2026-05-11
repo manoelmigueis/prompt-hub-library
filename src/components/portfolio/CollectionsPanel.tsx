@@ -335,6 +335,55 @@ function CollectionEditorModal({
           </div>
 
           <div>
+            <Label className="block mb-2">Capa do ensaio</Label>
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="w-20 h-20 rounded-lg overflow-hidden border border-border bg-muted flex items-center justify-center shrink-0">
+                {coverUrl ? (
+                  <img src={coverUrl} alt="Capa" className="w-full h-full object-cover" />
+                ) : (
+                  <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleUploadCover(f);
+                  e.target.value = '';
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingCover}
+              >
+                {uploadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {coverUrl ? 'Trocar capa' : 'Fazer upload'}
+              </Button>
+              {coverUrl && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1 text-xs"
+                  onClick={() => setCoverUrl(null)}
+                >
+                  <X className="w-3 h-3" /> Remover
+                </Button>
+              )}
+              <p className="text-[11px] text-muted-foreground basis-full">
+                Ou use "Definir capa" sobre uma imagem do acervo abaixo.
+              </p>
+            </div>
+          </div>
+
+          <div>
             <Label className="block mb-2">
               Imagens ({selectedIds.length}/{MAX_IMAGES})
             </Label>
