@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Plus, Copy, Trash2, Pencil, Link2, Image as ImageIcon, Loader2, X, Search } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Plus, Copy, Trash2, Pencil, Link2, Image as ImageIcon, Loader2, X, Search, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import {
   PortfolioCollection,
   usePortfolioCollections,
@@ -196,6 +197,40 @@ function CollectionEditorModal({
   const [search, setSearch] = useState('');
   const [saving, setSaving] = useState(false);
   const [hydrating, setHydrating] = useState(!!editing);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUploadCover = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Selecione um arquivo de imagem.');
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error('Imagem muito grande (máx 8MB).');
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const uid = sess?.session?.user?.id;
+      if (!uid) throw new Error('Sessão expirada.');
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `${uid}/collection-cover-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, {
+        upsert: true,
+        contentType: file.type,
+      });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from('avatars').getPublicUrl(path);
+      setCoverUrl(pub.publicUrl);
+      toast.success('Capa enviada!');
+    } catch (err: any) {
+      console.error('[CollectionEditor] upload cover', err);
+      toast.error('Erro ao enviar capa: ' + (err?.message || ''));
+    } finally {
+      setUploadingCover(false);
+    }
+  };
 
   useEffect(() => {
     if (!editing) {
@@ -300,6 +335,55 @@ function CollectionEditorModal({
           </div>
 
           <div>
+            <Label className="block mb-2">Capa do ensaio</Label>
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="w-20 h-20 rounded-lg overflow-hidden border border-border bg-muted flex items-center justify-center shrink-0">
+                {coverUrl ? (
+                  <img src={coverUrl} alt="Capa" className="w-full h-full object-cover" />
+                ) : (
+                  <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleUploadCover(f);
+                  e.target.value = '';
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingCover}
+              >
+                {uploadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {coverUrl ? 'Trocar capa' : 'Fazer upload'}
+              </Button>
+              {coverUrl && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1 text-xs"
+                  onClick={() => setCoverUrl(null)}
+                >
+                  <X className="w-3 h-3" /> Remover
+                </Button>
+              )}
+              <p className="text-[11px] text-muted-foreground basis-full">
+                Ou use "Definir capa" sobre uma imagem do acervo abaixo.
+              </p>
+            </div>
+          </div>
+
+          <div>
             <Label className="block mb-2">
               Imagens ({selectedIds.length}/{MAX_IMAGES})
             </Label>
@@ -364,16 +448,6 @@ function CollectionEditorModal({
               </div>
             )}
           </div>
-
-          {coverUrl && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <img src={coverUrl} alt="Capa" className="w-12 h-12 rounded object-cover border border-border" />
-              <span>Capa atual</span>
-              <Button variant="ghost" size="sm" className="h-7 gap-1" onClick={() => setCoverUrl(null)}>
-                <X className="w-3 h-3" /> Remover
-              </Button>
-            </div>
-          )}
 
           <div className="flex flex-col sm:flex-row gap-2 pt-2">
             <Button variant="outline" className="flex-1" onClick={onClose} disabled={saving}>
