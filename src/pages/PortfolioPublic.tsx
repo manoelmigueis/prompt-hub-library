@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import {
   fetchPublicPortfolio,
   type PublicPortfolioData,
   type PublicPortfolioPrompt,
 } from '@/hooks/usePortfolio';
 import { PortfolioRenderer } from '@/components/portfolio/PortfolioRenderer';
+import PublicPortfolio404 from '@/components/PublicPortfolio404';
 
 export default function PortfolioPublic() {
   const { username } = useParams<{ username: string }>();
@@ -41,17 +41,14 @@ export default function PortfolioPublic() {
   }
 
   if (!data || !data.profile) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4 px-4 text-center">
-        <h1 className="font-display text-3xl tracking-wider">Portfólio não encontrado</h1>
-        <p className="text-muted-foreground">
-          O usuário "{username}" não existe ou seu portfólio não está público.
-        </p>
-        <Button asChild>
-          <Link to="/">Voltar ao acervo</Link>
-        </Button>
-      </div>
-    );
+    console.log('[PUBLIC_PORTFOLIO]', {
+      route: '/portfolio/:username',
+      username,
+      portfolioFound: false,
+      fallbackTriggered: 'PublicPortfolio404',
+      redirectedTo: null,
+    });
+    return <PublicPortfolio404 />;
   }
 
   return <PortfolioRenderer profile={data.profile} prompts={data.prompts} subtitle={data.profile.about} />;

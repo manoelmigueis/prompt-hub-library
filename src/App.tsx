@@ -10,6 +10,7 @@ import Portfolio from "./pages/Portfolio";
 import PortfolioPublic from "./pages/PortfolioPublic";
 import CollectionPublic from "./pages/CollectionPublic";
 import NotFound from "./pages/NotFound";
+import PublicPortfolio404 from "./components/PublicPortfolio404";
 import OfflineIndicator from "./components/OfflineIndicator";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,10 @@ const App = () => (
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/portfolio/:username" element={<PortfolioPublic />} />
           <Route path="/c/:username/:slug" element={<CollectionPublic />} />
+          {/* Isolated public 404 for any malformed portfolio/collection link.
+              MUST stay above the global catch-all to avoid leaking the acervo. */}
+          <Route path="/c/*" element={<PublicPortfolio404 />} />
+          <Route path="/portfolio/*" element={<PublicPortfolio404 />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

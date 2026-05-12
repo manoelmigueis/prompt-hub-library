@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import {
   fetchPublicCollection,
@@ -7,6 +7,7 @@ import {
   type PublicCollectionPrompt,
 } from '@/hooks/usePortfolioCollections';
 import { PortfolioRenderer } from '@/components/portfolio/PortfolioRenderer';
+import PublicPortfolio404 from '@/components/PublicPortfolio404';
 
 export default function CollectionPublic() {
   const { username, slug } = useParams<{ username: string; slug: string }>();
@@ -40,15 +41,15 @@ export default function CollectionPublic() {
   }
 
   if (!payload) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
-        <h1 className="font-display text-3xl tracking-wider mb-2">Ensaio não encontrado</h1>
-        <p className="text-muted-foreground">Verifique o link ou peça outro ao autor.</p>
-        <Link to="/" className="mt-4 text-primary underline">
-          Voltar
-        </Link>
-      </div>
-    );
+    console.log('[PUBLIC_PORTFOLIO]', {
+      route: '/c/:username/:slug',
+      slug,
+      username,
+      portfolioFound: false,
+      fallbackTriggered: 'PublicPortfolio404',
+      redirectedTo: null,
+    });
+    return <PublicPortfolio404 />;
   }
 
   const { data, prompts } = payload;
