@@ -10,6 +10,7 @@ import Portfolio from "./pages/Portfolio";
 import PortfolioPublic from "./pages/PortfolioPublic";
 import CollectionPublic from "./pages/CollectionPublic";
 import NotFound from "./pages/NotFound";
+import PublicPortfolio404 from "./components/PublicPortfolio404";
 import OfflineIndicator from "./components/OfflineIndicator";
 
 const queryClient = new QueryClient();
