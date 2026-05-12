@@ -25,27 +25,29 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <OfflineIndicator />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/ferramentas" element={<Ferramentas />} />
-          <Route path="/referencias" element={<Referencias />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/portfolio/:username" element={<PortfolioPublic />} />
-          <Route path="/c/:username/:slug" element={<CollectionPublic />} />
-          {/* Isolated public 404 for any malformed portfolio/collection link.
-              MUST stay above the global catch-all to avoid leaking the acervo. */}
-          <Route path="/c/*" element={<PublicPortfolio404 />} />
-          <Route path="/portfolio/*" element={<PublicPortfolio404 />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <OfflineIndicator />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/ferramentas" element={<Ferramentas />} />
+            <Route path="/referencias" element={<Referencias />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/portfolio/:username" element={<PortfolioPublic />} />
+            <Route path="/c/:username/:slug" element={<CollectionPublic />} />
+            {/* Isolated public 404 for portfolio/collection links — MUST stay
+                above the global catch-all so a broken link never leaks the acervo. */}
+            <Route path="/c/*" element={<PublicPortfolio404 />} />
+            <Route path="/portfolio/*" element={<PublicPortfolio404 />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
