@@ -12,8 +12,16 @@ import CollectionPublic from "./pages/CollectionPublic";
 import NotFound from "./pages/NotFound";
 import PublicPortfolio404 from "./components/PublicPortfolio404";
 import OfflineIndicator from "./components/OfflineIndicator";
+import { AuthProvider } from "@/hooks/useAuth";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 30_000,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
