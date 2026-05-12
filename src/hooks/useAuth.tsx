@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -25,7 +25,26 @@ export interface UserProfile {
   updated_at: string;
 }
 
-export function useAuth() {
+interface AuthContextValue {
+  user: User | null;
+  session: Session | null;
+  profile: UserProfile | null;
+  roles: UserRole[];
+  loading: boolean;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  isModerator: boolean;
+  signUp: (email: string, password: string, displayName: string, inviteCode: string) => Promise<any>;
+  signIn: (email: string, password: string) => Promise<any>;
+  signOut: () => Promise<{ error: any }>;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<{ error: any }>;
+  fetchUserData: (userId: string) => Promise<void>;
+  refreshProfile: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -38,57 +57,64 @@ export function useAuth() {
 
   const fetchUserData = useCallback(async (userId: string) => {
     try {
-      // Fetch profile
       const { data: profileData } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
-      
+
       if (profileData) {
-        setProfile(profileData as UserProfile);
+        setProfile((prev) => {
+          // Deep equality check to avoid unnecessary re-renders
+          if (prev && JSON.stringify(prev) === JSON.stringify(profileData)) return prev;
+          return profileData as UserProfile;
+        });
       }
 
-      // Fetch roles
       const { data: rolesData } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId);
-      
+
       if (rolesData) {
-        setRoles(rolesData.map(r => r.role as UserRole));
+        const next = rolesData.map((r) => r.role as UserRole);
+        setRoles((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
       }
+
+      console.log('[OWNER_SYNC]', {
+        userId,
+        profileLoaded: !!profileData,
+        roles: (rolesData || []).map((r) => r.role),
+      });
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
   }, []);
 
-  useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Defer Supabase calls with setTimeout
-        if (session?.user) {
-          setTimeout(() => {
-            fetchUserData(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-          setRoles([]);
-        }
-        setLoading(false);
-      }
-    );
+  const refreshProfile = useCallback(async () => {
+    if (!user) return;
+    await fetchUserData(user.id);
+  }, [user, fetchUserData]);
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserData(session.user.id);
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      setSession((prev) => (prev?.access_token === newSession?.access_token ? prev : newSession));
+      setUser((prev) => (prev?.id === newSession?.user?.id ? prev : newSession?.user ?? null));
+
+      if (newSession?.user) {
+        setTimeout(() => fetchUserData(newSession.user.id), 0);
+      } else {
+        setProfile(null);
+        setRoles([]);
+      }
+      setLoading(false);
+    });
+
+    supabase.auth.getSession().then(({ data: { session: existing } }) => {
+      setSession(existing);
+      setUser(existing?.user ?? null);
+      if (existing?.user) {
+        fetchUserData(existing.user.id);
       }
       setLoading(false);
     });
@@ -97,8 +123,6 @@ export function useAuth() {
   }, [fetchUserData]);
 
   const signUp = async (email: string, password: string, displayName: string, inviteCode: string) => {
-    // If an invite code was provided, validate it. Admin role assignment is
-    // handled server-side via a database trigger based on the user's email.
     const hasInviteCode = !!inviteCode && inviteCode.trim().length > 0;
 
     if (hasInviteCode) {
@@ -115,14 +139,11 @@ export function useAuth() {
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: {
-          display_name: displayName
-        }
-      }
+        data: { display_name: displayName },
+      },
     });
 
     if (!error && data.user && hasInviteCode) {
-      // Server-side function uses auth.uid() — no need to pass user id.
       await supabase.rpc('use_invite_code', { _code: inviteCode });
     }
 
@@ -130,19 +151,15 @@ export function useAuth() {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (!error && data.user) {
-      // Check if user is banned
       const { data: profileData } = await supabase
         .from('profiles')
         .select('status')
         .eq('id', data.user.id)
         .single();
-      
+
       if (profileData?.status === 'banned') {
         await supabase.auth.signOut();
         return { error: { message: 'Sua conta foi banida. Entre em contato com o administrador.' } };
@@ -167,20 +184,17 @@ export function useAuth() {
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user) return { error: { message: 'Usuário não autenticado' } };
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', user.id);
+    const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
 
     if (!error) {
-      setProfile(prev => prev ? { ...prev, ...updates } : null);
+      setProfile((prev) => (prev ? { ...prev, ...updates } : null));
       toast.success('Perfil atualizado!');
     }
 
     return { error };
   };
 
-  return {
+  const value: AuthContextValue = {
     user,
     session,
     profile,
@@ -193,6 +207,17 @@ export function useAuth() {
     signIn,
     signOut,
     updateProfile,
-    fetchUserData
+    fetchUserData,
+    refreshProfile,
   };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error('useAuth must be used within <AuthProvider>. Wrap your app in App.tsx.');
+  }
+  return ctx;
 }
