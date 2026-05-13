@@ -3,6 +3,7 @@ import { Check, Maximize2, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import type { UserPromptOption } from '@/hooks/usePortfolio';
+import { expandSearchTerms } from '@/lib/searchTranslations';
 
 interface Props {
   prompts: UserPromptOption[];
@@ -18,7 +19,7 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
   const [debouncedTerm, setDebouncedTerm] = useState('');
 
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedTerm(searchTerm.trim().toLowerCase()), 200);
+    const t = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 200);
     return () => clearTimeout(t);
   }, [searchTerm]);
 
@@ -34,20 +35,34 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
   const filteredImages = useMemo(() => {
     if (!prompts) return [];
     if (!debouncedTerm) return prompts;
+    // Mirror the acervo search engine (see Index.tsx): cross-language term
+    // expansion + accent-insensitive word-boundary match across the same
+    // user-meaningful fields.
+    const expandedTerms = expandSearchTerms(debouncedTerm);
+    const normalize = (text: string) =>
+      text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return prompts.filter((image) => {
-      const haystack = [image.title, image.category, ...(image.tags || [])]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-      return haystack.includes(debouncedTerm);
+      const fields = [
+        image.title || '',
+        image.description || '',
+        image.content || '',
+        (image.tags || []).join(' '),
+      ];
+      const haystack = normalize(fields.join(' '));
+      return expandedTerms.some((term) => {
+        if (!term) return false;
+        const re = new RegExp(`\\b${escapeRegex(term)}\\b`, 'i');
+        return re.test(haystack);
+      });
     });
   }, [prompts, debouncedTerm]);
 
   useEffect(() => {
-    console.log('[PortfolioSearch]', {
-      totalImages: prompts?.length,
-      filteredImages: filteredImages?.length,
+    console.log('[SEARCH_COMPARE]', {
       searchTerm: debouncedTerm,
+      portfolioDataset: prompts?.length ?? 0,
+      portfolioResults: filteredImages?.length ?? 0,
     });
   }, [prompts, filteredImages, debouncedTerm]);
 

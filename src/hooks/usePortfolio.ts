@@ -25,6 +25,8 @@ export interface UserPromptOption {
   image_url: string | null;
   category: string;
   tags: string[];
+  description?: string | null;
+  content?: string | null;
 }
 
 export type PortfolioOrder = Tables<'portfolio_orders'>;
@@ -44,15 +46,14 @@ export function usePortfolio(userId?: string, isAdmin: boolean = false) {
     setLoading(true);
     try {
       // Every portfolio can include approved images from the full public acervo.
-      let promptQuery = supabase
+      // Reuse the same dataset as the public acervo: every approved prompt
+      // with an image, no hidden limits beyond Supabase's 1000 row default.
+      const { data: promptData, error: promptErr } = await supabase
         .from('prompts')
-        .select('id, title, image_url, category, tags')
+        .select('id, title, image_url, category, tags, description, content')
         .eq('status', 'approved')
         .not('image_url', 'is', null)
-        .limit(500)
         .order('created_at', { ascending: false });
-
-      const { data: promptData, error: promptErr } = await promptQuery;
       if (promptErr) throw promptErr;
       setUserPrompts(
         (promptData || []).map((p: any) => ({
@@ -61,8 +62,11 @@ export function usePortfolio(userId?: string, isAdmin: boolean = false) {
           image_url: p.image_url,
           category: p.category,
           tags: p.tags || [],
+          description: p.description ?? null,
+          content: p.content ?? null,
         }))
       );
+      console.log('[SEARCH_COMPARE] portfolio dataset loaded', { count: promptData?.length ?? 0 });
 
       // Load existing portfolio
       const { data: portfolioData } = await supabase
