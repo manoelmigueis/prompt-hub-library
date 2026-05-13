@@ -303,3 +303,16 @@ export async function fetchPortfolioOrders(ownerUserId: string): Promise<Portfol
   if (error) throw error;
   return (data || []) as PortfolioOrder[];
 }
+
+export async function updatePortfolioOrder(
+  id: string,
+  updates: Partial<Pick<PortfolioOrder, 'status' | 'completed_image_indexes' | 'archived_at'>>,
+) {
+  const { error } = await supabase.from('portfolio_orders').update(updates).eq('id', id);
+  if (error) throw error;
+}
+
+export async function deletePortfolioOrder(id: string) {
+  const { error } = await supabase.from('portfolio_orders').delete().eq('id', id);
+  if (error) throw error;
+}

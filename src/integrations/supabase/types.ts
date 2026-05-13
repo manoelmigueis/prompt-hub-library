@@ -256,6 +256,8 @@ export type Database = {
       }
       portfolio_orders: {
         Row: {
+          archived_at: string | null
+          completed_image_indexes: number[]
           created_at: string
           customer_email: string | null
           customer_name: string | null
@@ -270,6 +272,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archived_at?: string | null
+          completed_image_indexes?: number[]
           created_at?: string
           customer_email?: string | null
           customer_name?: string | null
@@ -284,6 +288,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archived_at?: string | null
+          completed_image_indexes?: number[]
           created_at?: string
           customer_email?: string | null
           customer_name?: string | null
