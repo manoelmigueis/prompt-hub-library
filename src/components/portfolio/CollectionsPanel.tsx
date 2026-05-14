@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, Copy, Trash2, Pencil, Link2, Image as ImageIcon, Loader2, X, Search, Upload } from 'lucide-react';
+import { Plus, Copy, Trash2, Pencil, Link2, Image as ImageIcon, Loader2, X, Search, Upload, Eye } from 'lucide-react';
+import { expandSearchTerms } from '@/lib/searchTranslations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -118,6 +119,21 @@ export function CollectionsPanel({ userId, username, prompts }: Props) {
                 <div className="flex flex-wrap gap-1 mt-3">
                   <Button size="sm" variant="outline" className="h-8 gap-1 text-xs" onClick={() => setEditing(c)}>
                     <Pencil className="w-3 h-3" /> Editar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 gap-1 text-xs"
+                    disabled={!username}
+                    onClick={() => {
+                      if (!username) {
+                        toast.error('Defina seu nome de usuário acima para visualizar como cliente.');
+                        return;
+                      }
+                      window.open(`/ensaio/${username}/${c.slug}`, '_blank', 'noopener,noreferrer');
+                    }}
+                  >
+                    <Eye className="w-3 h-3" /> Ver como cliente
                   </Button>
                   <Button size="sm" variant="outline" className="h-8 gap-1 text-xs" onClick={() => handleCopyLink(c)}>
                     <Link2 className="w-3 h-3" /> Link
@@ -245,15 +261,38 @@ function CollectionEditorModal({
   }, [editing, fetchCollectionImages]);
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = search.trim();
     if (!q) return prompts;
-    return prompts.filter((p) =>
-      [p.title, p.category, ...(p.tags || [])]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase()
-        .includes(q)
-    );
+    // Mirror the acervo / portfolio search engine: cross-language term
+    // expansion + accent-insensitive word-boundary match across the same
+    // user-meaningful fields (title, description, content, category, tags).
+    const expandedTerms = expandSearchTerms(q);
+    const normalize = (text: string) =>
+      text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const result = prompts.filter((p) => {
+      const fields = [
+        p.title || '',
+        (p as any).description || '',
+        (p as any).content || '',
+        (p as any).category || '',
+        (p.tags || []).join(' '),
+      ];
+      const haystack = normalize(fields.join(' '));
+      return expandedTerms.some((term) => {
+        if (!term) return false;
+        const re = new RegExp(`\\b${escapeRegex(normalize(term))}\\b`, 'i');
+        return re.test(haystack);
+      });
+    });
+    console.log('[COLLECTION_SEARCH]', {
+      searchTerm: q,
+      normalizedSearch: normalize(q),
+      expandedTerms,
+      acervoDataset: prompts.length,
+      collectionResults: result.length,
+    });
+    return result;
   }, [prompts, search]);
 
   const toggle = (id: string) => {
