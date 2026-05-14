@@ -54,6 +54,14 @@ export default function CollectionPublic() {
 
   const { data, prompts } = payload;
 
+  console.log('[ESSAY_RENDERER]', {
+    slug,
+    renderer: 'PortfolioRenderer',
+    imageCount: prompts.length,
+    orderingEnabled: !!data.portfolio_id,
+    fullscreenEnabled: true,
+  });
+
   return (
     <PortfolioRenderer
       profile={{

@@ -38,9 +38,12 @@ const App = () => (
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/portfolio/:username" element={<PortfolioPublic />} />
             <Route path="/c/:username/:slug" element={<CollectionPublic />} />
+            {/* Pretty alias — same renderer, same data. */}
+            <Route path="/ensaio/:username/:slug" element={<CollectionPublic />} />
             {/* Isolated public 404 for portfolio/collection links — MUST stay
                 above the global catch-all so a broken link never leaks the acervo. */}
             <Route path="/c/*" element={<PublicPortfolio404 />} />
+            <Route path="/ensaio/*" element={<PublicPortfolio404 />} />
             <Route path="/portfolio/*" element={<PublicPortfolio404 />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

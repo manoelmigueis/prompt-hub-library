@@ -47,7 +47,7 @@ export function CollectionsPanel({ userId, username, prompts }: Props) {
       toast.error('Defina seu nome de usuário acima para gerar links públicos.');
       return;
     }
-    const url = `${window.location.origin}/c/${username}/${c.slug}`;
+    const url = `${window.location.origin}/ensaio/${username}/${c.slug}`;
     navigator.clipboard.writeText(url);
     toast.success('Link copiado!');
   };
