@@ -261,15 +261,38 @@ function CollectionEditorModal({
   }, [editing, fetchCollectionImages]);
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = search.trim();
     if (!q) return prompts;
-    return prompts.filter((p) =>
-      [p.title, p.category, ...(p.tags || [])]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase()
-        .includes(q)
-    );
+    // Mirror the acervo / portfolio search engine: cross-language term
+    // expansion + accent-insensitive word-boundary match across the same
+    // user-meaningful fields (title, description, content, category, tags).
+    const expandedTerms = expandSearchTerms(q);
+    const normalize = (text: string) =>
+      text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const result = prompts.filter((p) => {
+      const fields = [
+        p.title || '',
+        (p as any).description || '',
+        (p as any).content || '',
+        (p as any).category || '',
+        (p.tags || []).join(' '),
+      ];
+      const haystack = normalize(fields.join(' '));
+      return expandedTerms.some((term) => {
+        if (!term) return false;
+        const re = new RegExp(`\\b${escapeRegex(normalize(term))}\\b`, 'i');
+        return re.test(haystack);
+      });
+    });
+    console.log('[COLLECTION_SEARCH]', {
+      searchTerm: q,
+      normalizedSearch: normalize(q),
+      expandedTerms,
+      acervoDataset: prompts.length,
+      collectionResults: result.length,
+    });
+    return result;
   }, [prompts, search]);
 
   const toggle = (id: string) => {
