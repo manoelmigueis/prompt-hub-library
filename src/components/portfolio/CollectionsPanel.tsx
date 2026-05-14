@@ -120,6 +120,21 @@ export function CollectionsPanel({ userId, username, prompts }: Props) {
                   <Button size="sm" variant="outline" className="h-8 gap-1 text-xs" onClick={() => setEditing(c)}>
                     <Pencil className="w-3 h-3" /> Editar
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 gap-1 text-xs"
+                    disabled={!username}
+                    onClick={() => {
+                      if (!username) {
+                        toast.error('Defina seu nome de usuário acima para visualizar como cliente.');
+                        return;
+                      }
+                      window.open(`/ensaio/${username}/${c.slug}`, '_blank', 'noopener,noreferrer');
+                    }}
+                  >
+                    <Eye className="w-3 h-3" /> Ver como cliente
+                  </Button>
                   <Button size="sm" variant="outline" className="h-8 gap-1 text-xs" onClick={() => handleCopyLink(c)}>
                     <Link2 className="w-3 h-3" /> Link
                   </Button>
