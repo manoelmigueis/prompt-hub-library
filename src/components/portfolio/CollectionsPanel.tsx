@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, Copy, Trash2, Pencil, Link2, Image as ImageIcon, Loader2, X, Search, Upload } from 'lucide-react';
+import { Plus, Copy, Trash2, Pencil, Link2, Image as ImageIcon, Loader2, X, Search, Upload, Eye } from 'lucide-react';
+import { expandSearchTerms } from '@/lib/searchTranslations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
