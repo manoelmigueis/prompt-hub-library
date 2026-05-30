@@ -164,10 +164,10 @@ export default function Index() {
     const results = filtered.filter(p => {
       // Only search in user-meaningful content fields. Excluding category/author
       // prevents whole categories from matching when the user types a term.
+      // Content is excluded — it's lazy-loaded and not present on list rows.
       const searchableFields = [
         p.title || '',
         p.description || '',
-        p.content || '',
         (p.tags || []).join(' '),
       ];
       const searchableText = normalize(searchableFields.join(' '));
