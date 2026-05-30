@@ -84,7 +84,11 @@ export default function Index() {
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery]);
-  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
+  const [selectedPromptId, setSelectedPromptId] = useState<string | null>(null);
+  const selectedPrompt = useMemo(
+    () => (selectedPromptId ? prompts.find(p => p.id === selectedPromptId) || null : null),
+    [selectedPromptId, prompts]
+  );
   
   // Modal state
   const [showPromptModal, setShowPromptModal] = useState(false);
