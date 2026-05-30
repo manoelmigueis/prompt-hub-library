@@ -113,13 +113,15 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
         <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-lg overflow-hidden">
           {prompt.imageUrl ? (
             <img 
-              src={prompt.imageUrl} 
+              src={thumbUrl} 
               alt={prompt.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
               draggable={false}
               onContextMenu={(e) => e.preventDefault()}
               loading="lazy"
+              decoding="async"
             />
+
           ) : (
             <div className="w-full h-full bg-primary/20 flex items-center justify-center">
               <span className="text-2xl opacity-50">📷</span>
