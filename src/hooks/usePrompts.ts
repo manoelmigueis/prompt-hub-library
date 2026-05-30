@@ -89,6 +89,24 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     fetchPrompts();
   }, [fetchPrompts]);
 
+  // Lazy-load prompt content on demand (e.g. when modal opens or user copies).
+  const ensurePromptContent = useCallback(async (id: string): Promise<string> => {
+    const existing = prompts.find(p => p.id === id);
+    if (existing && existing.content) return existing.content;
+    const { data, error } = await supabase
+      .from('prompts')
+      .select('content')
+      .eq('id', id)
+      .single();
+    if (error || !data) {
+      console.error('[ensurePromptContent] Error:', error);
+      return '';
+    }
+    const content = (data as any).content || '';
+    setPrompts(prev => prev.map(p => p.id === id ? { ...p, content } : p));
+    return content;
+  }, [prompts]);
+
   const getAutoApprove = async (): Promise<boolean> => {
     try {
       const { data } = await supabase
