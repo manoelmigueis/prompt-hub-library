@@ -336,8 +336,9 @@ export default function Index() {
               isAdmin={isAdmin}
               isSearching={isSearching}
               hasSearchQuery={searchQuery.trim().length > 0 || debouncedSearch.trim().length > 0}
-              onEditPrompt={(prompt) => {
-                setEditingPrompt(prompt);
+              onEditPrompt={async (prompt) => {
+                const content = await ensurePromptContent(prompt.id);
+                setEditingPrompt({ ...prompt, content });
                 setShowEditModal(true);
               }}
             />
