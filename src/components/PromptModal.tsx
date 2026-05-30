@@ -127,7 +127,13 @@ export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavor
             <div className="flex-1">
               <h3 className="font-display font-bold text-xs uppercase mb-2 text-muted-foreground">PROMPT COMPLETO</h3>
               <div className="bg-muted rounded-lg p-3 border border-border max-h-[200px] overflow-y-auto">
-                <p className="text-xs leading-relaxed whitespace-pre-wrap font-mono">{prompt.content}</p>
+                {prompt.content ? (
+                  <p className="text-xs leading-relaxed whitespace-pre-wrap font-mono">{prompt.content}</p>
+                ) : (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Carregando prompt...
+                  </div>
+                )}
               </div>
             </div>
 
