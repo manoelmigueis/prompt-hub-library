@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 interface PromptCardProps {
   prompt: Prompt;
   onClick: () => void;
-  onCopy: (id: string) => void;
+  onCopy: (id: string) => void | Promise<void>;
   isFavorite?: boolean;
   onToggleFavorite?: (id: string) => void;
   isAdmin?: boolean;
