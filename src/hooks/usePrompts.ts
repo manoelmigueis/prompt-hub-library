@@ -21,9 +21,11 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     try {
       setLoading(true);
       
+      // Lightweight list: skip heavy `content` column (can be 2-5KB per row).
+      // Content is fetched lazily via ensurePromptContent when needed.
       let query = supabase
         .from('prompts')
-        .select('*')
+        .select('id,title,description,image_url,category,status,is_featured,tags,view_count,copy_count,created_at,updated_at,user_id,author_name,author_instagram')
         .order('created_at', { ascending: false });
 
       const { data, error } = await query;
@@ -58,8 +60,8 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         return {
           id: p.id,
           title: p.title,
-          description: (p as any).description || (p.content.substring(0, 100) + (p.content.length > 100 ? '...' : '')),
-          content: p.content,
+          description: (p as any).description || '',
+          content: '', // lazy-loaded via ensurePromptContent
           imageUrl: p.image_url || undefined,
           author: authorProfile?.display_name || p.author_name || 'Anônimo',
           authorHandle: authorProfile?.instagram ? `@${authorProfile.instagram}` : (p.author_instagram ? `@${p.author_instagram}` : undefined),
@@ -86,6 +88,24 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
   useEffect(() => {
     fetchPrompts();
   }, [fetchPrompts]);
+
+  // Lazy-load prompt content on demand (e.g. when modal opens or user copies).
+  const ensurePromptContent = useCallback(async (id: string): Promise<string> => {
+    const existing = prompts.find(p => p.id === id);
+    if (existing && existing.content) return existing.content;
+    const { data, error } = await supabase
+      .from('prompts')
+      .select('content')
+      .eq('id', id)
+      .single();
+    if (error || !data) {
+      console.error('[ensurePromptContent] Error:', error);
+      return '';
+    }
+    const content = (data as any).content || '';
+    setPrompts(prev => prev.map(p => p.id === id ? { ...p, content } : p));
+    return content;
+  }, [prompts]);
 
   const getAutoApprove = async (): Promise<boolean> => {
     try {
@@ -297,5 +317,6 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     incrementCopy,
     getAutoApprove,
     setAutoApprove,
+    ensurePromptContent,
   };
 }

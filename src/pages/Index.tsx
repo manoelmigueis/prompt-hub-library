@@ -45,6 +45,7 @@ export default function Index() {
     getAutoApprove,
     setAutoApprove,
     fetchPrompts,
+    ensurePromptContent,
   } = usePrompts(user?.id, isAdmin);
 
   const {
@@ -83,7 +84,11 @@ export default function Index() {
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery]);
-  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
+  const [selectedPromptId, setSelectedPromptId] = useState<string | null>(null);
+  const selectedPrompt = useMemo(
+    () => (selectedPromptId ? prompts.find(p => p.id === selectedPromptId) || null : null),
+    [selectedPromptId, prompts]
+  );
   
   // Modal state
   const [showPromptModal, setShowPromptModal] = useState(false);
@@ -159,10 +164,10 @@ export default function Index() {
     const results = filtered.filter(p => {
       // Only search in user-meaningful content fields. Excluding category/author
       // prevents whole categories from matching when the user types a term.
+      // Content is excluded — it's lazy-loaded and not present on list rows.
       const searchableFields = [
         p.title || '',
         p.description || '',
-        p.content || '',
         (p.tags || []).join(' '),
       ];
       const searchableText = normalize(searchableFields.join(' '));
@@ -200,12 +205,22 @@ export default function Index() {
   };
   
   const handlePromptClick = (prompt: Prompt) => {
-    setSelectedPrompt(prompt);
+    setSelectedPromptId(prompt.id);
     setShowPromptModal(true);
     incrementView(prompt.id);
+    // Pre-fetch content so modal renders it without delay.
+    ensurePromptContent(prompt.id);
   };
 
-  const handleCopyPrompt = (id: string) => {
+  const handleCopyPrompt = async (id: string) => {
+    const content = await ensurePromptContent(id);
+    if (content) {
+      try {
+        await navigator.clipboard.writeText(content);
+      } catch (err) {
+        console.error('[clipboard] write failed:', err);
+      }
+    }
     incrementCopy(id);
   };
   
@@ -321,8 +336,9 @@ export default function Index() {
               isAdmin={isAdmin}
               isSearching={isSearching}
               hasSearchQuery={searchQuery.trim().length > 0 || debouncedSearch.trim().length > 0}
-              onEditPrompt={(prompt) => {
-                setEditingPrompt(prompt);
+              onEditPrompt={async (prompt) => {
+                const content = await ensurePromptContent(prompt.id);
+                setEditingPrompt({ ...prompt, content });
                 setShowEditModal(true);
               }}
             />

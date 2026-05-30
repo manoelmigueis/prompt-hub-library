@@ -1,13 +1,15 @@
 import { Prompt } from '@/types/prompt';
 import { PromptCard } from './PromptCard';
 import { Camera, LayoutGrid, List, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+
+const PAGE_SIZE = 24;
 
 interface PromptGridProps {
   prompts: Prompt[];
   onPromptClick: (prompt: Prompt) => void;
-  onCopyPrompt: (id: string) => void;
+  onCopyPrompt: (id: string) => void | Promise<void>;
   isFavorite: (id: string) => boolean;
   onToggleFavorite: (id: string) => void;
   isAdmin?: boolean;
@@ -18,6 +20,36 @@ interface PromptGridProps {
 
 export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, onToggleFavorite, isAdmin, onEditPrompt, isSearching = false, hasSearchQuery = false }: PromptGridProps) {
   const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Reset pagination when the prompt list changes (search, filter, etc.).
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [prompts]);
+
+  const visiblePrompts = useMemo(
+    () => prompts.slice(0, visibleCount),
+    [prompts, visibleCount]
+  );
+  const hasMore = visibleCount < prompts.length;
+
+  // Infinite scroll via IntersectionObserver on a sentinel below the grid.
+  useEffect(() => {
+    if (!hasMore) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some(e => e.isIntersecting)) {
+          setVisibleCount(c => Math.min(c + PAGE_SIZE, prompts.length));
+        }
+      },
+      { rootMargin: '600px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, prompts.length]);
 
   if (isSearching && hasSearchQuery) {
     return (
@@ -101,7 +133,7 @@ export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, o
             ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             : "flex flex-col gap-3"
         }>
-          {prompts.map((prompt, index) => (
+          {visiblePrompts.map((prompt, index) => (
             <div 
               key={prompt.id} 
               className={`slide-up stagger-${(index % 4) + 1}`}
@@ -120,6 +152,13 @@ export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, o
             </div>
           ))}
         </div>
+
+        {hasMore && (
+          <div ref={sentinelRef} className="flex items-center justify-center py-8 text-muted-foreground text-sm gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Carregando mais prompts...
+          </div>
+        )}
       </div>
     </section>
   );
