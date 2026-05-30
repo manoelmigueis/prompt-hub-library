@@ -21,9 +21,11 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     try {
       setLoading(true);
       
+      // Lightweight list: skip heavy `content` column (can be 2-5KB per row).
+      // Content is fetched lazily via ensurePromptContent when needed.
       let query = supabase
         .from('prompts')
-        .select('*')
+        .select('id,title,description,image_url,category,status,is_featured,tags,view_count,copy_count,created_at,updated_at,user_id,author_name,author_instagram')
         .order('created_at', { ascending: false });
 
       const { data, error } = await query;
