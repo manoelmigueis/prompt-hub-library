@@ -317,5 +317,6 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
     incrementCopy,
     getAutoApprove,
     setAutoApprove,
+    ensurePromptContent,
   };
 }
