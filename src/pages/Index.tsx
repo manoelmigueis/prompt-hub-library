@@ -205,12 +205,22 @@ export default function Index() {
   };
   
   const handlePromptClick = (prompt: Prompt) => {
-    setSelectedPrompt(prompt);
+    setSelectedPromptId(prompt.id);
     setShowPromptModal(true);
     incrementView(prompt.id);
+    // Pre-fetch content so modal renders it without delay.
+    ensurePromptContent(prompt.id);
   };
 
-  const handleCopyPrompt = (id: string) => {
+  const handleCopyPrompt = async (id: string) => {
+    const content = await ensurePromptContent(id);
+    if (content) {
+      try {
+        await navigator.clipboard.writeText(content);
+      } catch (err) {
+        console.error('[clipboard] write failed:', err);
+      }
+    }
     incrementCopy(id);
   };
   
