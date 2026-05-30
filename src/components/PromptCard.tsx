@@ -20,6 +20,18 @@ interface PromptCardProps {
 export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavorite, isAdmin, onEdit, layout = 'grid' }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  // Serve a small thumbnail via Supabase Storage render transform.
+  // Original images are 1-3MB — thumbs are ~30-80KB, drastically reducing load time.
+  const buildThumb = (url: string | undefined, width: number): string | undefined => {
+    if (!url) return url;
+    if (!url.includes('/storage/v1/object/public/')) return url;
+    const rendered = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+    const sep = rendered.includes('?') ? '&' : '?';
+    return `${rendered}${sep}width=${width}&quality=70&resize=cover`;
+  };
+  const thumbUrl = buildThumb(prompt.imageUrl, layout === 'list' ? 200 : 600);
+
   
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
