@@ -17,16 +17,6 @@ interface PromptGridProps {
   isSearching?: boolean;
   hasSearchQuery?: boolean;
 }
-  prompts: Prompt[];
-  onPromptClick: (prompt: Prompt) => void;
-  onCopyPrompt: (id: string) => void;
-  isFavorite: (id: string) => boolean;
-  onToggleFavorite: (id: string) => void;
-  isAdmin?: boolean;
-  onEditPrompt?: (prompt: Prompt) => void;
-  isSearching?: boolean;
-  hasSearchQuery?: boolean;
-}
 
 export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, onToggleFavorite, isAdmin, onEditPrompt, isSearching = false, hasSearchQuery = false }: PromptGridProps) {
   const [view, setView] = useState<'grid' | 'list'>('grid');
