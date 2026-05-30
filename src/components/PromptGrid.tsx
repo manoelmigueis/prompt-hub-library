@@ -20,6 +20,36 @@ interface PromptGridProps {
 
 export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, onToggleFavorite, isAdmin, onEditPrompt, isSearching = false, hasSearchQuery = false }: PromptGridProps) {
   const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Reset pagination when the prompt list changes (search, filter, etc.).
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [prompts]);
+
+  const visiblePrompts = useMemo(
+    () => prompts.slice(0, visibleCount),
+    [prompts, visibleCount]
+  );
+  const hasMore = visibleCount < prompts.length;
+
+  // Infinite scroll via IntersectionObserver on a sentinel below the grid.
+  useEffect(() => {
+    if (!hasMore) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some(e => e.isIntersecting)) {
+          setVisibleCount(c => Math.min(c + PAGE_SIZE, prompts.length));
+        }
+      },
+      { rootMargin: '600px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, prompts.length]);
 
   if (isSearching && hasSearchQuery) {
     return (
