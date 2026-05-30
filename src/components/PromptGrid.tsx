@@ -1,10 +1,22 @@
 import { Prompt } from '@/types/prompt';
 import { PromptCard } from './PromptCard';
 import { Camera, LayoutGrid, List, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
+const PAGE_SIZE = 24;
+
 interface PromptGridProps {
+  prompts: Prompt[];
+  onPromptClick: (prompt: Prompt) => void;
+  onCopyPrompt: (id: string) => void | Promise<void>;
+  isFavorite: (id: string) => boolean;
+  onToggleFavorite: (id: string) => void;
+  isAdmin?: boolean;
+  onEditPrompt?: (prompt: Prompt) => void;
+  isSearching?: boolean;
+  hasSearchQuery?: boolean;
+}
   prompts: Prompt[];
   onPromptClick: (prompt: Prompt) => void;
   onCopyPrompt: (id: string) => void;
