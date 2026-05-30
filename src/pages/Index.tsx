@@ -45,6 +45,7 @@ export default function Index() {
     getAutoApprove,
     setAutoApprove,
     fetchPrompts,
+    ensurePromptContent,
   } = usePrompts(user?.id, isAdmin);
 
   const {
