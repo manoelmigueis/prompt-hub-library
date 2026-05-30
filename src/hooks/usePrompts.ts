@@ -60,8 +60,8 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
         return {
           id: p.id,
           title: p.title,
-          description: (p as any).description || (p.content.substring(0, 100) + (p.content.length > 100 ? '...' : '')),
-          content: p.content,
+          description: (p as any).description || '',
+          content: '', // lazy-loaded via ensurePromptContent
           imageUrl: p.image_url || undefined,
           author: authorProfile?.display_name || p.author_name || 'Anônimo',
           authorHandle: authorProfile?.instagram ? `@${authorProfile.instagram}` : (p.author_instagram ? `@${p.author_instagram}` : undefined),
