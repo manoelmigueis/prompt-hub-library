@@ -20,6 +20,18 @@ interface PromptCardProps {
 export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavorite, isAdmin, onEdit, layout = 'grid' }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  // Serve a small thumbnail via Supabase Storage render transform.
+  // Original images are 1-3MB — thumbs are ~30-80KB, drastically reducing load time.
+  const buildThumb = (url: string | undefined, width: number): string | undefined => {
+    if (!url) return url;
+    if (!url.includes('/storage/v1/object/public/')) return url;
+    const rendered = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+    const sep = rendered.includes('?') ? '&' : '?';
+    return `${rendered}${sep}width=${width}&quality=70&resize=cover`;
+  };
+  const thumbUrl = buildThumb(prompt.imageUrl, layout === 'list' ? 200 : 600);
+
   
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -101,13 +113,15 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
         <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-lg overflow-hidden">
           {prompt.imageUrl ? (
             <img 
-              src={prompt.imageUrl} 
+              src={thumbUrl} 
               alt={prompt.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
               draggable={false}
               onContextMenu={(e) => e.preventDefault()}
               loading="lazy"
+              decoding="async"
             />
+
           ) : (
             <div className="w-full h-full bg-primary/20 flex items-center justify-center">
               <span className="text-2xl opacity-50">📷</span>
@@ -187,13 +201,15 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
       <div className="relative aspect-[4/5] overflow-hidden">
         {prompt.imageUrl ? (
           <img 
-            src={prompt.imageUrl} 
+            src={thumbUrl} 
             alt={prompt.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
             draggable={false}
             onContextMenu={(e) => e.preventDefault()}
             loading="lazy"
+            decoding="async"
           />
+
         ) : (
           <div className="w-full h-full bg-primary/20 flex items-center justify-center">
             <span className="text-5xl opacity-50">📷</span>
