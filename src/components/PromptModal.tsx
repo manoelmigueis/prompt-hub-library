@@ -13,7 +13,7 @@ interface PromptModalProps {
   onClose: () => void;
   isFavorite?: boolean;
   onToggleFavorite?: (id: string) => void;
-  onCopy?: (id: string) => void;
+  onCopy?: (id: string) => void | Promise<void>;
   isAdmin?: boolean;
 }
 
@@ -25,10 +25,12 @@ export function PromptModal({ prompt, isOpen, onClose, isFavorite, onToggleFavor
 
   const categoryLabel = CATEGORIES.find((c) => c.id === prompt.category)?.labelPt || prompt.category;
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(prompt.content);
+  const handleCopy = async () => {
+    await onCopy?.(prompt.id);
+    if (prompt.content) {
+      try { await navigator.clipboard.writeText(prompt.content); } catch {}
+    }
     setCopied(true);
-    onCopy?.(prompt.id);
     setTimeout(() => setCopied(false), 2000);
   };
 
