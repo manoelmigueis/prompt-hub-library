@@ -133,7 +133,7 @@ export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, o
             ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             : "flex flex-col gap-3"
         }>
-          {prompts.map((prompt, index) => (
+          {visiblePrompts.map((prompt, index) => (
             <div 
               key={prompt.id} 
               className={`slide-up stagger-${(index % 4) + 1}`}
@@ -152,6 +152,13 @@ export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, o
             </div>
           ))}
         </div>
+
+        {hasMore && (
+          <div ref={sentinelRef} className="flex items-center justify-center py-8 text-muted-foreground text-sm gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Carregando mais prompts...
+          </div>
+        )}
       </div>
     </section>
   );
