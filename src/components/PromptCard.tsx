@@ -33,11 +33,10 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
   const thumbUrl = buildThumb(prompt.imageUrl, layout === 'list' ? 200 : 600);
 
   
-  const handleCopy = (e: React.MouseEvent) => {
+  const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(prompt.content);
+    await onCopy(prompt.id);
     setCopied(true);
-    onCopy(prompt.id);
     setTimeout(() => setCopied(false), 2000);
   };
 
