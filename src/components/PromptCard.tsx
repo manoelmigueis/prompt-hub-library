@@ -23,21 +23,14 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
 
   // Serve a small thumbnail via Supabase Storage render transform.
   // Original images are 1-3MB — thumbs are ~30-80KB, drastically reducing load time.
-  // Use `resize=contain` so the full image is preserved (no server-side crop).
   const buildThumb = (url: string | undefined, width: number): string | undefined => {
     if (!url) return url;
     if (!url.includes('/storage/v1/object/public/')) return url;
     const rendered = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
     const sep = rendered.includes('?') ? '&' : '?';
-    return `${rendered}${sep}width=${width}&quality=70&resize=contain`;
+    return `${rendered}${sep}width=${width}&quality=70&resize=cover`;
   };
-  const isList = layout === 'list';
-  const thumbUrl = buildThumb(prompt.imageUrl, isList ? 200 : 480);
-  const thumbUrlSmall = buildThumb(prompt.imageUrl, isList ? 160 : 360);
-  const thumbUrlLarge = buildThumb(prompt.imageUrl, isList ? 280 : 720);
-  const srcSet = !isList && thumbUrlSmall && thumbUrl && thumbUrlLarge
-    ? `${thumbUrlSmall} 360w, ${thumbUrl} 480w, ${thumbUrlLarge} 720w`
-    : undefined;
+  const thumbUrl = buildThumb(prompt.imageUrl, layout === 'list' ? 200 : 600);
 
   
   const handleCopy = async (e: React.MouseEvent) => {
@@ -204,14 +197,12 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
       onClick={onClick}
     >
       {/* Image */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-muted/40">
+      <div className="relative aspect-[4/5] overflow-hidden">
         {prompt.imageUrl ? (
           <img 
-            src={thumbUrl}
-            srcSet={srcSet}
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 360px"
+            src={thumbUrl} 
             alt={prompt.title}
-            className="w-full h-full object-contain sm:object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
             draggable={false}
             onContextMenu={(e) => e.preventDefault()}
             loading="lazy"
