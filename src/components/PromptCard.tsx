@@ -28,7 +28,7 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
     if (!url.includes('/storage/v1/object/public/')) return url;
     const rendered = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
     const sep = rendered.includes('?') ? '&' : '?';
-    return `${rendered}${sep}width=${width}&quality=70&resize=cover`;
+    return `${rendered}${sep}width=${width}&quality=70&resize=contain`;
   };
   const thumbUrl = buildThumb(prompt.imageUrl, layout === 'list' ? 200 : 600);
 
