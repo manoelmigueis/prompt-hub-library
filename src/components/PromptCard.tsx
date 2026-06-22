@@ -197,12 +197,12 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
       onClick={onClick}
     >
       {/* Image */}
-      <div className="relative aspect-[4/5] overflow-hidden">
+      <div className="relative aspect-[4/5] overflow-hidden bg-zinc-950">
         {prompt.imageUrl ? (
           <img 
             src={thumbUrl} 
             alt={prompt.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
+            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
             draggable={false}
             onContextMenu={(e) => e.preventDefault()}
             loading="lazy"
