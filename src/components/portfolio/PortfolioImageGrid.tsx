@@ -132,7 +132,7 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
       </div>
 
       <div className="text-xs text-muted-foreground">
-        {filteredImages.length} de {prompts.length} {prompts.length === 1 ? 'imagem' : 'imagens'}
+        Mostrando {visibleImages.length} de {filteredImages.length} ({prompts.length} no acervo)
         {debouncedTerm && ` • busca: "${debouncedTerm}"`}
       </div>
 
@@ -142,8 +142,8 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
           <p className="text-sm text-muted-foreground mt-1">Tente outro termo de busca</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 transition-opacity">
-          {filteredImages.map((p) => {
+        <div className={cn('grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 transition-opacity', gridClassName)}>
+          {visibleImages.map((p) => {
         const isSelected = selectedSet.has(p.id);
         const disabled = !isSelected && selectedIds.length >= maxItems;
         return (
@@ -160,14 +160,16 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
           >
             {p.image_url ? (
               <img
-                src={p.image_url}
+                src={thumb(p.image_url) || undefined}
                 alt={p.title}
                 loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).style.display = 'none';
                 }}
               />
+
             ) : (
               <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground p-2 text-center">
                 {p.title}
