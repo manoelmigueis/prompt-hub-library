@@ -213,7 +213,8 @@ export default function Index() {
   };
 
   const handleCopyPrompt = async (id: string) => {
-    const content = await ensurePromptContent(id);
+    // Copy without replacing any item in the grid, preserving scroll position.
+    const content = await ensurePromptContent(id, false);
     if (content) {
       try {
         await navigator.clipboard.writeText(content);
