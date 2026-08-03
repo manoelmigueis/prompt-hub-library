@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Save, Copy, Eye, AlertCircle, Instagram, Twitter, Youtube, Globe, MessageCircle } from 'lucide-react';
+import { Loader2, Save, Copy, Eye, AlertCircle, Instagram, Twitter, Youtube, Globe, MessageCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { usePortfolio } from '@/hooks/usePortfolio';
