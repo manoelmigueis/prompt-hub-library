@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Prompt, PromptStatus, Category } from '@/types/prompt';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ interface CreatePromptData {
 export function usePrompts(userId?: string, isAdmin?: boolean) {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
+  const contentCacheRef = useRef(new Map<string, string>());
 
   const fetchPrompts = useCallback(async () => {
     try {
@@ -91,8 +92,8 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
 
   // Lazy-load prompt content on demand (e.g. when modal opens or user copies).
   const ensurePromptContent = useCallback(async (id: string): Promise<string> => {
-    const existing = prompts.find(p => p.id === id);
-    if (existing && existing.content) return existing.content;
+    const cached = contentCacheRef.current.get(id);
+    if (cached !== undefined) return cached;
     const { data, error } = await supabase
       .from('prompts')
       .select('content')
@@ -103,9 +104,11 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
       return '';
     }
     const content = (data as any).content || '';
-    setPrompts(prev => prev.map(p => p.id === id ? { ...p, content } : p));
+    // Keep lazy content outside the grid state. Replacing a prompt in the
+    // array here made the whole gallery render again while the user copied.
+    contentCacheRef.current.set(id, content);
     return content;
-  }, [prompts]);
+  }, []);
 
   const getAutoApprove = async (): Promise<boolean> => {
     try {
@@ -197,17 +200,13 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
   };
 
   const incrementView = async (promptId: string) => {
-    await supabase.rpc('increment_view_count', { prompt_id: promptId });
-    setPrompts(prev => prev.map(p => 
-      p.id === promptId ? { ...p, viewCount: p.viewCount + 1 } : p
-    ));
+    const { error } = await supabase.rpc('increment_view_count', { prompt_id: promptId });
+    if (error) console.error('Error incrementing view count:', error);
   };
 
   const incrementCopy = async (promptId: string) => {
-    await supabase.rpc('increment_copy_count', { prompt_id: promptId });
-    setPrompts(prev => prev.map(p => 
-      p.id === promptId ? { ...p, copyCount: p.copyCount + 1 } : p
-    ));
+    const { error } = await supabase.rpc('increment_copy_count', { prompt_id: promptId });
+    if (error) console.error('Error incrementing copy count:', error);
   };
 
   const updatePromptStatus = async (id: string, status: PromptStatus) => {
