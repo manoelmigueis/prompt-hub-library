@@ -74,13 +74,30 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
     });
   }, [prompts, debouncedTerm]);
 
+  // Reset pagination only when the search actually changes.
   useEffect(() => {
-    console.log('[SEARCH_COMPARE]', {
-      searchTerm: debouncedTerm,
-      portfolioDataset: prompts?.length ?? 0,
-      portfolioResults: filteredImages?.length ?? 0,
-    });
-  }, [prompts, filteredImages, debouncedTerm]);
+    setVisibleCount(PAGE_SIZE);
+  }, [debouncedTerm]);
+
+  const visibleImages = useMemo(() => filteredImages.slice(0, visibleCount), [filteredImages, visibleCount]);
+  const hasMore = visibleCount < filteredImages.length;
+
+  useEffect(() => {
+    if (!hasMore) return;
+    const node = sentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((c) => c + PAGE_SIZE);
+        }
+      },
+      { rootMargin: '600px' }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMore, filteredImages.length]);
+
 
   if (prompts.length === 0) {
     return (
