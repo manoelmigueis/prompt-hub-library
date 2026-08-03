@@ -94,6 +94,13 @@ export default function Portfolio() {
     if (coverId === id) setCoverId(null);
   };
 
+  const handleClearSelection = () => {
+    setSelectedIds([]);
+    setCoverId(null);
+    toast.success('Seleção limpa. Salve para aplicar no portfólio público.');
+  };
+
+
   const handleSaveUsername = async () => {
     if (!user) return;
     const clean = slugify(usernameInput);
