@@ -211,6 +211,13 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
       })}
         </div>
       )}
+
+      {hasMore && (
+        <div ref={sentinelRef} className="py-6 text-center text-xs text-muted-foreground">
+          Carregando mais imagens…
+        </div>
+      )}
+
       {expandedImage?.image_url && (
         <div
           role="dialog"
