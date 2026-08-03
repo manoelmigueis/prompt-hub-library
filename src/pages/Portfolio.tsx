@@ -128,10 +128,6 @@ export default function Portfolio() {
   };
 
   const handleSave = async () => {
-    if (selectedIds.length === 0) {
-      toast.error('Selecione pelo menos 1 imagem.');
-      return;
-    }
     await savePortfolio(selectedIds, {
       title: title || null,
       about: about || null,
@@ -241,7 +237,7 @@ export default function Portfolio() {
             onLogout={signOut}
           />
 
-          <main className="pt-20 pb-24 container mx-auto px-4 max-w-5xl">
+          <main className="pt-20 pb-24 container mx-auto px-4 max-w-7xl">
             <header className="mb-8">
               <h1 className="font-display text-4xl md:text-5xl tracking-wider mb-2">MEU PORTFÓLIO</h1>
               <p className="text-muted-foreground">

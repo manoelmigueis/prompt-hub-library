@@ -19,6 +19,14 @@ import { GripVertical, Star, X } from 'lucide-react';
 import type { UserPromptOption } from '@/hooks/usePortfolio';
 import { cn } from '@/lib/utils';
 
+const thumb = (url: string | null, width = 300) => {
+  if (!url) return url;
+  if (!url.includes('/storage/v1/object/public/')) return url;
+  const rendered = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+  const sep = rendered.includes('?') ? '&' : '?';
+  return `${rendered}${sep}width=${width}&quality=70&resize=contain`;
+};
+
 interface Props {
   prompts: UserPromptOption[];
   orderedIds: string[];
@@ -56,7 +64,7 @@ export function PortfolioSortableList({ prompts, orderedIds, coverPromptId, onRe
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={orderedIds} strategy={rectSortingStrategy}>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           {orderedPrompts.map((p) => (
             <SortableTile
               key={p.id}
@@ -101,7 +109,7 @@ function SortableTile({
       )}
     >
       {prompt.image_url ? (
-        <img src={prompt.image_url} alt={prompt.title} loading="lazy" className="w-full h-full object-cover" />
+        <img src={thumb(prompt.image_url) || undefined} alt={prompt.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
       ) : (
         <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">{prompt.title}</div>
       )}
