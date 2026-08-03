@@ -23,10 +23,17 @@ export function PromptGrid({ prompts, onPromptClick, onCopyPrompt, isFavorite, o
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  // Reset pagination when the prompt list changes (search, filter, etc.).
+  // Reset pagination only when the actual result set changes (search, filter),
+  // not when a prompt object is replaced in place (copy/view counters) — that
+  // used to reset the grid and bounce the page back to the top.
+  const resultSetKey = useMemo(
+    () => `${prompts.length}|${prompts[0]?.id ?? ''}|${prompts[prompts.length - 1]?.id ?? ''}`,
+    [prompts]
+  );
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [prompts]);
+  }, [resultSetKey]);
+
 
   const visiblePrompts = useMemo(
     () => prompts.slice(0, visibleCount),

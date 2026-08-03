@@ -1,6 +1,6 @@
 import { Prompt } from '@/types/prompt';
 import { Check, Copy, Download, Eye, Heart, Loader2, Pencil, User } from 'lucide-react';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +17,7 @@ interface PromptCardProps {
   layout?: 'grid' | 'list';
 }
 
-export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavorite, isAdmin, onEdit, layout = 'grid' }: PromptCardProps) {
+function PromptCardComponent({ prompt, onClick, onCopy, isFavorite, onToggleFavorite, isAdmin, onEdit, layout = 'grid' }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -314,3 +314,6 @@ export function PromptCard({ prompt, onClick, onCopy, isFavorite, onToggleFavori
     </article>
   );
 }
+
+
+export const PromptCard = memo(PromptCardComponent);
