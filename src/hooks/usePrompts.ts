@@ -91,9 +91,14 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
   }, [fetchPrompts]);
 
   // Lazy-load prompt content on demand (e.g. when modal opens or user copies).
-  const ensurePromptContent = useCallback(async (id: string): Promise<string> => {
+  const ensurePromptContent = useCallback(async (id: string, updateGridState = true): Promise<string> => {
     const cached = contentCacheRef.current.get(id);
-    if (cached !== undefined) return cached;
+    if (cached !== undefined) {
+      if (updateGridState) {
+        setPrompts(prev => prev.map(p => p.id === id && p.content !== cached ? { ...p, content: cached } : p));
+      }
+      return cached;
+    }
     const { data, error } = await supabase
       .from('prompts')
       .select('content')
@@ -104,9 +109,12 @@ export function usePrompts(userId?: string, isAdmin?: boolean) {
       return '';
     }
     const content = (data as any).content || '';
-    // Keep lazy content outside the grid state. Replacing a prompt in the
-    // array here made the whole gallery render again while the user copied.
     contentCacheRef.current.set(id, content);
+    // Copying reads from the cache without touching the gallery. Opening the
+    // detail modal can still populate the selected prompt when requested.
+    if (updateGridState) {
+      setPrompts(prev => prev.map(p => p.id === id ? { ...p, content } : p));
+    }
     return content;
   }, []);
 
