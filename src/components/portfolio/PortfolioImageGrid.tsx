@@ -1,22 +1,38 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Maximize2, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import type { UserPromptOption } from '@/hooks/usePortfolio';
 import { expandSearchTerms } from '@/lib/searchTranslations';
 
+const PAGE_SIZE = 36;
+
+// Serve a lightweight thumbnail via Supabase Storage render transform so
+// galleries with 300+ images stay fast.
+const thumb = (url: string | null, width = 400) => {
+  if (!url) return url;
+  if (!url.includes('/storage/v1/object/public/')) return url;
+  const rendered = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+  const sep = rendered.includes('?') ? '&' : '?';
+  return `${rendered}${sep}width=${width}&quality=70&resize=contain`;
+};
+
 interface Props {
   prompts: UserPromptOption[];
   selectedIds: string[];
   onToggle: (id: string) => void;
   maxItems?: number;
+  gridClassName?: string;
 }
 
-export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 40 }: Props) {
+export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 40, gridClassName }: Props) {
   const selectedSet = new Set(selectedIds);
   const [expandedImage, setExpandedImage] = useState<UserPromptOption | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 200);
