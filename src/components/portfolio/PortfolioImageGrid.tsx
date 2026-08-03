@@ -1,22 +1,38 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Maximize2, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import type { UserPromptOption } from '@/hooks/usePortfolio';
 import { expandSearchTerms } from '@/lib/searchTranslations';
 
+const PAGE_SIZE = 36;
+
+// Serve a lightweight thumbnail via Supabase Storage render transform so
+// galleries with 300+ images stay fast.
+const thumb = (url: string | null, width = 400) => {
+  if (!url) return url;
+  if (!url.includes('/storage/v1/object/public/')) return url;
+  const rendered = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+  const sep = rendered.includes('?') ? '&' : '?';
+  return `${rendered}${sep}width=${width}&quality=70&resize=contain`;
+};
+
 interface Props {
   prompts: UserPromptOption[];
   selectedIds: string[];
   onToggle: (id: string) => void;
   maxItems?: number;
+  gridClassName?: string;
 }
 
-export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 40 }: Props) {
+export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 40, gridClassName }: Props) {
   const selectedSet = new Set(selectedIds);
   const [expandedImage, setExpandedImage] = useState<UserPromptOption | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 200);
@@ -58,13 +74,30 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
     });
   }, [prompts, debouncedTerm]);
 
+  // Reset pagination only when the search actually changes.
   useEffect(() => {
-    console.log('[SEARCH_COMPARE]', {
-      searchTerm: debouncedTerm,
-      portfolioDataset: prompts?.length ?? 0,
-      portfolioResults: filteredImages?.length ?? 0,
-    });
-  }, [prompts, filteredImages, debouncedTerm]);
+    setVisibleCount(PAGE_SIZE);
+  }, [debouncedTerm]);
+
+  const visibleImages = useMemo(() => filteredImages.slice(0, visibleCount), [filteredImages, visibleCount]);
+  const hasMore = visibleCount < filteredImages.length;
+
+  useEffect(() => {
+    if (!hasMore) return;
+    const node = sentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((c) => c + PAGE_SIZE);
+        }
+      },
+      { rootMargin: '600px' }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMore, filteredImages.length]);
+
 
   if (prompts.length === 0) {
     return (
@@ -99,7 +132,7 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
       </div>
 
       <div className="text-xs text-muted-foreground">
-        {filteredImages.length} de {prompts.length} {prompts.length === 1 ? 'imagem' : 'imagens'}
+        Mostrando {visibleImages.length} de {filteredImages.length} ({prompts.length} no acervo)
         {debouncedTerm && ` • busca: "${debouncedTerm}"`}
       </div>
 
@@ -109,8 +142,8 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
           <p className="text-sm text-muted-foreground mt-1">Tente outro termo de busca</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 transition-opacity">
-          {filteredImages.map((p) => {
+        <div className={cn('grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 transition-opacity', gridClassName)}>
+          {visibleImages.map((p) => {
         const isSelected = selectedSet.has(p.id);
         const disabled = !isSelected && selectedIds.length >= maxItems;
         return (
@@ -127,14 +160,16 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
           >
             {p.image_url ? (
               <img
-                src={p.image_url}
+                src={thumb(p.image_url) || undefined}
                 alt={p.title}
                 loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).style.display = 'none';
                 }}
               />
+
             ) : (
               <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground p-2 text-center">
                 {p.title}
@@ -176,6 +211,13 @@ export function PortfolioImageGrid({ prompts, selectedIds, onToggle, maxItems = 
       })}
         </div>
       )}
+
+      {hasMore && (
+        <div ref={sentinelRef} className="py-6 text-center text-xs text-muted-foreground">
+          Carregando mais imagens…
+        </div>
+      )}
+
       {expandedImage?.image_url && (
         <div
           role="dialog"

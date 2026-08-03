@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Save, Copy, Eye, AlertCircle, Instagram, Twitter, Youtube, Globe, MessageCircle } from 'lucide-react';
+import { Loader2, Save, Copy, Eye, AlertCircle, Instagram, Twitter, Youtube, Globe, MessageCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { usePortfolio } from '@/hooks/usePortfolio';
@@ -94,6 +94,13 @@ export default function Portfolio() {
     if (coverId === id) setCoverId(null);
   };
 
+  const handleClearSelection = () => {
+    setSelectedIds([]);
+    setCoverId(null);
+    toast.success('Seleção limpa. Salve para aplicar no portfólio público.');
+  };
+
+
   const handleSaveUsername = async () => {
     if (!user) return;
     const clean = slugify(usernameInput);
@@ -121,10 +128,6 @@ export default function Portfolio() {
   };
 
   const handleSave = async () => {
-    if (selectedIds.length === 0) {
-      toast.error('Selecione pelo menos 1 imagem.');
-      return;
-    }
     await savePortfolio(selectedIds, {
       title: title || null,
       about: about || null,
@@ -234,7 +237,7 @@ export default function Portfolio() {
             onLogout={signOut}
           />
 
-          <main className="pt-20 pb-24 container mx-auto px-4 max-w-5xl">
+          <main className="pt-20 pb-24 container mx-auto px-4 max-w-7xl">
             <header className="mb-8">
               <h1 className="font-display text-4xl md:text-5xl tracking-wider mb-2">MEU PORTFÓLIO</h1>
               <p className="text-muted-foreground">
@@ -275,39 +278,53 @@ export default function Portfolio() {
                 {/* Ensaios prontos (templates reutilizáveis) */}
                 <CollectionsPanel userId={user?.id} username={username} prompts={userPrompts} />
 
-                {/* Step 1: Select images */}
-                <section className="mb-10">
-                  <h2 className="font-display text-2xl tracking-wider mb-1">1. ESCOLHA AS IMAGENS</h2>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Selecione até 40 imagens aprovadas do acervo. {selectedIds.length}/40 selecionadas.
-                  </p>
-                  <PortfolioImageGrid
-                    prompts={userPrompts}
-                    selectedIds={selectedIds}
-                    onToggle={handleToggleSelect}
-                  />
-                </section>
-
-                {/* Step 2: Order & cover */}
-                {selectedIds.length > 0 && (
-                  <section className="mb-10">
-                    <h2 className="font-display text-2xl tracking-wider mb-1">2. ORGANIZE</h2>
+                {/* Steps 1 & 2 side by side: gallery + live preview */}
+                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] gap-6 mb-10 items-start">
+                  <section>
+                    <h2 className="font-display text-2xl tracking-wider mb-1">1. ESCOLHA AS IMAGENS</h2>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Arraste para reordenar. Clique na estrela para definir a capa com uma imagem do acervo.
+                      Selecione até 40 imagens aprovadas do acervo. {selectedIds.length}/40 selecionadas.
                     </p>
-                    <PortfolioSortableList
+                    <PortfolioImageGrid
                       prompts={userPrompts}
-                      orderedIds={selectedIds}
-                      coverPromptId={coverId}
-                      onReorder={setSelectedIds}
-                      onRemove={handleRemove}
-                      onSetCover={(id) => {
-                        setCoverId(id);
-                        setCoverImageUrl(null);
-                      }}
+                      selectedIds={selectedIds}
+                      onToggle={handleToggleSelect}
                     />
                   </section>
-                )}
+
+                  <section className="lg:sticky lg:top-24 rounded-xl border border-border bg-card p-4">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <h2 className="font-display text-2xl tracking-wider">2. PREVIEW</h2>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleClearSelection}
+                        disabled={selectedIds.length === 0}
+                        className="gap-1 h-8 text-xs"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Limpar tudo
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {selectedIds.length} imagem(ns) no portfólio. Arraste para reordenar, estrela define a capa, X remove.
+                    </p>
+                    <div className="max-h-[70vh] overflow-y-auto pr-1">
+                      <PortfolioSortableList
+                        prompts={userPrompts}
+                        orderedIds={selectedIds}
+                        coverPromptId={coverId}
+                        onReorder={setSelectedIds}
+                        onRemove={handleRemove}
+                        onSetCover={(id) => {
+                          setCoverId(id);
+                          setCoverImageUrl(null);
+                        }}
+                      />
+                    </div>
+                  </section>
+                </div>
+
 
                 {/* Step 3: Meta */}
                 <section className="mb-10 space-y-4">
